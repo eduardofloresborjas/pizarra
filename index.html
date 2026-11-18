@@ -125,6 +125,22 @@ body.touch #float .btn{height:40px}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 14px;border-radius:6px;max-width:min(92vw,560px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
 #toast.show{opacity:1}
 
+#lock{position:fixed;inset:0;z-index:70;background:var(--bg);display:grid;place-items:center;padding:16px}
+#lock .box{width:min(340px,100%);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+#lock h1{font:600 22px/1.2 var(--f-display);margin:0}
+#lock p{margin:0;color:var(--muted)}
+#pin-dots{display:flex;gap:12px;height:20px;align-items:center}
+#pin-dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--muted)}
+#pin-dots i.on{background:var(--accent);border-color:var(--accent)}
+#pin-input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.keypad{display:grid;grid-template-columns:repeat(3,68px);gap:12px}
+.keypad button{height:68px;border-radius:50%;border:1px solid var(--line);background:var(--panel);font:500 24px/1 var(--f-body)}
+.keypad button:hover{background:var(--hover)}
+.keypad button.small{font-size:14px;border-color:transparent;background:none}
+#pin-msg{min-height:20px;color:var(--warn);font-size:13px}
+#lock.shake .box{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){#lock.shake .box{animation:none}}
 .modal{position:fixed;inset:0;z-index:50;background:rgba(10,16,22,.55);display:grid;place-items:center;padding:16px;overflow-y:auto}
 .sheet{background:var(--panel);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:min(1120px,100%);max-height:calc(100% - 8px);overflow-y:auto;padding:24px 26px;display:flex;flex-direction:column;gap:18px}
 .sheet.small{width:min(440px,100%);gap:14px}
@@ -317,6 +333,18 @@ body.touch #float .btn{height:40px}
     </aside>
   </div>
   <div id="toast" role="status" aria-live="polite"></div>
+</div>
+
+<div id="lock" hidden role="dialog" aria-modal="true" aria-labelledby="lock-title">
+  <div class="box">
+    <h1 id="lock-title">Pizarra de Apuntes</h1>
+    <p>Escribe tu PIN para entrar</p>
+    <div id="pin-dots" aria-hidden="true"></div>
+    <input id="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="PIN">
+    <div class="keypad" id="keypad"></div>
+    <label class="check"><input type="checkbox" id="pin-remember" checked> Recordar este dispositivo</label>
+    <div id="pin-msg" role="alert"></div>
+  </div>
 </div>
 
 <div class="modal" id="setup" hidden role="dialog" aria-modal="true" aria-labelledby="setup-title">
@@ -1889,8 +1917,65 @@ function toast(msg, ms) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), ms || 4500);
 }
 
+/* ---------- PIN de entrada ---------- */
+const PIN_HASH = '__PIN_HASH__', PIN_LEN = __PIN_LEN__, PIN_SALT = 'pizarra-eduardo-v1', PIN_KEY = 'pizarra-pin-ok';
+async function pinHash(pin) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc.encode(PIN_SALT), iterations: 200000, hash: 'SHA-256' }, key, 256);
+  return [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+function unlock() {
+  if (!PIN_HASH || PIN_HASH.startsWith('__')) return Promise.resolve();
+  try { if (localStorage.getItem(PIN_KEY) === PIN_HASH) return Promise.resolve(); } catch (e) {}
+  return new Promise(resolve => {
+    const lock = $('lock'), inp = $('pin-input'), dots = $('pin-dots'), msg = $('pin-msg');
+    let fails = 0, waitUntil = 0, checking = false;
+    for (let i = 0; i < PIN_LEN; i++) dots.appendChild(document.createElement('i'));
+    const show = () => [...dots.children].forEach((d, i) => d.classList.toggle('on', i < inp.value.length));
+    const check = async () => {
+      if (checking || inp.value.length < PIN_LEN) return;
+      if (Date.now() < waitUntil) { msg.textContent = `Demasiados intentos. Espera ${Math.ceil((waitUntil - Date.now()) / 1000)} segundos.`; inp.value = ''; show(); return; }
+      checking = true;
+      let ok = false;
+      try { ok = (await pinHash(inp.value)) === PIN_HASH; }
+      catch (e) { msg.textContent = 'Este navegador no puede comprobar el PIN. Abre la página desde su enlace https.'; checking = false; return; }
+      checking = false;
+      if (ok) {
+        try { if ($('pin-remember').checked) localStorage.setItem(PIN_KEY, PIN_HASH); } catch (e) {}
+        lock.hidden = true; resolve(); return;
+      }
+      fails++; inp.value = ''; show();
+      lock.classList.remove('shake'); void lock.offsetWidth; lock.classList.add('shake');
+      if (fails >= 5) { waitUntil = Date.now() + 30000; fails = 0; msg.textContent = 'PIN incorrecto 5 veces. Espera 30 segundos.'; }
+      else msg.textContent = 'PIN incorrecto. Inténtalo de nuevo.';
+    };
+    const press = k => {
+      if (k === 'del') inp.value = inp.value.slice(0, -1);
+      else if (k === 'clr') inp.value = '';
+      else if (inp.value.length < PIN_LEN) inp.value += k;
+      show(); check();
+    };
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clr', '0', 'del'].forEach(k => {
+      const b = document.createElement('button'); b.type = 'button';
+      b.textContent = k === 'del' ? '⌫' : k === 'clr' ? 'Borrar' : k;
+      if (k === 'del' || k === 'clr') { b.className = 'small'; b.setAttribute('aria-label', k === 'del' ? 'Borrar un número' : 'Borrar todo'); }
+      b.onclick = () => press(k);
+      $('keypad').appendChild(b);
+    });
+    window.addEventListener('keydown', function onKey(e) {
+      if (lock.hidden) { window.removeEventListener('keydown', onKey, true); return; }
+      e.stopPropagation();
+      if (/^[0-9]$/.test(e.key)) { e.preventDefault(); press(e.key); }
+      else if (e.key === 'Backspace') { e.preventDefault(); press('del'); }
+    }, true);
+    lock.hidden = false;
+  });
+}
+
 /* ---------- inicio ---------- */
 async function init() {
+  await unlock();
   buildSetup();
   try { const d = JSON.parse(localStorage.getItem(NAMES_KEY) || 'null'); if (d) { $('names').value = d.text || ''; $('norepeat').checked = d.norepeat !== false; } } catch (e) {}
   let saved = null;

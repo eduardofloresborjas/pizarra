@@ -218,6 +218,7 @@ body.touch #float .btn{height:40px}
 
   <div class="opts">
     <div class="group" id="swatches"><span class="lbl">Color</span></div>
+    <div class="group" id="hl-swatches" hidden><span class="lbl">Resaltador</span></div>
     <input type="color" id="color-custom" value="#d81b8c" title="Otro color" aria-label="Otro color">
     <div class="group">
       <label class="lbl" for="width">Grosor</label>
@@ -366,7 +367,7 @@ const FORMATS = {
   wide: { W: 1600, H: 900, U: 40, label: 'Pantalla 16:9', note: 'Clases por Zoom', ar: '16/9' }
 };
 const FONT_GROUPS = [
-  ['Imprenta clara', ['patrick', 'playpen', 'shantell', 'kalam', 'delius', 'comic', 'handlee', 'architects']],
+  ['Imprenta clara', ['shantell', 'patrick', 'playpen', 'kalam', 'delius', 'comic', 'handlee', 'architects']],
   ['Casual y rápida', ['caveat', 'shadows', 'indie', 'gochi', 'gloria', 'schoolbell', 'reenie', 'covered', 'justhand', 'nanum']],
   ['Cursiva escolar', ['pwpe', 'pwes', 'pwmx', 'homemade']],
   ['Sin estilo a mano', ['plex']]
@@ -380,7 +381,7 @@ const FONTS = {
   pwpe: ['Playwrite PE', 1, 'Playwrite Perú'], pwes: ['Playwrite ES', 1, 'Playwrite España'], pwmx: ['Playwrite MX', 1, 'Playwrite México'],
   homemade: ['Homemade Apple', 1], plex: ['IBM Plex Sans', 0, 'Letra normal']
 };
-const FEATURED = ['patrick', 'playpen', 'shantell', 'kalam', 'caveat', 'pwpe'];
+const FEATURED = ['shantell', 'patrick', 'playpen', 'kalam', 'caveat', 'pwpe'];
 const fontCss = f => `"${(FONTS[f] || FONTS.plex)[0]}", system-ui, sans-serif`;
 const fontLabel = f => (FONTS[f] || FONTS.plex)[2] || (FONTS[f] || FONTS.plex)[0];
 const DEVICES = {
@@ -398,6 +399,8 @@ const BOARDS = {
   black: { fill: '#14171c', ink: '#f1f1ee', dark: true }
 };
 const INKS = { red: ['#d92d20', '#ff8a7a'], blue: ['#1d5fd1', '#8ec1ff'], green: ['#12805c', '#7be0b0'], orange: ['#e8730c', '#ffb75e'], purple: ['#7a3fd1', '#c9a6ff'] };
+const HL = { yellow: ['#ffd400', '#ffe14d'], green: ['#5ee36a', '#7df08a'], pink: ['#ff6fb5', '#ff8cc6'], blue: ['#4cc9ff', '#7dd9ff'], orange: ['#ff9f1a', '#ffb54d'], purple: ['#b98cff', '#cbaaff'] };
+const HL_NAMES = { yellow: 'Amarillo', green: 'Verde', pink: 'Rosa', blue: 'Celeste', orange: 'Naranja', purple: 'Lila' };
 const COLOR_NAMES = { ink: 'Tinta', blue: 'Azul', red: 'Rojo', green: 'Verde', orange: 'Naranja', purple: 'Morado' };
 const TOOLS = [
   { id: 'select', key: 'V', label: 'Seleccionar y mover', icon: '<path d="M5 3l14 8-6 2-2 6z"/>' },
@@ -418,6 +421,7 @@ const SYMBOLS = '• ✓ ✗ → ← ↑ ↓ ⇒ ⇔ ★ ¿ ¡ « » ° % € π
 /* ---------- estado ---------- */
 let prefs = loadPrefs();
 let doc = null, W = 840, H = 1188, U = 24, OX = 432, OY = 600;
+let hlColor = 'yellow', holdT = 0, holdAnchor = null;
 let tool = 'pen', at = 'pen', color = 'ink', width = 3, snapOn = false, sel = -1;
 let cur = null, curTs = null, drag = null, erasing = null, ed = null, cropping = null, cropRect = null, eraserPos = null;
 let dirty = true, paintQueued = false;
@@ -429,7 +433,7 @@ const mctx = document.createElement('canvas').getContext('2d');
 const ta = $('ed');
 const pg = () => doc.pages[doc.cur];
 const isDark = () => BOARDS[doc.board].dark;
-const resolve = c => c === 'ink' ? BOARDS[doc.board].ink : INKS[c] ? INKS[c][isDark() ? 1 : 0] : c;
+const resolve = c => typeof c === 'string' && c.startsWith('hl:') ? (HL[c.slice(3)] ? HL[c.slice(3)][isDark() ? 1 : 0] : c.slice(3)) : c === 'ink' ? BOARDS[doc.board].ink : INKS[c] ? INKS[c][isDark() ? 1 : 0] : c;
 const touchUI = () => prefs.device !== 'mouse';
 const fingerDraws = () => prefs.device === 'finger' || (DEVICES[prefs.device].pen && prefs.fingerDraw);
 
@@ -441,8 +445,8 @@ function guessDevice() {
   return 'mouse';
 }
 function loadPrefs() {
-  const d = { format: 'a4p', device: guessDevice(), font: 'patrick', bg: 'lines', fingerDraw: false };
-  try { const p = Object.assign(d, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); if (!DEVICES[p.device]) p.device = d.device; if (!FONTS[p.font]) p.font = 'patrick'; return p; } catch (e) { return d; }
+  const d = { format: 'a4p', device: guessDevice(), font: 'shantell', bg: 'lines', fingerDraw: false };
+  try { const p = Object.assign(d, JSON.parse(localStorage.getItem(PREF_KEY) || '{}')); if (!DEVICES[p.device]) p.device = d.device; if (!FONTS[p.font]) p.font = 'shantell'; return p; } catch (e) { return d; }
 }
 function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) {} }
 
@@ -575,7 +579,7 @@ function drawObj(c, o) {
   c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 1;
   if (o.t === 'pen') {
     const p = o.pts;
-    if (o.a) c.globalAlpha = o.a;
+    if (o.a) { c.globalAlpha = o.a; if (!isDark()) c.globalCompositeOperation = 'multiply'; }
     if (p.length === 1) { c.beginPath(); c.arc(p[0][0], p[0][1], o.w * (p[0][2] || 1) / 2, 0, 7); c.fill(); }
     else if (!o.pr) {
       c.beginPath(); c.moveTo(p[0][0], p[0][1]);
@@ -794,8 +798,9 @@ function setTool(t) {
   document.querySelectorAll('.tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === t)));
   updateCursor();
   $('symbols').hidden = t !== 'text';
+  updateUI();
   if (t === 'laser') startLaser(); else stopLaser();
-  setStatus(t === 'smart' ? 'Escritura inteligente: escribe y espera un segundo. Se convierte en letra ' + fontLabel(prefs.font) + '. Necesita internet.' : '');
+  setStatus(t === 'hl' ? 'Resaltador: al terminar, mantén el lápiz quieto medio segundo y la línea se endereza.' : t === 'smart' ? 'Escritura inteligente: escribe y espera un segundo. Se convierte en letra ' + fontLabel(prefs.font) + '. Necesita internet.' : '');
   requestPaint();
 }
 function updateCursor() {
@@ -811,6 +816,20 @@ function snapPt(p) {
 const clone = o => JSON.parse(JSON.stringify(o));
 const pm = (e, prev) => { const m = .35 + 1.3 * clamp(e.pressure || .5, 0, 1); return Math.round((prev == null ? m : prev * .55 + m * .45) * 100) / 100; };
 const eraseRadius = () => (8 + width * 1.5) / cam.s;
+function straightEnd(a, p) {
+  const ang = Math.atan2(p.y - a[1], p.x - a[0]) * 180 / Math.PI;
+  const flat = Math.abs(ang) < 12 || Math.abs(ang) > 168;
+  return [r1(p.x), r1(flat ? a[1] : p.y)];
+}
+function straighten() {
+  if (!cur || !cur.hl || cur.straight || drawId === null) return;
+  const a = cur.pts[0], b = cur.pts[cur.pts.length - 1];
+  if (Math.hypot(b[0] - a[0], b[1] - a[1]) < 12 / cam.s) return;
+  cur.pts = [[a[0], a[1]], straightEnd(a, { x: b[0], y: b[1] })];
+  delete cur.pr; cur.straight = 1;
+  try { navigator.vibrate && navigator.vibrate(8); } catch (e) {}
+  requestPaint();
+}
 
 function moveObj(o, src, dx, dy) {
   if (o.t === 'pen') o.pts = src.pts.map(p => { const q = p.slice(); q[0] = r1(p[0] + dx); q[1] = r1(p[1] + dy); return q; });
@@ -939,7 +958,7 @@ function begin(p, e, t) {
     const pr = t !== 'hl' && e.pointerType === 'pen';
     cur = { t: 'pen', pts: [pr ? [r1(p.x), r1(p.y), pm(e)] : [r1(p.x), r1(p.y)]], c: color, w: t === 'hl' ? width * 4 + 6 : width };
     if (pr) cur.pr = 1;
-    if (t === 'hl') cur.a = .35;
+    if (t === 'hl') { cur.a = .45; cur.hl = 1; cur.c = 'hl:' + hlColor; holdAnchor = screenPt(e); clearTimeout(holdT); holdT = setTimeout(straighten, 500); }
     if (t === 'smart') curTs = [e.timeStamp];
   } else if (['line', 'arrow', 'rect', 'ellipse'].includes(t)) {
     const s = snapPt(p);
@@ -963,6 +982,11 @@ function begin(p, e, t) {
   requestPaint();
 }
 function move(p, e) {
+  if (cur && cur.hl) {
+    const sp = screenPt(e);
+    if (cur.straight) { cur.pts[1] = straightEnd(cur.pts[0], p); requestPaint(); return; }
+    if (!holdAnchor || Math.hypot(sp.x - holdAnchor.x, sp.y - holdAnchor.y) > 4) { holdAnchor = sp; clearTimeout(holdT); holdT = setTimeout(straighten, 500); }
+  }
   if (cur && cur.t === 'pen') {
     const evs = (e.getCoalescedEvents && e.getCoalescedEvents()) || [];
     for (const ev of (evs.length ? evs : [e])) {
@@ -996,7 +1020,9 @@ function move(p, e) {
   }
 }
 function end(cancelled) {
+  clearTimeout(holdT); holdAnchor = null;
   if (cur) {
+    if (cur.hl) { delete cur.hl; delete cur.straight; }
     const o = cur; cur = null;
     if (cancelled) { curTs = null; requestPaint(); return; }
     if (at === 'smart') { o.ts = curTs; curTs = null; pend.strokes.push(o); pend.page = doc.cur; scheduleSmart(); requestPaint(); return; }
@@ -1006,7 +1032,7 @@ function end(cancelled) {
   if (erasing) { if (erasing.any) pushUndo(pg(), erasing.before); erasing = null; if (touchUI()) eraserPos = null; requestPaint(); }
   if (cropRect) { applyCrop(); return; }
   if (drag) { if (drag.moved) pushUndo(pg(), drag.before); drag = null; }
-  if (at === 'select') { if (pg().objs[sel]) showSelFloat(); requestPaint(); }
+  if (at === 'select') { if (pg().objs[sel]) showSelFloat(); updateUI(); requestPaint(); }
   if (at === 'laser' && touchUI()) laser.on = false;
 }
 
@@ -1362,7 +1388,11 @@ function updateUI() {
   $('bg').value = p.bg; $('board-color').value = doc.board; $('font').value = prefs.font; $('device').value = prefs.device;
   $('finger-wrap').hidden = !DEVICES[prefs.device].pen; $('finger-draw').checked = !!prefs.fingerDraw;
   document.body.classList.toggle('touch', touchUI());
-  document.querySelectorAll('.sw').forEach(b => { b.style.background = resolve(b.dataset.color); b.setAttribute('aria-pressed', String(b.dataset.color === color)); });
+  const hm = hlMode(), so = selObj();
+  $('swatches').hidden = hm; $('hl-swatches').hidden = !hm;
+  const curHl = so && so.a ? String(so.c).replace('hl:', '') : hlColor;
+  document.querySelectorAll('.sw:not(.hlsw)').forEach(b => { b.style.background = resolve(b.dataset.color); b.setAttribute('aria-pressed', String(b.dataset.color === color)); });
+  document.querySelectorAll('.hlsw').forEach(b => { b.style.background = resolve('hl:' + b.dataset.hl); b.setAttribute('aria-pressed', String(b.dataset.hl === curHl)); });
 }
 
 /* ---------- opciones ---------- */
@@ -1401,7 +1431,23 @@ SYMBOLS.forEach(s => {
   });
   $('symbols').appendChild(b);
 });
+Object.keys(HL).forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'sw hlsw'; b.type = 'button'; b.dataset.hl = c; b.id = 'hl-' + c;
+  b.title = 'Resaltador ' + HL_NAMES[c].toLowerCase(); b.setAttribute('aria-label', b.title);
+  b.onclick = () => setHl(c);
+  $('hl-swatches').appendChild(b);
+});
+const selObj = () => tool === 'select' ? pg().objs[sel] : null;
+const hlMode = () => tool === 'hl' || !!(selObj() && selObj().a);
+function setHl(c) {
+  hlColor = c;
+  const o = selObj();
+  if (o && o.a && o.c !== 'hl:' + c) mutate(() => { o.c = 'hl:' + c; });
+  updateUI();
+}
 function setColor(c) {
+  if (hlMode()) { setHl(c); return; }
   color = c;
   if (ed) { ed.c = c; ta.style.color = resolve(c); }
   const o = tool === 'select' && pg().objs[sel];

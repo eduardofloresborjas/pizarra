@@ -126,7 +126,7 @@ body.touch #float .btn{height:40px}
 #toast.show{opacity:1}
 
 .modal{position:fixed;inset:0;z-index:50;background:rgba(10,16,22,.55);display:grid;place-items:center;padding:16px;overflow-y:auto}
-.sheet{background:var(--panel);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:min(860px,100%);max-height:calc(100% - 8px);overflow-y:auto;padding:24px 26px;display:flex;flex-direction:column;gap:18px}
+.sheet{background:var(--panel);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:min(1120px,100%);max-height:calc(100% - 8px);overflow-y:auto;padding:24px 26px;display:flex;flex-direction:column;gap:18px}
 .sheet.small{width:min(440px,100%);gap:14px}
 .sheet h1{font:600 24px/1.15 var(--f-display);margin:0;text-wrap:balance}
 .sheet .sub{margin:4px 0 0;color:var(--muted)}
@@ -148,6 +148,16 @@ body.touch #float .btn{height:40px}
 .pills{display:flex;flex-wrap:wrap;gap:6px}
 .pills .opt{flex-direction:row;align-items:center;padding:8px 14px}
 .warn{margin:0;padding:10px 12px;border-radius:8px;border:1px solid var(--warn);color:var(--warn);font-size:13px}
+.setup-body{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}
+.setup-qs{display:flex;flex-direction:column;gap:18px;min-width:0}
+.preview{position:sticky;top:0;display:flex;flex-direction:column;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px}
+.preview h3{font:600 15px/1.2 var(--f-body);margin:0;display:flex;justify-content:space-between;align-items:center}
+.preview h3 span{font:500 11px/1 var(--f-body);color:var(--accent);border:1px solid var(--accent);border-radius:10px;padding:3px 7px}
+.preview-box{height:290px;display:grid;place-items:center}
+#preview-zoom{display:block;width:100%;border-radius:6px;border:1px solid var(--line)}
+#preview{display:block;box-shadow:0 2px 10px rgba(0,0,0,.18);border-radius:2px}
+#preview-cap{margin:0;font-size:12px;color:var(--muted);line-height:1.45}
+@media (max-width:900px){.setup-body{grid-template-columns:1fr}.preview{position:static;order:2}.preview-box{height:260px}}
 .actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
 .actions .btn{height:42px;padding:0 18px;font-size:15px}
 .linkbtn{border:0;background:none;color:var(--accent);padding:4px 0;text-decoration:underline;text-underline-offset:2px;align-self:flex-start}
@@ -315,6 +325,8 @@ body.touch #float .btn{height:40px}
       <h1 id="setup-title">Prepara tu cuaderno</h1>
       <p class="sub">Elige la hoja y cómo vas a escribir. El dispositivo y la letra los puedes cambiar después.</p>
     </div>
+    <div class="setup-body">
+    <div class="setup-qs">
     <div class="q">
       <h3>1. ¿Cómo quieres la hoja?</h3>
       <div class="cards" role="radiogroup" aria-label="Hoja" data-group="format"></div>
@@ -332,6 +344,19 @@ body.touch #float .btn{height:40px}
     <div class="q">
       <h3>4. Fondo de la hoja</h3>
       <div class="pills" role="radiogroup" aria-label="Fondo" data-group="bg"></div>
+    </div>
+    <div class="q">
+      <h3>5. Papel</h3>
+      <div class="pills" role="radiogroup" aria-label="Papel" data-group="board"></div>
+    </div>
+    </div>
+    <aside class="preview" aria-label="Vista previa">
+      <h3>Vista previa <span>se actualiza al elegir</span></h3>
+      <div class="preview-box" id="preview-box"><canvas id="preview" role="img" aria-label="Ejemplo de hoja con tus elecciones"></canvas></div>
+      <p class="lbl" style="margin:2px 0 0">De cerca</p>
+      <canvas id="preview-zoom" role="img" aria-label="Detalle de la letra elegida"></canvas>
+      <p id="preview-cap"></p>
+    </aside>
     </div>
     <p class="warn" id="setup-warn" hidden></p>
     <div class="actions">
@@ -398,6 +423,7 @@ const BOARDS = {
   green: { fill: '#1f4d3a', ink: '#f3f0e4', dark: true },
   black: { fill: '#14171c', ink: '#f1f1ee', dark: true }
 };
+const BOARD_NAMES = { white: 'Blanco', cream: 'Crema', green: 'Pizarra verde', black: 'Pizarra negra' };
 const INKS = { red: ['#d92d20', '#ff8a7a'], blue: ['#1d5fd1', '#8ec1ff'], green: ['#12805c', '#7be0b0'], orange: ['#e8730c', '#ffb75e'], purple: ['#7a3fd1', '#c9a6ff'] };
 const HL = { yellow: ['#ffd400', '#ffe14d'], green: ['#5ee36a', '#7df08a'], pink: ['#ff6fb5', '#ff8cc6'], blue: ['#4cc9ff', '#7dd9ff'], orange: ['#ff9f1a', '#ffb54d'], purple: ['#b98cff', '#cbaaff'] };
 const HL_NAMES = { yellow: 'Amarillo', green: 'Verde', pink: 'Rosa', blue: 'Celeste', orange: 'Naranja', purple: 'Lila' };
@@ -451,7 +477,7 @@ function loadPrefs() {
 function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) {} }
 
 const newPage = bg => ({ bg: bg || 'lines', objs: [], undo: [], redo: [] });
-function newDoc(p) { return { v: 2, format: p.format, board: 'white', cur: 0, pages: [newPage(p.bg)], images: {} }; }
+function newDoc(p) { return { v: 2, format: p.format, board: BOARDS[p.board] ? p.board : 'white', cur: 0, pages: [newPage(p.bg)], images: {} }; }
 function applyFormat() {
   const f = FORMATS[doc.format] || FORMATS.wide;
   W = f.W; H = f.H; U = f.U; OX = Math.round(W / 2 / U) * U; OY = Math.round(H / 2 / U) * U;
@@ -1610,6 +1636,8 @@ function buildSetup() {
   Object.entries(FORMATS).forEach(([k, f]) => fg.appendChild(optButton('format', k, `<span class="paper"><span style="aspect-ratio:${f.ar}"></span></span><b>${f.label}</b><small>${f.note}</small>`)));
   const dg = document.querySelector('[data-group="device"]');
   Object.entries(DEVICES).forEach(([k, d]) => dg.appendChild(optButton('device', k, `<b>${d.label}</b>`)));
+  const boG = document.querySelector('[data-group="board"]');
+  Object.entries(BOARD_NAMES).forEach(([k, v]) => boG.appendChild(optButton('board', k, `<span style="display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #9aa6b4;background:${BOARDS[k].fill}"></span>${v}`)));
   const bgG = document.querySelector('[data-group="bg"]');
   Object.entries(BGS).forEach(([k, v]) => bgG.appendChild(optButton('bg', k, v)));
   const box = $('font-groups');
@@ -1639,18 +1667,97 @@ function markSetup() {
   $('font-groups').classList.toggle('flat', !showAllFonts);
   $('more-fonts').textContent = showAllFonts ? 'Ver solo los recomendados' : 'Ver los 22 estilos';
   $('device-hint').textContent = DEVICES[choice.device].hint;
+  renderPreview();
+}
+/* vista previa: dibuja una hoja de ejemplo con las elecciones actuales */
+let previewTok = 0;
+function renderPreview() {
+  const tok = ++previewTok, f = choice.font;
+  const draw = () => { if (tok === previewTok && !$('setup').hidden) drawPreview(); };
+  draw();
+  if (document.fonts && document.fonts.load) document.fonts.load(`40px ${fontCss(f)}`).then(draw).catch(() => {});
+}
+function drawPreview() {
+  const F = FORMATS[choice.format], box = $('preview-box').getBoundingClientRect();
+  const bw = Math.max(160, box.width - 8), bh = Math.max(160, box.height - 8);
+  const sc = Math.min(bw / F.W, bh / F.H), cw = Math.round(F.W * sc), ch = Math.round(F.H * sc), pr = window.devicePixelRatio || 1;
+  const c = $('preview'); c.style.width = cw + 'px'; c.style.height = ch + 'px'; c.width = Math.round(cw * pr); c.height = Math.round(ch * pr);
+  const x = c.getContext('2d');
+  // usar temporalmente el formato y papel elegidos
+  const saved = { W, H, U, OX, OY, board: doc.board };
+  W = F.W; H = F.H; U = F.U; OX = Math.round(W / 2 / U) * U; OY = Math.round(H / 2 / U) * U; doc.board = choice.board;
+  try {
+    x.setTransform(sc * pr, 0, 0, sc * pr, 0, 0);
+    const page = { bg: choice.bg, objs: sampleObjs(choice.bg, choice.font) };
+    render(x, page, false);
+    // detalle ampliado de la zona escrita
+    const z = $('preview-zoom'), zw = Math.max(160, z.parentElement.clientWidth - 28), zh = Math.round(zw * .42);
+    const reg = previewRegion(choice.bg), zs = zw / reg.w;
+    z.style.height = zh + 'px'; z.width = Math.round(zw * pr); z.height = Math.round(zh * pr);
+    const zx = z.getContext('2d');
+    zx.setTransform(zs * pr, 0, 0, zs * pr, -reg.x * zs * pr, -reg.y * zs * pr);
+    render(zx, page, false);
+  } finally { W = saved.W; H = saved.H; U = saved.U; OX = saved.OX; OY = saved.OY; doc.board = saved.board; }
+  $('preview-cap').textContent = `${F.label} · ${BGS[choice.bg]} · ${BOARD_NAMES[choice.board]} · letra ${fontLabel(choice.font)} · ${DEVICES[choice.device].label}`;
+}
+function previewRegion(bg) {
+  const L = Math.round(U * 1.34);
+  if (bg === 'cartesian') { const w = U * 13; return { x: U * .4, y: U * .2, w }; }
+  const left = bg === 'cornell' ? Math.round(W * .3) + 16 : bg === 'lines' ? U * 3 + 14 : U * 2;
+  const top = bg === 'lines' || bg === 'cornell' ? L * 3 : U * 3;
+  const w = Math.min(W - left + 10, L * 13);
+  return { x: (bg === 'cornell' ? 4 : left - 14), y: top - L * 1.3, w: bg === 'cornell' ? Math.min(W, w + left) : w };
+}
+function sampleObjs(bg, f) {
+  const L = Math.round(U * 1.34), wide = W > H * 1.2;
+  const left = bg === 'cornell' ? Math.round(W * .3) + 16 : bg === 'lines' ? U * 3 + 14 : U * 2;
+  const top = bg === 'lines' || bg === 'cornell' ? L * 3 : U * 3;
+  const size = bg === 'lines' || bg === 'cornell' ? L * .78 : U * (wide ? .8 : 1);
+  const row = bg === 'lines' || bg === 'cornell' ? L : Math.round(size * 1.35);
+  const T = (text, i, c, k, xx) => ({ t: 'text', x: xx == null ? left : xx, y: top + row * i - size * .98, text, c, size: size * (k || 1), f });
+  const objs = [];
+  if (bg === 'cartesian') {
+    objs.push({ t: 'text', x: U, y: U * .6, text: 'Función cuadrática', c: 'blue', size: U * 1.1, f });
+    objs.push({ t: 'text', x: U, y: U * 2, text: 'f(x) = x² − 4', c: 'ink', size: U * .9, f });
+    const pts = []; for (let i = -3; i <= 3.001; i += .1) pts.push([OX + i * U * 1.6, OY - (i * i - 4) * U * .55 * 1.6 / 1.6]);
+    objs.push({ t: 'pen', pts, c: 'red', w: 3 });
+    setFont(mctx, U * .9, f); objs.push({ t: 'pen', pts: [[U, U * 2.45], [U + mctx.measureText('f(x) = x² − 4').width, U * 2.45]], c: 'hl:yellow', w: U * .85, a: .45 });
+    return objs;
+  }
+  objs.push(T('Biología: la célula', 0, 'blue', 1.25));
+  const lines = ['La célula es la unidad básica de la vida.', 'Partes: membrana, citoplasma y núcleo.', 'El núcleo guarda el ADN.', '¿Qué hace la mitocondria?'];
+  lines.forEach((t, i) => objs.push(T(t, i + 2, 'ink')));
+  if (bg === 'cornell') {
+    objs.push({ t: 'text', x: 16, y: top + row * 2 - size * .98, text: '¿Qué es?', c: 'red', size, f });
+    objs.push({ t: 'text', x: 16, y: top + row * 3 - size * .98, text: 'Partes', c: 'red', size, f });
+  }
+  // resaltado sobre "unidad básica"
+  mctx.textBaseline = 'top'; setFont(mctx, size, f);
+  const pre = mctx.measureText('La célula es la ').width, mid = mctx.measureText('unidad básica').width;
+  const hy = top + row * 2 - size * .42;
+  objs.push({ t: 'pen', pts: [[left + pre, hy], [left + pre + mid, hy]], c: 'hl:yellow', w: size * .95, a: .45 });
+  const pre2 = mctx.measureText('El núcleo guarda el ').width, w2 = mctx.measureText('ADN.').width, hy2 = top + row * 4 - size * .42;
+  objs.push({ t: 'pen', pts: [[left + pre2, hy2], [left + pre2 + w2, hy2]], c: 'hl:pink', w: size * .95, a: .45 });
+  // trazo a mano: subrayado ondulado y flecha
+  const uy = top + row * 0 + size * .45, uw = mctx.measureText('Biología: la célula').width * 1.25;
+  const wave = []; for (let i = 0; i <= 24; i++) wave.push([left + uw * i / 24, uy + Math.sin(i * .9) * 2.5]);
+  objs.push({ t: 'pen', pts: wave, c: 'red', w: 2.5 });
+  const ay = top + row * 5 - size * .45, ax = left + mctx.measureText('¿Qué hace la mitocondria?').width + 14;
+  objs.push({ t: 'arrow', x1: ax, y1: ay, x2: ax + size * 2.4, y2: ay, c: 'green', w: 2.5 });
+  objs.push({ t: 'text', x: ax + size * 2.7, y: ay - size * .55, text: 'energía', c: 'green', size, f });
+  return objs;
 }
 function openSetup() {
-  Object.assign(choice, { format: prefs.format, device: prefs.device, font: prefs.font, bg: prefs.bg });
+  Object.assign(choice, { format: prefs.format, device: prefs.device, font: prefs.font, bg: prefs.bg, board: prefs.board || 'white' });
   const has = hasContent();
   $('setup-continue').hidden = !has;
   if (has) $('setup-continue').textContent = `Seguir con mis apuntes (${doc.pages.length} hoja${doc.pages.length > 1 ? 's' : ''}, ${FORMATS[doc.format].label})`;
   $('setup-warn').hidden = true; $('setup-start').textContent = 'Empezar cuaderno nuevo'; startArmed = false;
-  markSetup(); $('setup').hidden = false;
+  $('setup').hidden = false; markSetup();
   setTimeout(() => (has ? $('setup-continue') : $('setup-start')).focus(), 0);
 }
 function savePrefsFromChoice() {
-  prefs.device = choice.device; prefs.font = choice.font; prefs.format = choice.format; prefs.bg = choice.bg; savePrefs();
+  prefs.device = choice.device; prefs.font = choice.font; prefs.format = choice.format; prefs.bg = choice.bg; prefs.board = choice.board; savePrefs();
 }
 let startArmed = false;
 $('setup-start').onclick = () => {
@@ -1791,7 +1898,7 @@ async function init() {
   if (validDoc(saved)) loadDoc(saved); else loadDoc(newDoc(prefs));
   width = doc.format === 'wide' ? 4 : 3; $('width').value = width; $('width-val').textContent = width;
   new ResizeObserver(resize).observe($('stage'));
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', () => { resize(); if (!$('setup').hidden) renderPreview(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(invalidate);
   resize(); updateUI(); pickCount(); drawTimer(); setTool('pen');
   openSetup();

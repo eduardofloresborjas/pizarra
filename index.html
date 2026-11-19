@@ -1918,7 +1918,7 @@ function toast(msg, ms) {
 }
 
 /* ---------- PIN de entrada ---------- */
-const PIN_HASH = '__PIN_HASH__', PIN_LEN = __PIN_LEN__, PIN_SALT = 'pizarra-eduardo-v1', PIN_KEY = 'pizarra-pin-ok';
+const PIN_HASH = 'a3d91820008246ab02ca12576b049ed30d89b393c8faf077376ee970cc8ac44f', PIN_LEN = 6, PIN_SALT = 'pizarra-eduardo-v1', PIN_KEY = 'pizarra-pin-ok';
 async function pinHash(pin) {
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']);

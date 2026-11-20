@@ -1,7 +1,7 @@
 /* Pizarra de Apuntes: funciona sin internet.
    - La página se pide primero a internet (para recibir siempre la versión nueva) y, si no hay conexión, se usa la copia guardada.
    - Librerías y fuentes se guardan la primera vez que se usan y luego se leen del dispositivo. */
-const VERSION = 'pizarra-v15';
+const VERSION = 'pizarra-v16';
 const CORE = [
   './', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png',
   'lib/jspdf.umd.min.js', 'lib/pdf.min.js', 'lib/pdf.worker.min.js'

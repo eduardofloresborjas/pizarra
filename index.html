@@ -160,6 +160,25 @@ body.ui-l .menu button{padding:11px 14px}body.ui-xl .menu button{padding:14px 16
 .gs-term,.gs-def{border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;background:var(--bg);color:var(--text)}.gs-def{resize:vertical}
 .gs-k{font-size:11px;border-radius:999px;padding:2px 8px;font-weight:600;margin-left:6px}.k-tuyo{background:#e3f5ec;color:#12805c}.k-frase{background:#eef0ff;color:#4f46e5}.k-pdf{background:#fff4e5;color:#b45309}
 .gs-src{font-size:12px;color:var(--muted)}.gs-alt{background:none;border:none;color:var(--accent);cursor:pointer;padding:0;font:inherit;text-decoration:underline}
+#atpick{position:fixed;z-index:60;width:min(340px,calc(100vw - 16px));max-height:300px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.22);padding:4px}
+.at-h{font-size:12px;color:var(--muted);padding:6px 8px;font-weight:600}.at-e{padding:8px;color:var(--muted);font-size:13px}
+.at-it{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;border:none;background:none;color:var(--text);padding:7px 9px;border-radius:7px;cursor:pointer}
+.at-it small{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.at-it.on,.at-it:hover{background:var(--hover)}
+.cu-ask{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#e9f6f7;border:1px solid #9fd3d6;color:#0b4d52;border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.cu-ask span{flex:1;min-width:240px}
+.cu-title{font:600 16px var(--f-body);border:1px solid var(--line);border-radius:8px;padding:7px 10px;width:min(720px,100%);margin-bottom:10px;background:var(--panel);color:var(--text)}
+.cu-prog{display:flex;flex-direction:column;gap:4px;max-width:520px;margin-bottom:10px;font-size:13px;color:var(--muted)}
+.mx.cu{min-width:900px}.mx.cu thead th input{width:100%;background:transparent;border:none;color:inherit;font:inherit;font-weight:600;text-align:center}
+.mx.cu .cu-first{background:var(--bg)}.mx.cu .cu-first textarea{font-weight:700}
+.mx.cu .cu-dom{width:150px}.mx.cu .cu-dom select{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px;background:var(--panel);color:var(--text)}
+.mx.cu .cu-x{width:44px;text-align:center;background:var(--panel)}
+.mx.cu.study td.hid{background:repeating-linear-gradient(45deg,#cfd8e2,#cfd8e2 8px,#dde4eb 8px,#dde4eb 16px);cursor:pointer}
+.mx.cu.study td.hid>*{visibility:hidden}
+.cu-h{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:15px}.cu-h .dot{width:10px;height:10px;border-radius:50%}.cu-h small{color:var(--muted);font-weight:400}
+.cu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;max-width:1000px}
+.cu-card{display:flex;flex-direction:column;gap:4px;text-align:left;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);padding:12px;cursor:pointer}
+.cu-card:hover{border-color:var(--accent)}.cu-card small{color:var(--muted)}.cu-k{font-size:11px;font-weight:700;color:var(--accent)}
+.cu-course{margin:4px 0 14px}.cu-course h3{font-size:14px;margin:0 0 8px}
 .look-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .look-opts .opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
 .look-opts .opt[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
@@ -482,6 +501,8 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="rec-btn">Grabar el audio de la clase</button>
           <button id="hl-summary">Resumen de lo resaltado</button>
           <button id="gl-auto-btn">✨ Crear glosario desde mis apuntes…</button>
+          <button id="cu-apr-btn">📋 Cuadro de aprendizaje de esta sesión</button>
+          <button id="cu-comp-btn">⚖️ Cuadro comparativo de esta sesión…</button>
           <button id="nb-ref">Datos de la lectura (APA 7)…</button>
           <button id="share-btn">🔗 Compartir por enlace…</button>
           <button id="save-png">Guardar esta hoja como imagen PNG</button>
@@ -711,6 +732,15 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
   </div>
 </div>
 
+<div id="atpick" hidden role="listbox" aria-label="Enlazar con una hoja"></div>
+<div class="modal" id="cupick" hidden role="dialog" aria-modal="true" aria-labelledby="cp-title">
+  <div class="sheet small" style="gap:10px">
+    <h1 id="cp-title" style="font-size:19px">⚖️ ¿Qué quieres comparar?</h1>
+    <p class="hint" style="margin:0">Elige de 2 a 5 conceptos que encontré en tus apuntes de esta sesión.</p>
+    <div id="cp-list" style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow:auto"></div>
+    <div class="actions"><button class="btn" id="cp-cancel">Cancelar</button><button class="btn primary" id="cp-ok">Crear cuadro</button></div>
+  </div>
+</div>
 <div class="modal" id="gscan" hidden role="dialog" aria-modal="true" aria-labelledby="gs-title">
   <div class="sheet" style="width:min(760px,100%);gap:12px">
     <h1 id="gs-title" style="font-size:20px">✨ Glosario</h1>
@@ -3415,6 +3445,7 @@ function renderLibrary() {
   side.appendChild(sideItem('🧠 Repaso', v === 'cards', () => setView('cards')));
   side.appendChild(sideItem('📚 Mi bibliografía', v === 'biblio', () => setView('biblio'), liveNbs().filter(n => n.ref && n.ref.title).length));
   side.appendChild(sideItem('📊 Avance y notas', v === 'prog', () => setView('prog')));
+  side.appendChild(sideItem('📋 Cuadros de estudio', v === 'cuadros' || v === 'cuadro', () => setView('cuadros'), (lib.cuadros || []).filter(q => !q.trashed).length || null));
   side.appendChild(sideItem('📖 Glosario', v === 'gloss', () => setView('gloss'), (lib.gloss || []).filter(g => !g.trashed).length || null));
   side.appendChild(sideItem('⏱ Horas de estudio', v === 'study', () => setView('study')));
   side.appendChild(sideItem('🎓 Tesis', v === 'tesis', () => setView('tesis'), liveNbs().filter(n => n.kind === 'tesis').length));
@@ -3439,6 +3470,8 @@ function renderLibrary() {
   if (v === 'matriz') return renderMatrix(main);
   if (v === 'gloss') return renderGloss(main);
   if (v === 'shared') return renderShared(main);
+  if (v === 'cuadros') return renderCuadros(main);
+  if (v === 'cuadro') return renderCuadro(main);
   if (v === 'tags') return renderTags(main);
   if (v === 'cards') return renderCards(main);
   if (v === 'biblio') return renderBiblio(main);
@@ -3993,6 +4026,8 @@ function mergeLib(local, remote) {
   out.ciclos = mergeArr(local.ciclos, remote.ciclos); out.cursos = mergeArr(local.cursos, remote.cursos); out.nbs = mergeArr(local.nbs, remote.nbs); out.tasks = mergeArr(local.tasks, remote.tasks);
   out.deleted = del;
   out.gloss = mergeArr(local.gloss, remote.gloss);
+  out.cuadros = mergeArr(local.cuadros, remote.cuadros);
+  out.cuNo = Object.assign({}, remote.cuNo || {}, local.cuNo || {});
   ['progress', 'matrix'].forEach(k => { if (remote[k] && (!local[k] || (remote[k].mod || 0) > (local[k].mod || 0))) out[k] = remote[k]; });
   out.study = JSON.parse(JSON.stringify(local.study || {}));
   Object.entries(remote.study || {}).forEach(([cid, days]) => { const o = out.study[cid] = out.study[cid] || {}; Object.entries(days).forEach(([d, m]) => { o[d] = Math.max(o[d] || 0, m); }); });
@@ -4225,8 +4260,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20k';
+const APP_VERSION = '2026-11-20l';
 const CHANGELOG = [
+  { v: '2026-11-20l', t: '20 de noviembre · tarde', items: ['🔗 Enlaces con @: al escribir «@» eliges una hoja (de este u otro cuaderno). El enlace se ve subrayado y al tocar el texto aparece «→ hoja N» para ir directo. También funciona en la matriz de consistencia.', '📋 Cuadros de estudio por curso: cuadro de aprendizaje (concepto, qué es, ejemplo, dónde está y si lo dominas) armado con los apuntes de la sesión, o cuadro comparativo. Con modo estudio, tarjetas de repaso y paso a una hoja.', 'Al volver a la biblioteca después de tomar apuntes, la pizarra te propone armar el cuadro de aprendizaje del día.'] },
   { v: '2026-11-20k', t: '20 de noviembre · mediodía', items: ['🎤 Dictado: más comandos («punto y coma», «abre/cierra interrogación», «comillas», «borra eso»), botón de pausa y toca la hoja para seguir dictando en otro lugar.', '📋 Copiar, cortar y pegar cualquier texto u objeto (botones y Ctrl+C / Ctrl+X / Ctrl+V), también en otra hoja, otro cuaderno o en otras apps.', '🌐 Traducir: eliges dónde va (debajo, al lado, reemplazar o solo copiar) y puedes traducir una hoja completa, incluso un PDF.', '📄 Word y PowerPoint: eliges qué hojas, Word con texto editable y el texto de cada hoja en las notas del orador.', '🔗 Compartir: WhatsApp, correo, código QR, lista de compartidos y actualización automática al cerrar.', '▶ Presentación: cronómetro, tapar la pantalla (B/W), ver todas las hojas (G), ir a una hoja escribiendo su número y deslizar con dos dedos.', '🍅 Pomodoro: cuenta tus bloques del día y opción de pausar entre fases.', '📊 Avance y notas en versión breve, con «Ver detalle», y un resumen en la portada de cada ciclo.', '✨ Glosario automático: toma tus definiciones y deduce las que faltan de tus apuntes, lo resaltado y tus lecturas; tú lo revisas y editas.'] },
   { v: '2026-11-20j', t: '20 de noviembre · noche (5)', items: ['📊 Avance y notas: créditos, notas por evaluación con su peso, promedio ponderado, cuánto necesitas para aprobar y avance de la tesis.', '🧩 Matriz de consistencia con enlaces a las hojas de tus apuntes, y opción de pasarla a una hoja como tabla.', '📖 Glosario por curso: agrega términos desde una hoja («Al glosario») y conviértelos en tarjetas de repaso.', '🎨 Apariencia: modo oscuro y botones más grandes («⋯ → Apariencia»).'] },
   { v: '2026-11-20i', t: '20 de noviembre · noche (4)', items: ['🔗 Compartir por enlace («⋯ → Compartir por enlace»): crea un PDF de solo lectura en tu Drive. Puedes actualizarlo o dejar de compartir cuando quieras.', '▶ Modo presentación: pantalla completa sin botones, puntero láser, lápiz y resaltador para anotar, y ← → para pasar de hoja.', '🍅 Pomodoro en el panel de clase (25 min de enfoque y 5 de descanso, ajustables).', '⏱ Horas de estudio por curso y por día: se cuentan solas mientras trabajas en un cuaderno y las ves en la biblioteca.'] },
@@ -6364,8 +6400,8 @@ function glClean(t) { return t.replace(/^[\s•\-–—*·▸>]+/, '').replace(/
 function glCap(s) { s = s.trim().replace(/\s+/g, ' '); return s ? s.charAt(0).toLocaleUpperCase('es') + s.slice(1) : s; }
 function glDef(s) { s = glCap(s.replace(/^[\s:=\-–—→]+/, '')); return s && !/[.!?…)]$/.test(s) ? s + '.' : s; }
 function glTermOk(t) { const w = t.split(/\s+/); return t.length >= 3 && t.length <= 60 && w.length <= 6 && /\p{L}{3}/u.test(t) && !GL_STOP.has(t.toLowerCase()) && !/^\d/.test(t) && !/https?:|www\./i.test(t); }
-async function glossScan(cid) {
-  const nbs = liveNbs().filter(n => n.cursoId === cid), found = new Map();
+async function glossScan(cid, onlyNbs) {
+  const nbs = onlyNbs || liveNbs().filter(n => n.cursoId === cid), found = new Map();
   const add = (term, def, kind, src) => {
     term = glClean(term); def = (def || '').trim();
     if (!glTermOk(term) || def.length < 8 || def.length > 400) return;
@@ -6406,7 +6442,7 @@ async function glossScan(cid) {
             const ly = o.y + li * lh; if (y1 < ly - 4 || y0 > ly + lh + 4) return;
             setFont(mctx, o.size, o.f); let x = o.x; const words = [];
             ln.split(/(\s+)/).forEach(w => { const ww = mctx.measureText(w).width; if (w.trim() && x + ww > x0 - 2 && x < x1 + 2) words.push(w); x += ww; });
-            const term = glClean(words.join(' ').replace(/[,.;:]+$/, '')); if (glTermOk(term)) hlTerms.set(normS(term), { term, sentence: ln, src });
+            const term = glClean(words.join(' ').replace(/[,.;:]+$/, '').split(/\s+(?:es|son|era|fue|se define como|se entiende por|consiste en|significa|se refiere a)(?:\s+|$)/i)[0].split(/[:=]/)[0]); if (glTermOk(term)) hlTerms.set(normS(term), { term, sentence: ln, src });
           });
         });
         if (p.ptw) {
@@ -6420,7 +6456,7 @@ async function glossScan(cid) {
     if (found.has(k)) { found.get(k).hl = true; continue; }
     if (h.sentence && h.sentence.trim().length > h.term.length + 12) { found.set(k, { term: glCap(h.term), def: glDef(h.sentence), kind: 'frase', src: h.src, alts: [], hl: true }); }
   }
-  const have = new Set((lib.gloss || []).filter(g => !g.trashed && g.cursoId === cid).map(g => normS(g.term)));
+  const have = onlyNbs ? new Set() : new Set((lib.gloss || []).filter(g => !g.trashed && g.cursoId === cid).map(g => normS(g.term)));
   return [...found.entries()].filter(([k]) => !have.has(k)).map(([, v]) => v).sort((a, b) => ({ tuyo: 0, frase: 1, pdf: 2 }[a.kind] - { tuyo: 0, frase: 1, pdf: 2 }[b.kind]) || (b.hl ? 1 : 0) - (a.hl ? 1 : 0) || a.term.localeCompare(b.term, 'es'));
 }
 const GL_KIND = { tuyo: ['Tu definición', 'k-tuyo'], frase: ['Inferido de tus apuntes', 'k-frase'], pdf: ['De la lectura (PDF)', 'k-pdf'] };
@@ -6472,6 +6508,339 @@ renderGloss = function (main) {
 $('gl-auto-btn').onclick = () => { closeMenus(); glossAuto(curNb && curNb.cursoId); };
 
 $('pomo-skip').onclick = () => { _pomoNext(); if (pomo.run) pomo.end = Date.now() + pomo.left * 1000; pomoDraw(); };
+
+/* ---------- Enlaces con @ y cuadros de estudio por curso ---------- */
+/* @ : enlazar a una hoja escribiendo «@» */
+const AT_RE = /@(?:«([^»]{1,80})»\s*)?(?:hoja\s*)?(\d{1,4})\b/gi;
+function atTokens(text) {
+  const out = []; let m; AT_RE.lastIndex = 0;
+  while ((m = AT_RE.exec(text || ''))) {
+    const title = m[1], p = +m[2] - 1;
+    const nb = title ? liveNbs().find(n => n.title === title) || liveNbs().find(n => n.title.toLowerCase() === title.toLowerCase()) : curNb;
+    out.push({ title: title || (curNb && curNb.title) || '', p, nb });
+  }
+  return out;
+}
+const atPick = { el: null, ta: null, start: 0, mode: 'pages', nb: null, items: [], i: 0, onPick: null, lib: false };
+function atClose() { if (atPick.el) atPick.el.hidden = true; atPick.ta = null; atPick.nb = null; }
+async function atNbPages(nb) {
+  if (curNb && nb.id === curNb.id) return doc.pages.map((p, i) => ({ i, t: pageText(p) }));
+  await ensureIndex(); const e = IDX.get(nb.id);
+  return e ? e.pages.map((p, i) => ({ i, t: p.t })) : [{ i: 0, t: '' }];
+}
+async function atRender() {
+  const q = atPick.ta.value.slice(atPick.start + 1, atPick.ta.selectionStart).toLowerCase().trim();
+  let items = [];
+  if (atPick.mode === 'pages') {
+    const nb = atPick.nb || curNb, pages = await atNbPages(nb);
+    items = pages.filter(p => !q || String(p.i + 1).startsWith(q.replace(/^hoja\s*/, '')) || normS(p.t).includes(normS(q))).slice(0, 40)
+      .map(p => ({ label: `Hoja ${p.i + 1}`, sub: (p.t || '(sin texto)').slice(0, 70), nb, p: p.i }));
+    if (!atPick.lib && !atPick.nb) items.push({ label: 'Otro cuaderno…', sub: 'Enlazar con una hoja de otra sesión o lectura', other: true });
+    if (atPick.nb && !atPick.lib) items.unshift({ label: '‹ Volver', sub: 'Hojas de este cuaderno', back: true });
+  } else {
+    items = liveNbs().filter(n => !q || normS(n.title).includes(normS(q)) || normS((courseOf(n.cursoId) || {}).name || '').includes(normS(q)))
+      .sort((a, b) => (b.opened || 0) - (a.opened || 0)).slice(0, 30).map(n => ({ label: n.title, sub: ((courseOf(n.cursoId) || {}).name || '') + (n.date ? ' · ' + shortDate(n.date) : ''), pickNb: n }));
+  }
+  atPick.items = items; atPick.i = Math.min(atPick.i, Math.max(0, items.length - 1));
+  const el = atPick.el;
+  el.innerHTML = `<div class="at-h">${atPick.mode === 'pages' ? (atPick.nb && atPick.nb !== curNb ? '🔗 ' + escH(atPick.nb.title) + ': elige la hoja' : '🔗 Enlazar con la hoja…') : '🔗 Elige el cuaderno'}</div>` + (items.length ? '' : '<div class="at-e">Nada coincide</div>');
+  items.forEach((it, k) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'at-it' + (k === atPick.i ? ' on' : '');
+    b.innerHTML = `<b>${escH(it.label)}</b><small>${escH(it.sub || '')}</small>`;
+    b.onmousedown = e => e.preventDefault(); b.onclick = () => atChoose(k);
+    el.appendChild(b);
+  });
+  const on = el.querySelector('.on'); if (on) on.scrollIntoView({ block: 'nearest' });
+}
+function atPlace() {
+  const r = atPick.ta.getBoundingClientRect(), el = atPick.el;
+  el.hidden = false;
+  const h = el.offsetHeight || 260, w = el.offsetWidth || 320;
+  el.style.left = clamp(r.left, 8, innerWidth - w - 8) + 'px';
+  el.style.top = (r.bottom + h + 8 < innerHeight ? r.bottom + 4 : Math.max(8, r.top - h - 4)) + 'px';
+}
+async function atChoose(k) {
+  const it = atPick.items[k]; if (!it) return;
+  if (it.other) { atPick.mode = 'nbs'; atPick.i = 0; atTrim(); await atRender(); atPlace(); return; }
+  if (it.back) { atPick.mode = 'pages'; atPick.nb = null; atPick.i = 0; atTrim(); await atRender(); atPlace(); return; }
+  if (it.pickNb) { atPick.mode = 'pages'; atPick.nb = it.pickNb; atPick.i = 0; atTrim(); await atRender(); atPlace(); return; }
+  const ta2 = atPick.ta, s0 = atPick.start, s1 = ta2.selectionStart, cb = atPick.onPick;
+  atClose(); cb(it.nb, it.p, s0, s1, ta2);
+}
+function atTrim() { const t = atPick.ta; t.value = t.value.slice(0, atPick.start + 1) + t.value.slice(t.selectionStart); t.selectionStart = t.selectionEnd = atPick.start + 1; }
+function atAttach(t, opts) {
+  t.addEventListener('input', () => {
+    const pos = t.selectionStart, v = t.value;
+    if (v[pos - 1] === '@' && (pos === 1 || /\s|\(/.test(v[pos - 2]))) {
+      if (opts.lib && !liveNbs().length) return;
+      atPick.el = atPick.el || $('atpick'); atPick.ta = t; atPick.start = pos - 1; atPick.i = 0; atPick.lib = !!opts.lib;
+      atPick.mode = opts.lib ? 'nbs' : 'pages'; atPick.nb = null; atPick.onPick = opts.onPick;
+      atRender().then(atPlace); return;
+    }
+    if (atPick.ta === t) { if (pos <= atPick.start || v[atPick.start] !== '@' || /\n/.test(v.slice(atPick.start, pos))) atClose(); else atRender(); }
+  });
+  t.addEventListener('keydown', e => {
+    if (atPick.ta !== t || atPick.el.hidden) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); e.stopImmediatePropagation(); atPick.i = clamp(atPick.i + (e.key === 'ArrowDown' ? 1 : -1), 0, atPick.items.length - 1); atRender(); }
+    else if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); e.stopImmediatePropagation(); atChoose(atPick.i); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); atClose(); }
+  }, true);
+  t.addEventListener('blur', () => setTimeout(() => { if (atPick.ta === t && document.activeElement !== t) atClose(); }, 150));
+}
+atAttach(ta, {
+  onPick: (nb, p, s0, s1, t) => {
+    const tok = nb && curNb && nb.id !== curNb.id ? `@«${nb.title}» hoja ${p + 1}` : `@hoja ${p + 1}`;
+    t.value = t.value.slice(0, s0) + tok + ' ' + t.value.slice(s1); t.selectionStart = t.selectionEnd = s0 + tok.length + 1;
+    t.dispatchEvent(new Event('input')); t.focus();
+  }
+});
+function atGo(tk) {
+  if (!tk.nb) { toast(`No encontré el cuaderno «${tk.title}».`); return; }
+  followLink({ nb: tk.nb.id, page: tk.p });
+}
+/* en la barra de selección: botones para ir a cada hoja enlazada */
+const _showFloat = showFloat;
+showFloat = function (kind, o) {
+  _showFloat(kind, o);
+  if (kind !== 'sel' || !o || !o.text) return;
+  const tks = atTokens(o.text); if (!tks.length) return;
+  const f = $('float'), first = f.firstChild;
+  tks.slice(0, 4).forEach(tk => { const b = fbtn(`→ ${tk.nb && curNb && tk.nb.id !== curNb.id ? tk.title + ' · ' : ''}hoja ${tk.p + 1}`, () => { hideFloat(); atGo(tk); }, 'primary', 'Ir a la hoja enlazada'); f.insertBefore(b, first); });
+  placeFloat();
+};
+/* en el lienzo: el texto con @ se ve como enlace (subrayado) */
+const _drawObjAt = typeof drawObj === 'function' ? drawObj : null;
+if (_drawObjAt) {
+  drawObj = function (c, o, ...rest) {
+    _drawObjAt(c, o, ...rest);
+    if (o.t !== 'text' || !o.text || o.text.indexOf('@') < 0) return;
+    try {
+      setFont(c, o.size, o.f); const lh = o.size * 1.25; c.save(); c.strokeStyle = '#0b6e75'; c.lineWidth = Math.max(1, o.size / 14);
+      o.text.split('\n').forEach((ln, i) => {
+        AT_RE.lastIndex = 0; let m;
+        while ((m = AT_RE.exec(ln))) { const x0 = o.x + c.measureText(ln.slice(0, m.index)).width, w = c.measureText(m[0]).width, y = o.y + i * lh + o.size * 1.08; c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 + w, y); c.stroke(); }
+      });
+      c.restore();
+    } catch (e) {}
+  };
+}
+/* doble toque o clic con Ctrl sobre un texto con @ → ir directo */
+cv.addEventListener('dblclick', e => {
+  if (tool !== 'select' || !curNb) return;
+  const o = pg().objs[sel]; if (!o || o.t !== 'text') return;
+  const tks = atTokens(o.text); if (tks.length === 1) { e.stopImmediatePropagation(); e.preventDefault(); cancelEditor(); atGo(tks[0]); }
+}, true);
+/* @ en la matriz de consistencia: agrega el enlace a la celda */
+const _renderMatrix = renderMatrix;
+renderMatrix = function (main) {
+  _renderMatrix(main);
+  const M = mx();
+  main.querySelectorAll('.mx tbody tr').forEach((tr, ri) => tr.querySelectorAll('td textarea').forEach((t, ci) => {
+    t.placeholder = 'Escribe… (usa @ para enlazar una hoja)';
+    atAttach(t, { lib: true, onPick: (nb, p, s0, s1, tt) => { const r = M.rows[ri]; tt.value = tt.value.slice(0, s0) + tt.value.slice(s1); r.c[ci] = tt.value; (r.k[ci] = r.k[ci] || []).push({ nb: nb.id, p }); touchMx(); renderLibrary(); toast(`Enlazado con «${nb.title}», hoja ${p + 1}.`); } });
+  }));
+};
+
+/* cuadros de estudio por curso: de aprendizaje y comparativos */
+const CU_APR = ['Concepto', '¿Qué es?', 'Ejemplo o dato clave', '¿Dónde está?'];
+const DOM = [['', '—'], ['no', '🔴 Aún no'], ['medio', '🟡 Más o menos'], ['si', '🟢 Lo domino']];
+const liveCuadros = () => (lib.cuadros || []).filter(q => !q.trashed);
+function touchCu(q) { q.mod = Date.now(); saveLibrary(); }
+async function nbConcepts(nb) {
+  const d = nb === curNb ? doc : await store.get('doc:' + nb.id).catch(() => null); if (!d) return [];
+  const found = await glossScan(nb.cursoId, [nb]);
+  const seen = new Set(found.map(f => normS(f.term)));
+  (d.pages || []).forEach((p, i) => {
+    const texts = (p.objs || []).filter(o => o.t === 'text' && o.text); if (!texts.length) return;
+    const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes[Math.floor(sizes.length / 2)];
+    texts.filter(o => o.size >= med * 1.3 && o.text.length <= 60 && !o.text.includes('\n')).forEach(o => {
+      const t = glClean(o.text); if (!glTermOk(t) || seen.has(normS(t))) return; seen.add(normS(t));
+      found.push({ term: glCap(t), def: '', kind: 'titulo', src: { nb: nb.id, p: i, label: `${nb.title} · hoja ${i + 1}` }, alts: [] });
+    });
+  });
+  const allText = (d.pages || []).map(pageText).join(' ');
+  const sents = allText.split(/(?<=[.!?])\s+/);
+  found.forEach(f => {
+    const sp = f.def && f.def.match(/^(.*?)[,;]?\s*(?:por ejemplo|p\. ej\.|ej\.|como por ejemplo)[,:]?\s*(.+)$/i);
+    if (sp && sp[1].length > 6) { f.def = glDef(sp[1]); f.ex = glCap(sp[2]); return; }
+    const nt = normS(f.term), m = sents.find(x => normS(x).includes(nt) && /por ejemplo|ejemplo|ej\.|p\. ej/i.test(x) && !normS(f.def).includes(normS(x).slice(0, 30)));
+    f.ex = m ? glDef(m.trim()) : '';
+  });
+  return found;
+}
+async function cuadroNew(nb, kind) {
+  if (!nb) return;
+  toast('Armando tu cuadro con los apuntes de la sesión…', 15000);
+  const cs = await nbConcepts(nb); toast('', 1);
+  const q = { id: uid('q'), cursoId: nb.cursoId, nb: nb.id, date: nb.date || todayISO(), kind, mod: Date.now(), created: Date.now() };
+  if (kind === 'apr') {
+    q.title = `Cuadro de aprendizaje · ${nb.title}`; q.cols = CU_APR.slice();
+    q.rows = cs.slice(0, 20).map(f => ({ id: uid('r'), c: [f.term, f.def, f.ex || '', ''], k: [[], [], [], [{ nb: f.src.nb, p: f.src.p }]], dom: '' }));
+    if (!q.rows.length) q.rows = [0, 1, 2].map(() => ({ id: uid('r'), c: ['', '', '', ''], k: [[], [], [], []], dom: '' }));
+  } else {
+    const opts = cs.slice(0, 24);
+    let picked = [];
+    if (opts.length >= 2) {
+      picked = await pickConcepts(opts); if (!picked) return;
+    }
+    while (picked.length < 2) picked.push({ term: '', def: '', src: null });
+    q.title = `Cuadro comparativo · ${picked.filter(p => p.term).map(p => p.term).join(' vs ') || nb.title}`;
+    q.cols = ['Criterio', ...picked.map(p => p.term || 'Concepto')];
+    const crit = ['Definición', 'Características', 'Ventajas', 'Desventajas', 'Ejemplo'];
+    q.rows = crit.map(cr => ({ id: uid('r'), c: [cr, ...picked.map(p => cr === 'Definición' ? p.def : cr === 'Ejemplo' ? (p.ex || '') : '')], k: [[], ...picked.map(p => cr === 'Definición' && p.src ? [{ nb: p.src.nb, p: p.src.p }] : [])] }));
+  }
+  lib.cuadros = lib.cuadros || []; lib.cuadros.push(q); saveLibrary();
+  lib.cur.cuadro = q.id; setView('cuadro');
+  if (kind === 'apr') toast(q.rows.some(r => r.c[0]) ? `Listo: ${q.rows.filter(r => r.c[0]).length} conceptos de tus apuntes. Revisa, completa y marca cuánto dominas cada uno.` : 'No encontré conceptos claros en esta sesión: llena el cuadro tú mismo.', 6000);
+}
+function pickConcepts(opts) {
+  return new Promise(res => {
+    const m = $('cupick'), list = $('cp-list'); list.innerHTML = '';
+    opts.forEach((o, i) => { const l = document.createElement('label'); l.className = 'check'; l.innerHTML = `<input type="checkbox" ${i < 2 ? 'checked' : ''}> <b>${escH(o.term)}</b>${o.def ? ` <small>— ${escH(o.def.slice(0, 70))}</small>` : ''}`; list.appendChild(l); });
+    m.hidden = false;
+    const done = v => { m.hidden = true; $('cp-ok').onclick = $('cp-cancel').onclick = null; res(v); };
+    $('cp-cancel').onclick = () => done(null);
+    $('cp-ok').onclick = () => { const sel2 = [...list.querySelectorAll('input')].map((b, i) => b.checked ? opts[i] : null).filter(Boolean); if (sel2.length < 2) { toast('Elige al menos 2 conceptos para comparar.'); return; } done(sel2.slice(0, 5)); };
+  });
+}
+function renderCuadro(main) {
+  const q = liveCuadros().find(x => x.id === lib.cur.cuadro); if (!q) { setView('cuadros'); return; }
+  const c = courseOf(q.cursoId) || { name: '', color: '#8894a3' }, nb = lib.nbs.find(n => n.id === q.nb && !n.trashed);
+  const study = !!lib.cur.cuStudy;
+  headEl(main, `${q.kind === 'apr' ? '📋' : '⚖️'} ${escH(q.title)}`, `${c.name}${nb ? ' · ' + nb.title : ''} · ${shortDate(q.date)}. Escribe en cada casilla; con @ enlazas una hoja de tus apuntes.`, [
+    mkBtn('‹ Cuadros', () => setView('cuadros')),
+    mkBtn(study ? '👁 Ver todo' : '🙈 Modo estudio', () => { lib.cur.cuStudy = !study; renderLibrary(); }, '', 'Tapa las respuestas para que te autoevalúes; toca una casilla para destaparla'),
+    mkBtn('Crear tarjetas', () => cuadroCards(q), '', 'Una tarjeta de repaso por fila'),
+    mkBtn('Pasar a una hoja', () => cuadroToPage(q)),
+    mkBtn('🗑', async () => { if (await confirmBox(`¿Eliminar «${q.title}»?`, 'Eliminar')) { q.trashed = Date.now(); touchCu(q); setView('cuadros'); } }, 'danger', 'Eliminar cuadro')]);
+  const ti = document.createElement('input'); ti.className = 'cu-title'; ti.value = q.title; ti.onchange = () => { q.title = ti.value.trim() || q.title; touchCu(q); renderLibrary(); }; main.appendChild(ti);
+  if (q.kind === 'apr') {
+    const dn = q.rows.filter(r => r.dom === 'si').length, md = q.rows.filter(r => r.dom === 'medio').length, total = q.rows.filter(r => r.c[0]).length;
+    const bar = document.createElement('div'); bar.className = 'cu-prog'; bar.innerHTML = `<span>🟢 ${dn} dominados · 🟡 ${md} más o menos · 🔴 ${Math.max(0, total - dn - md)} por repasar</span><span class="pbar"><i style="width:${total ? dn / total * 100 : 0}%;background:#12805c"></i></span>`; main.appendChild(bar);
+  }
+  const wrap = document.createElement('div'); wrap.className = 'mx-wrap'; const t = document.createElement('table'); t.className = 'mx cu' + (study ? ' study' : '');
+  const cols = q.cols.length + (q.kind === 'apr' ? 1 : 0);
+  t.innerHTML = `<thead><tr>${q.cols.map((h, i) => `<th><input value="${escH(h)}" data-ci="${i}" aria-label="Encabezado"></th>`).join('')}${q.kind === 'apr' ? '<th>¿Lo domino?</th>' : ''}<th class="cu-x"></th></tr></thead>`;
+  t.querySelectorAll('thead input').forEach(inp => { inp.onchange = () => { q.cols[+inp.dataset.ci] = inp.value.trim() || q.cols[+inp.dataset.ci]; touchCu(q); }; });
+  const tb = document.createElement('tbody');
+  q.rows.forEach((r, ri) => {
+    const tr = document.createElement('tr');
+    q.cols.forEach((_, ci) => {
+      const td = document.createElement('td'); if (ci === 0) td.className = 'cu-first';
+      const tx = document.createElement('textarea'); tx.value = r.c[ci] || ''; tx.rows = ci === 0 ? 2 : 3; tx.placeholder = ci === 0 ? (q.kind === 'apr' ? 'Concepto' : 'Criterio') : 'Escribe… (@ para enlazar)';
+      tx.onchange = () => { r.c[ci] = tx.value; touchCu(q); };
+      atAttach(tx, { lib: true, onPick: (nb2, p, s0, s1, tt) => { tt.value = tt.value.slice(0, s0) + tt.value.slice(s1); r.c[ci] = tt.value; (r.k[ci] = r.k[ci] || []).push({ nb: nb2.id, p }); touchCu(q); renderLibrary(); } });
+      if (study && ci > 0 && (r.c[ci] || '').trim()) { td.classList.add('hid'); td.onclick = () => td.classList.remove('hid'); }
+      td.appendChild(tx);
+      const lk = document.createElement('div'); lk.className = 'mx-links';
+      (r.k[ci] = r.k[ci] || []).forEach((l, li) => {
+        const n2 = lib.nbs.find(n => n.id === l.nb && !n.trashed), b = document.createElement('span'); b.className = 'mx-link' + (n2 ? '' : ' gone');
+        b.innerHTML = `<button>${escH(n2 ? `${n2.title} · hoja ${l.p + 1}` : 'eliminado')}</button><button aria-label="Quitar enlace">✕</button>`;
+        const [go, rm] = b.querySelectorAll('button'); go.onclick = () => n2 && followLink({ nb: n2.id, page: l.p }); rm.onclick = () => { r.k[ci].splice(li, 1); touchCu(q); renderLibrary(); };
+        lk.appendChild(b);
+      });
+      if (ci > 0) { const add = document.createElement('button'); add.className = 'mx-add'; add.textContent = '🔗 Hoja'; add.onclick = async () => { const l = await pickNbPage('Enlazar con una hoja'); if (l) { r.k[ci].push(l); touchCu(q); renderLibrary(); } }; lk.appendChild(add); }
+      td.appendChild(lk); tr.appendChild(td);
+    });
+    if (q.kind === 'apr') { const td = document.createElement('td'); td.className = 'cu-dom'; const s = document.createElement('select'); DOM.forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; s.appendChild(o); }); s.value = r.dom || ''; s.onchange = () => { r.dom = s.value; touchCu(q); renderLibrary(); }; td.appendChild(s); tr.appendChild(td); }
+    const tx2 = document.createElement('td'); tx2.className = 'cu-x'; const del = mkBtn('✕', () => { q.rows.splice(ri, 1); touchCu(q); renderLibrary(); }, '', 'Quitar fila'); tx2.appendChild(del); tr.appendChild(tx2);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t); main.appendChild(wrap);
+  const row = document.createElement('div'); row.className = 'row'; row.style.cssText = 'gap:8px;margin-top:10px';
+  row.appendChild(mkBtn(q.kind === 'apr' ? '+ Concepto' : '+ Criterio', () => { q.rows.push({ id: uid('r'), c: q.cols.map(() => ''), k: q.cols.map(() => []), dom: '' }); touchCu(q); renderLibrary(); }));
+  if (q.kind === 'comp' && q.cols.length < 7) row.appendChild(mkBtn('+ Concepto a comparar', () => { q.cols.push('Concepto'); q.rows.forEach(r => { r.c.push(''); r.k.push([]); }); touchCu(q); renderLibrary(); }));
+  main.appendChild(row);
+  void cols;
+}
+async function cuadroCards(q) {
+  const cards = await loadCards(), have = new Set(cards.map(c => (c.front || '').toLowerCase())); let n = 0;
+  if (q.kind === 'apr') q.rows.forEach(r => { const f = r.c[0] && `¿Qué es «${r.c[0].trim()}»?`; if (f && r.c[1] && !have.has(f.toLowerCase())) { cards.push({ id: uid('t'), course: q.cursoId, nb: q.nb, page: (r.k[3] && r.k[3][0] || {}).p, front: f, back: r.c[1] + (r.c[2] ? `\nEjemplo: ${r.c[2]}` : ''), box: 0, due: Date.now(), created: Date.now(), mod: Date.now() }); n++; } });
+  else q.rows.forEach(r => q.cols.slice(1).forEach((col, i) => { const f = `${r.c[0]} de «${col}»`; if (r.c[0] && r.c[i + 1] && !have.has(f.toLowerCase())) { cards.push({ id: uid('t'), course: q.cursoId, nb: q.nb, front: f, back: r.c[i + 1], box: 0, due: Date.now(), created: Date.now(), mod: Date.now() }); n++; } }));
+  await saveCards(cards); scheduleSync(); toast(n ? `${n} tarjeta${n > 1 ? 's' : ''} nueva${n > 1 ? 's' : ''} en 🧠 Repaso.` : 'No hay filas completas nuevas para hacer tarjetas.');
+}
+async function cuadroToPage(q) {
+  const nb = lib.nbs.find(n => n.id === q.nb && !n.trashed) || liveNbs().find(n => n.cursoId === q.cursoId);
+  if (!nb) { toast('No encontré un cuaderno de este curso.'); return; }
+  await openNotebook(nb);
+  const np = newPage(pg()); np.fmt = 'a4l'; np.pt = [841.89, 595.28]; np.W = Math.max(np.W, np.H); np.H = Math.round(np.W * 595.28 / 841.89); np.objs = [];
+  addPageAfter(np);
+  const head = q.cols.concat(q.kind === 'apr' ? ['¿Lo domino?'] : []), n = head.length, first = q.kind === 'apr' ? 150 : 120, size = 11;
+  const cw = [first, ...Array(n - 1).fill((np.W - 80 - first) / (n - 1))];
+  const cells = [head, ...q.rows.map(r => [...r.c.map((t, i) => { const links = (r.k[i] || []).map(l => { const n2 = lib.nbs.find(x => x.id === l.nb); return n2 ? (n2.id === nb.id ? `@hoja ${l.p + 1}` : `@«${n2.title}» hoja ${l.p + 1}`) : ''; }).filter(Boolean).join(' '); return wrapLines([t, links].filter(Boolean).join('\n'), size, prefs.font, cw[i] - 12).join('\n'); }), ...(q.kind === 'apr' ? [(DOM.find(d => d[0] === r.dom) || DOM[0])[1]] : [])])];
+  const rh = cells.map(row => Math.max(28, ...row.map(t => String(t).split('\n').length * size * 1.35 + 12)));
+  mutate(() => pg().objs.push({ t: 'text', x: 40, y: 20, text: q.title, c: 'blue', size: 20, f: prefs.font }, { t: 'table', x: 40, y: 56, cw, rh, cells, size, f: prefs.font, c: 'ink' }));
+  requestPaint(); toast('Listo: el cuadro está en una hoja nueva. Exporta a PDF o Word si quieres imprimirlo.');
+}
+function renderCuadros(main) {
+  const cs = liveCursos(), f = lib.cur.cuCourse || '';
+  headEl(main, '📋 Cuadros de estudio', 'Después de cada clase, arma un cuadro de aprendizaje (conceptos, qué son, ejemplos y dónde están en tus apuntes) o un cuadro comparativo. Se guardan por curso para estudiar.', [mkBtn('+ Cuadro de aprendizaje', () => cuadroAsk('apr'), 'primary'), mkBtn('+ Cuadro comparativo', () => cuadroAsk('comp'))]);
+  const bar = document.createElement('div'); bar.className = 'row gl-bar';
+  bar.innerHTML = `<select aria-label="Curso"><option value="">Todos los cursos</option>${cs.map(c => `<option value="${c.id}">${escH(c.name)}</option>`).join('')}</select>`;
+  const s = bar.firstChild; s.value = f; s.onchange = () => { lib.cur.cuCourse = s.value; renderLibrary(); }; main.appendChild(bar);
+  const list = liveCuadros().filter(q => !f || q.cursoId === f).sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.created - a.created);
+  if (!list.length) { const p = document.createElement('p'); p.className = 'sub'; p.textContent = 'Aún no tienes cuadros. Crea uno con los botones de arriba o al terminar una sesión.'; main.appendChild(p); return; }
+  cs.filter(c => !f || c.id === f).forEach(c => {
+    const qs = list.filter(q => q.cursoId === c.id); if (!qs.length) return;
+    const h = document.createElement('h3'); h.className = 'cu-h'; h.innerHTML = `<span class="dot" style="background:${c.color}"></span>${escH(c.name)} <small>${qs.length} cuadro${qs.length > 1 ? 's' : ''}</small>`; main.appendChild(h);
+    const g = document.createElement('div'); g.className = 'cu-grid';
+    qs.forEach(q => {
+      const total = q.rows.filter(r => r.c[0]).length, dn = q.rows.filter(r => r.dom === 'si').length;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'cu-card';
+      b.innerHTML = `<span class="cu-k">${q.kind === 'apr' ? '📋 Aprendizaje' : '⚖️ Comparativo'}</span><b>${escH(q.title.replace(/^Cuadro (de aprendizaje|comparativo) · /, ''))}</b><small>${shortDate(q.date)} · ${total} fila${total !== 1 ? 's' : ''}${q.kind === 'apr' && total ? ` · 🟢 ${dn}/${total}` : ''}</small>${q.kind === 'apr' && total ? `<span class="pbar"><i style="width:${dn / total * 100}%;background:#12805c"></i></span>` : ''}`;
+      b.onclick = () => { lib.cur.cuadro = q.id; lib.cur.cuStudy = false; setView('cuadro'); };
+      g.appendChild(b);
+    });
+    main.appendChild(g);
+  });
+}
+async function cuadroAsk(kind, nb) {
+  if (!nb) {
+    const list = liveNbs().filter(n => !lib.cur.cuCourse || n.cursoId === lib.cur.cuCourse).sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.opened || 0) - (a.opened || 0));
+    if (!list.length) { toast('Primero toma apuntes en una sesión.'); return; }
+    const id = await askSelect(kind === 'apr' ? 'Cuadro de aprendizaje' : 'Cuadro comparativo', '¿De qué sesión?', list.map(n => [n.id, `${n.title} — ${(courseOf(n.cursoId) || {}).name || ''}${n.date ? ' · ' + shortDate(n.date) : ''}`]), list[0].id);
+    if (!id) return; nb = list.find(n => n.id === id);
+  }
+  cuadroNew(nb, kind);
+}
+$('cu-apr-btn').onclick = async () => { closeMenus(); if (!curNb) return; const nb = curNb; await closeNotebookToLib(); cuadroNew(nb, 'apr'); };
+$('cu-comp-btn').onclick = async () => { closeMenus(); if (!curNb) return; const nb = curNb; await closeNotebookToLib(); cuadroNew(nb, 'comp'); };
+async function closeNotebookToLib() { await showLibrary(); }
+/* al volver a la biblioteca después de tomar apuntes hoy: proponer el cuadro de aprendizaje */
+const _showLib = showLibrary;
+showLibrary = async function (...a) {
+  const nb = curNb, edited = nb && (nb.updated || 0) > (nb.opened || 0) - 1 && (nb.date === todayISO()) && doc && doc.pages.some(p => p.objs.length > 2);
+  const r = await _showLib(...a);
+  if (nb && edited && !liveCuadros().some(q => q.nb === nb.id) && !(lib.cuNo || {})[nb.id]) { lib.cur.cuAsk = nb.id; renderLibrary(); }
+  return r;
+};
+const _renderLibrary = renderLibrary;
+renderLibrary = function (...a) {
+  _renderLibrary(...a);
+  const id = lib.cur.cuAsk, nb = id && liveNbs().find(n => n.id === id);
+  if (nb && liveCuadros().some(q => q.nb === id)) { lib.cur.cuAsk = null; return; }
+  if (!nb || ['cuadro', 'cuadros'].includes(lib.cur.view)) return;
+  const main = $('lib-main'), b = document.createElement('div'); b.className = 'cu-ask';
+  b.innerHTML = `<span>📋 Terminaste <b>${escH(nb.title)}</b>. ¿Armamos tu cuadro de aprendizaje de hoy para estudiar?</span>`;
+  b.appendChild(mkBtn('Sí, crear cuadro', () => { lib.cur.cuAsk = null; cuadroNew(nb, 'apr'); }, 'primary'));
+  b.appendChild(mkBtn('Comparativo', () => { lib.cur.cuAsk = null; cuadroNew(nb, 'comp'); }));
+  b.appendChild(mkBtn('Ahora no', () => { lib.cur.cuAsk = null; lib.cuNo = lib.cuNo || {}; lib.cuNo[nb.id] = 1; saveLibrary(); renderLibrary(); }));
+  main.prepend(b);
+};
+/* en la página de cada curso: sus cuadros */
+const _renderCourse = renderCourse;
+renderCourse = function (main, c) {
+  _renderCourse(main, c);
+  const qs = liveCuadros().filter(q => q.cursoId === c.id).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const box = document.createElement('div'); box.className = 'cu-course';
+  box.innerHTML = `<h3>📋 Cuadros de estudio de este curso</h3>`;
+  const g = document.createElement('div'); g.className = 'row'; g.style.cssText = 'gap:8px;flex-wrap:wrap';
+  qs.slice(0, 6).forEach(q => g.appendChild(mkBtn(`${q.kind === 'apr' ? '📋' : '⚖️'} ${q.title.replace(/^Cuadro (de aprendizaje|comparativo) · /, '')}`, () => { lib.cur.cuadro = q.id; setView('cuadro'); })));
+  g.appendChild(mkBtn('+ Nuevo cuadro', () => { lib.cur.cuCourse = c.id; cuadroAsk('apr'); }, 'primary'));
+  if (qs.length > 6) g.appendChild(mkBtn(`Ver los ${qs.length}`, () => { lib.cur.cuCourse = c.id; setView('cuadros'); }));
+  box.appendChild(g);
+  const hd = main.querySelector('.lib-head'); if (hd) hd.after(box); else main.appendChild(box);
+};
 
 init();
 

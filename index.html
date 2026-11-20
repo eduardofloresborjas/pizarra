@@ -75,6 +75,7 @@ body.touch .pen-btn{width:46px;height:40px}
 .group{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .spacer{flex:1}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:var(--ctl);min-width:var(--ctl);padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);white-space:nowrap}
+a.btn{text-decoration:none;color:inherit}
 .btn:hover:not(:disabled){background:var(--hover)}
 .btn:disabled{opacity:.4;cursor:default}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:500}
@@ -137,6 +138,28 @@ body.ui-l #float .btn{height:40px}body.ui-xl #float .btn{height:48px}
 body.ui-l .menu button{padding:11px 14px}body.ui-xl .menu button{padding:14px 16px;font-size:17px}
 :root[data-theme="dark"] .sw,:root[data-theme="dark"] .pen-btn span,:root[data-theme="dark"] .pen-btn i{box-shadow:0 0 0 1.5px #8a96a5}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sw,:root:not([data-theme="light"]) .pen-btn span,:root:not([data-theme="light"]) .pen-btn i{box-shadow:0 0 0 1.5px #8a96a5}}
+.psum{display:flex;flex-wrap:wrap;align-items:center;gap:18px;width:100%;max-width:980px;margin:0 0 16px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);text-align:left;cursor:pointer}
+.psum:hover{border-color:var(--accent)}.psum span{display:flex;flex-direction:column}.psum b{font-size:19px}.psum small{color:var(--muted);font-size:12px}
+.psum .warn{color:#b42318;font-weight:600;flex-direction:row}.psum .good{color:#12805c;font-weight:600;flex-direction:row}.psum em{margin-left:auto;font-style:normal;color:var(--accent);font-weight:600}
+.pbrief{display:flex;flex-direction:column;gap:6px;max-width:760px;margin-top:16px}
+.pb-row{display:grid;grid-template-columns:12px 1fr 70px 170px 14px;gap:10px;align-items:center;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);text-align:left;cursor:pointer}
+.pb-row:hover{border-color:var(--accent)}.pb-row .dot{width:10px;height:10px;border-radius:50%}.pb-n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pb-row .pill{font-weight:700;border:1px solid var(--line);border-radius:999px;padding:2px 10px;text-align:center}.pb-s{font-size:13px;color:var(--muted)}.pb-s.ok{color:#12805c}.pb-s.bad{color:#b42318}.pb-go{color:var(--muted)}
+#dict-bar.paused .dot{animation:none;background:#9aa6b4}
+#pres-cover{position:absolute;inset:0;z-index:6;cursor:pointer}
+#pres-grid{position:absolute;inset:0;z-index:8;background:#11161c;overflow:auto;padding:24px;color:#fff}
+.pg-head{text-align:center;margin-bottom:16px;opacity:.8}.pg-list{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.pr-item{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:2px solid transparent;border-radius:8px;padding:6px;color:#fff;cursor:pointer}
+.pr-item.on{border-color:#56c6cc}.pr-item:hover{border-color:rgba(255,255,255,.5)}.stage canvas.pg-c{position:static;inset:auto;width:auto;height:auto;display:block;box-shadow:0 2px 10px rgba(0,0,0,.4);background:#fff}
+#pres-clock{font-variant-numeric:tabular-nums}
+#share-qr{display:flex;flex-direction:column;align-items:center;gap:4px}#share-qr svg{width:180px;height:180px;background:#fff;border-radius:8px}#share-qr small{color:var(--muted)}
+#gs-list{max-height:min(60vh,560px);overflow:auto;display:flex;flex-direction:column;gap:8px}
+.gs-row{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel)}
+.gs-row>input{margin-top:9px;width:18px;height:18px}.gs-body{flex:1;display:flex;flex-direction:column;gap:6px}
+.gs-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.gs-term{font-weight:700;flex:1;min-width:160px}
+.gs-term,.gs-def{border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;background:var(--bg);color:var(--text)}.gs-def{resize:vertical}
+.gs-k{font-size:11px;border-radius:999px;padding:2px 8px;font-weight:600;margin-left:6px}.k-tuyo{background:#e3f5ec;color:#12805c}.k-frase{background:#eef0ff;color:#4f46e5}.k-pdf{background:#fff4e5;color:#b45309}
+.gs-src{font-size:12px;color:var(--muted)}.gs-alt{background:none;border:none;color:var(--accent);cursor:pointer;padding:0;font:inherit;text-decoration:underline}
 .look-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .look-opts .opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
 .look-opts .opt[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
@@ -449,6 +472,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="page-set">Formato, fondo y papel…</button>
           <button id="page-tags">Etiquetas de esta hoja…</button>
           <button id="page-ocr">Leer el texto de esta hoja</button>
+          <button id="page-tr">Traducir esta hoja (a una hoja nueva)…</button>
           <button id="page-new-custom">Agregar hoja con otro formato…</button>
           <button id="page-dup">Duplicar esta hoja</button>
           <button id="clear">Limpiar esta hoja</button>
@@ -457,6 +481,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <div class="mh">Este cuaderno</div>
           <button id="rec-btn">Grabar el audio de la clase</button>
           <button id="hl-summary">Resumen de lo resaltado</button>
+          <button id="gl-auto-btn">✨ Crear glosario desde mis apuntes…</button>
           <button id="nb-ref">Datos de la lectura (APA 7)…</button>
           <button id="share-btn">🔗 Compartir por enlace…</button>
           <button id="save-png">Guardar esta hoja como imagen PNG</button>
@@ -531,8 +556,10 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
       <textarea id="ed" hidden spellcheck="false" aria-label="Texto para la hoja"></textarea>
       <div id="status" hidden></div>
       <div id="float" hidden></div>
-      <div id="pres-bar" hidden><button class="btn ic" id="pres-prev" aria-label="Hoja anterior">‹</button><span id="pres-n">1 / 1</span><button class="btn ic" id="pres-next" aria-label="Hoja siguiente">›</button><span class="sep"></span><button class="btn" id="pres-laser">🔴 Láser</button><button class="btn" id="pres-pen">✏ Lápiz</button><button class="btn" id="pres-hl">🖍 Resaltar</button><button class="btn ic" id="pres-undo" aria-label="Deshacer">↶</button><span class="sep"></span><button class="btn" id="pres-exit">Salir</button></div>
-      <div id="dict-bar" hidden><span class="dot"></span><b>Dictando</b><span id="dict-live"></span><select id="dict-lang" aria-label="Idioma del dictado"></select><button class="btn primary" id="dict-stop">Detener</button></div>
+      <div id="pres-bar" hidden><button class="btn ic" id="pres-prev" aria-label="Hoja anterior">‹</button><span id="pres-n">1 / 1</span><button class="btn ic" id="pres-next" aria-label="Hoja siguiente">›</button><span class="sep"></span><button class="btn" id="pres-laser">🔴 Láser</button><button class="btn" id="pres-pen">✏ Lápiz</button><button class="btn" id="pres-hl">🖍 Resaltar</button><button class="btn ic" id="pres-undo" aria-label="Deshacer">↶</button><button class="btn" id="pres-blank" title="Tapar la hoja (B: negro, W: blanco)">⬜ Tapar</button><button class="btn" id="pres-grid-btn" title="Ver todas las hojas (G)">▦ Hojas</button><span class="sep"></span><button class="btn" id="pres-clock" title="Tiempo de la exposición (toca para reiniciar)">00:00</button><button class="btn" id="pres-exit">Salir</button></div>
+      <div id="pres-cover" hidden title="Toca para volver"></div>
+      <div id="pres-grid" hidden></div>
+      <div id="dict-bar" hidden><span class="dot"></span><b>Dictando</b><span id="dict-live"></span><select id="dict-lang" aria-label="Idioma del dictado"></select><button class="btn ic" id="dict-help" title="Comandos de voz" aria-label="Comandos de voz">?</button><button class="btn" id="dict-pause">Pausa</button><button class="btn primary" id="dict-stop">Detener</button></div>
     </div>
     <aside class="side" id="side" aria-label="Panel de clase" hidden>
       <section>
@@ -548,6 +575,9 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <label class="lbl" for="pomo-f">Enfoque</label><input type="number" id="pomo-f" min="5" max="90" value="25" style="width:56px">
           <label class="lbl" for="pomo-b">Descanso</label><input type="number" id="pomo-b" min="1" max="30" value="5" style="width:56px"><span class="hint">min</span>
         </div>
+        <label class="check"><input type="checkbox" id="pomo-pause"> Pausar al terminar cada fase</label>
+        <p class="hint" id="pomo-count" style="margin:0"></p>
+        <p class="hint" id="pomo-course" style="margin:0"></p>
         <p class="hint" id="pomo-today"></p>
       </section>
       <section>
@@ -681,6 +711,15 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
   </div>
 </div>
 
+<div class="modal" id="gscan" hidden role="dialog" aria-modal="true" aria-labelledby="gs-title">
+  <div class="sheet" style="width:min(760px,100%);gap:12px">
+    <h1 id="gs-title" style="font-size:20px">✨ Glosario</h1>
+    <p class="hint" id="gs-sub" style="margin:0"></p>
+    <div id="gs-list"></div>
+    <div class="actions"><button class="btn" id="gs-all" style="margin-right:auto">Marcar / desmarcar todo</button><button class="btn" id="gs-cancel">Cancelar</button><button class="btn primary" id="gs-add">Agregar al glosario</button></div>
+  </div>
+</div>
+
 <div class="modal" id="look" hidden role="dialog" aria-modal="true" aria-labelledby="look-title">
   <div class="sheet small">
     <h1 id="look-title" style="font-size:19px">🎨 Apariencia</h1>
@@ -705,6 +744,11 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
   <div class="sheet small">
     <h1 id="share-title" style="font-size:19px">🔗 Compartir por enlace</h1>
     <p class="hint" id="share-msg" style="margin:0;font-size:14px"></p>
+    <div id="share-more" hidden>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><a class="btn" id="share-wa" target="_blank" rel="noopener">WhatsApp</a><a class="btn" id="share-mail">Correo</a><button class="btn" id="share-qr-btn">Código QR</button></div>
+      <div id="share-qr"></div>
+      <label class="check" style="margin-top:6px"><input type="checkbox" id="share-auto"> Actualizar el enlace solo al cerrar el cuaderno</label>
+    </div>
     <input id="share-link" readonly hidden style="border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;background:var(--bg)" onfocus="this.select()">
     <div class="actions" style="flex-wrap:wrap">
       <button class="btn danger" id="share-stop" hidden style="margin-right:auto">Dejar de compartir</button>
@@ -2072,6 +2116,7 @@ function showFloat(kind, o) {
         fbtn('Original', () => restoreImg(o), '', 'Volver a la imagen completa');
       }
       if (o.au && doc.audio && doc.audio.some(a => a.id === o.au[0])) fbtn('▶ Escuchar desde aquí', () => playAudioAt(o.au[0], o.au[1]), 'primary', 'Escucha lo que se decía en clase cuando escribiste esto');
+      if (o.t !== 'conn') { fbtn('Copiar', () => copySel(false), '', 'Copia para pegar en otra hoja, otro cuaderno o en otra app (Ctrl+C)'); fbtn('Cortar', () => copySel(true), '', 'Para moverlo a otra hoja o cuaderno: córtalo y luego pégalo allá (Ctrl+X)'); }
       fbtn('Duplicar', () => duplicateSel());
       fbtn('Eliminar', () => deleteSel(), 'danger');
     } else fbtn('✕', hideFloat, '', 'Cerrar');
@@ -3377,6 +3422,7 @@ function renderLibrary() {
   h('Respaldo');
   side.appendChild(sideItem('🗑 Papelera', v === 'trash', () => setView('trash'), lib.nbs.filter(n => n.trashed).length + lib.cursos.filter(c => c.trashed).length || null));
   side.appendChild(sideItem('☁ Google Drive', v === 'drive', () => setView('drive')));
+  if (liveNbs().some(n => n.share)) side.appendChild(sideItem('🔗 Compartidos', v === 'shared', () => setView('shared'), liveNbs().filter(n => n.share).length));
   side.appendChild(sideItem('🎨 Apariencia', false, lookOpen));
   const main = $('lib-main'); main.innerHTML = '';
   const q = $('lib-search').value.trim().toLowerCase();
@@ -3392,6 +3438,7 @@ function renderLibrary() {
   if (v === 'prog') return renderProgress(main);
   if (v === 'matriz') return renderMatrix(main);
   if (v === 'gloss') return renderGloss(main);
+  if (v === 'shared') return renderShared(main);
   if (v === 'tags') return renderTags(main);
   if (v === 'cards') return renderCards(main);
   if (v === 'biblio') return renderBiblio(main);
@@ -3799,7 +3846,7 @@ function drawLassoOverlay(c) {
 function buildMultiFloat() {
   const n = msel.length, pens = msel.filter(o => o.t === 'pen' && !o.a);
   fnote(`${n} elemento${n > 1 ? 's' : ''} · arrástralos para moverlos`);
-  fbtn('Copiar', copyMsel);
+  fbtn('Copiar', () => copyMsel()); fbtn('Cortar', () => cutMsel(), '', 'Para moverlo a otra hoja o cuaderno');
   fbtn('Duplicar', () => { const copies = remapNodes(msel.map(clone)); copies.forEach(o => moveObj(o, clone(o), 24, 24)); mutate(() => pg().objs.push(...copies)); msel = copies; showFloat('multi', { t: 'multi' }); requestPaint(); });
   fbtn('Cambiar color', () => {
     const f = $('float'); f.innerHTML = ''; fnote('Elige el color');
@@ -4178,8 +4225,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20j';
+const APP_VERSION = '2026-11-20k';
 const CHANGELOG = [
+  { v: '2026-11-20k', t: '20 de noviembre · mediodía', items: ['🎤 Dictado: más comandos («punto y coma», «abre/cierra interrogación», «comillas», «borra eso»), botón de pausa y toca la hoja para seguir dictando en otro lugar.', '📋 Copiar, cortar y pegar cualquier texto u objeto (botones y Ctrl+C / Ctrl+X / Ctrl+V), también en otra hoja, otro cuaderno o en otras apps.', '🌐 Traducir: eliges dónde va (debajo, al lado, reemplazar o solo copiar) y puedes traducir una hoja completa, incluso un PDF.', '📄 Word y PowerPoint: eliges qué hojas, Word con texto editable y el texto de cada hoja en las notas del orador.', '🔗 Compartir: WhatsApp, correo, código QR, lista de compartidos y actualización automática al cerrar.', '▶ Presentación: cronómetro, tapar la pantalla (B/W), ver todas las hojas (G), ir a una hoja escribiendo su número y deslizar con dos dedos.', '🍅 Pomodoro: cuenta tus bloques del día y opción de pausar entre fases.', '📊 Avance y notas en versión breve, con «Ver detalle», y un resumen en la portada de cada ciclo.', '✨ Glosario automático: toma tus definiciones y deduce las que faltan de tus apuntes, lo resaltado y tus lecturas; tú lo revisas y editas.'] },
   { v: '2026-11-20j', t: '20 de noviembre · noche (5)', items: ['📊 Avance y notas: créditos, notas por evaluación con su peso, promedio ponderado, cuánto necesitas para aprobar y avance de la tesis.', '🧩 Matriz de consistencia con enlaces a las hojas de tus apuntes, y opción de pasarla a una hoja como tabla.', '📖 Glosario por curso: agrega términos desde una hoja («Al glosario») y conviértelos en tarjetas de repaso.', '🎨 Apariencia: modo oscuro y botones más grandes («⋯ → Apariencia»).'] },
   { v: '2026-11-20i', t: '20 de noviembre · noche (4)', items: ['🔗 Compartir por enlace («⋯ → Compartir por enlace»): crea un PDF de solo lectura en tu Drive. Puedes actualizarlo o dejar de compartir cuando quieras.', '▶ Modo presentación: pantalla completa sin botones, puntero láser, lápiz y resaltador para anotar, y ← → para pasar de hoja.', '🍅 Pomodoro en el panel de clase (25 min de enfoque y 5 de descanso, ajustables).', '⏱ Horas de estudio por curso y por día: se cuentan solas mientras trabajas en un cuaderno y las ves en la biblioteca.'] },
   { v: '2026-11-20h', t: '20 de noviembre · noche (3)', items: ['🎤 Dictado por voz («Insertar → Dictar por voz»): lo que dices aparece como texto. Di «punto», «coma» o «punto y aparte».', 'Leer texto de fotos: toca una imagen → «Leer texto», o «⋯ → Leer el texto de esta hoja». Usa Google Drive si está conectado.', 'Traducir: selecciona un texto → «Traducir» y la traducción aparece debajo, en azul.', 'Exportar como Word (.docx) o PowerPoint (.pptx), cada hoja con su orientación.'] },
@@ -5882,6 +5930,548 @@ function lookOpen() {
 $('look-ok').onclick = () => { $('look').hidden = true; };
 $('look-btn').onclick = lookOpen;
 applyLook();
+
+/* ---------- Ronda de mejoras: 20 a 29 (segunda versión) ---------- */
+/* 20 · dictado: más comandos, pausa, borrar y ubicar con un toque */
+const DICT_CMDS = [
+  [/\s(punto y aparte|nueva línea|nuevo renglón|siguiente línea|nuevo párrafo)(?=\s|$)/gi, '.\n'],
+  [/\s(abre|abrir) (signo de )?(interrogación|pregunta)(?=\s|$)/gi, ' ¿'], [/\s(cierra|cerrar) (signo de )?(interrogación|pregunta)(?=\s|$)/gi, '?'], [/\ssigno de interrogación(?=\s|$)/gi, '?'],
+  [/\s(abre|abrir) (signo de )?exclamación(?=\s|$)/gi, ' ¡'], [/\s(cierra|cerrar) (signo de )?exclamación(?=\s|$)/gi, '!'], [/\ssigno de exclamación(?=\s|$)/gi, '!'],
+  [/\s(abre|abrir) comillas(?=\s|$)/gi, ' «'], [/\s(cierra|cerrar) comillas(?=\s|$)/gi, '»'],
+  [/\s(abre|abrir) paréntesis(?=\s|$)/gi, ' ('], [/\s(cierra|cerrar) paréntesis(?=\s|$)/gi, ')'],
+  [/\spunto y coma(?=\s|$)/gi, ';'], [/\sdos puntos(?=\s|$)/gi, ':'], [/\spuntos suspensivos(?=\s|$)/gi, '…'], [/\sguion(?=\s|$)/gi, ' –'],
+  [/\scoma(?=\s|$)/gi, ','], [/\spunto y seguido(?=\s|$)/gi, '.'], [/\spunto(?!\s+(de|del|a|en|y|medio|final|clave|crítico|focal|muerto|cardinal|neutro|porcentual|porcentuales)\b)(?=\s|$)/gi, '.']
+];
+dictClean = function (seg) {
+  let s = ' ' + seg.trim() + ' ';
+  DICT_CMDS.forEach(([re, r]) => { s = s.replace(re, r); });
+  return s.replace(/\s+([,.:;?!»)…])/g, '$1').replace(/([¿¡«(])\s+/g, '$1').replace(/\n\s+/g, '\n').replace(/[ \t]{2,}/g, ' ').replace(/^\s+|[ \t]+$/g, '');
+};
+dictAppend = function (prev, seg) {
+  if (!seg) return prev;
+  if (!prev || /[.!?…;:,]\s*$/.test(prev)) seg = seg.replace(/^[.,;:]+(?=\n|\s|$)/, '').replace(/^\s+(?=\n)/, '');
+  if (!seg.trim()) return prev;
+  if (!prev || /[.!?…\n]\s*$/.test(prev)) seg = seg.replace(/^(\n?\s*[¿¡«(]?)(\p{L})/u, (m, a, b) => a + b.toLocaleUpperCase('es'));
+  seg = seg.replace(/([.!?…]\s+|\n\s*)([¿¡«(]?)(\p{Ll})/gu, (m, a, q, c) => a + q + c.toLocaleUpperCase('es'));
+  return prev + (prev && !/\n$/.test(prev) && !/^[,.:;?!»)…\n]/.test(seg) ? ' ' : '') + seg;
+};
+const UNDO_WORDS = /^(borra|borrar|bórralo|borra eso|borrar eso|quita eso|elimina eso|deshacer)\.?$/i;
+dictStart = function () {
+  const r = new SRec(); dict.r = r; r.lang = dict.lang; r.continuous = true; r.interimResults = true; dict.segs = dict.segs || [];
+  r.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (!e.results[i].isFinal) { interim += t; continue; }
+      if (dict.paused) continue;
+      if (UNDO_WORDS.test(t.trim())) {
+        const last = dict.segs.pop();
+        if (last != null && dict.obj && pg().objs.includes(dict.obj)) { mutate(() => { dict.raw = last; dictRender(); if (!dict.raw.trim()) { pg().objs.splice(pg().objs.indexOf(dict.obj), 1); dict.obj = null; } }); requestPaint(); toast('Borré lo último que dictaste.'); }
+        continue;
+      }
+      const seg = dictClean(t); if (!seg) continue;
+      if (!dict.obj || !pg().objs.includes(dict.obj)) {
+        dict.segs = [''];
+        dict.raw = dictAppend('', seg);
+        dict.obj = blockAt(dict.raw, dict.x, dict.y, dict.size, dict.f, dict.maxW, color);
+        mutate(() => pg().objs.push(dict.obj));
+      } else { dict.segs.push(dict.raw); mutate(() => { dict.raw = dictAppend(dict.raw, seg); dictRender(); }); }
+      requestPaint();
+    }
+    $('dict-live').textContent = dict.paused ? 'En pausa' : (interim || '…');
+  };
+  r.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { toast('Permite el micrófono para esta página (candado junto a la dirección) y vuelve a intentarlo.', 7000); stopDictation(); }
+    else if (e.error === 'network') { toast('El dictado necesita internet.'); stopDictation(); }
+  };
+  r.onend = () => { if (dict && dict.on && dict.r === r) { try { r.start(); } catch (err) { setTimeout(() => { if (dict && dict.on) dictStart(); }, 300); } } };
+  try { r.start(); } catch (e) {}
+};
+$('dict-pause').onclick = () => {
+  if (!dict) return; dict.paused = !dict.paused;
+  $('dict-pause').textContent = dict.paused ? 'Seguir' : 'Pausa'; $('dict-bar').classList.toggle('paused', dict.paused);
+  $('dict-live').textContent = dict.paused ? 'En pausa: no escribo lo que dices' : '…';
+};
+$('dict-help').onclick = () => toast('Puedes decir: «coma», «punto», «punto y coma», «dos puntos», «punto y aparte», «abre/cierra interrogación», «abre/cierra comillas», «abre/cierra paréntesis» y «borra eso». Toca la hoja para seguir dictando en otro lugar.', 12000);
+cv.addEventListener('pointerdown', e => {
+  if (!dict || presenting || e.button > 0) return;
+  if (tool !== 'select' && tool !== 'text') return;
+  const p = toWorld(screenPt(e)), o = pg().objs.find(x => x === dict.obj);
+  if (o) { const b = bbox(o); if (p.x >= b[0] && p.x <= b[2] && p.y >= b[1] && p.y <= b[3]) return; }
+  dict.obj = null; dict.raw = ''; dict.segs = []; dict.x = p.x; dict.y = p.y - dict.size * .6; dict.maxW = Math.max(200, W - p.x - 24);
+  $('dict-live').textContent = 'Seguiré escribiendo aquí…';
+}, true);
+const _startDict = startDictation;
+startDictation = function () { const was = !!dict; _startDict(); if (!was && dict) { $('dict-pause').textContent = 'Pausa'; $('dict-bar').classList.remove('paused'); if (tool !== 'select') setTool('select'); } };
+$('ins-dict').onclick = startDictation;
+
+/* 21 · copiar, cortar (mover) y pegar cualquier texto u objeto */
+copyMsel = function (silent) {
+  if (!msel || !msel.length) return;
+  const txt = textOfObjs(msel).trim();
+  clip = { objs: msel.map(clone), nb: curNb && curNb.id, marker: txt || 'pizarra-copia-' + Date.now() };
+  $('paste-clip').disabled = false;
+  try { navigator.clipboard && navigator.clipboard.writeText(clip.marker).catch(() => {}); } catch (e) {}
+  if (!silent) toast(txt ? 'Copiado. Pégalo aquí, en otra hoja u otro cuaderno (Ctrl+V o «Insertar → Pegar lo copiado»), o como texto en Word, WhatsApp o donde quieras.' : 'Copiado. Pégalo con Ctrl+V o desde «Insertar → Pegar lo copiado», también en otra hoja o cuaderno.', 5500);
+};
+function copySel(cut) {
+  const o = pg().objs[sel]; if (!o) return;
+  msel = [o]; copyMsel(true); msel = null;
+  if (cut) { deleteSel(); toast('Cortado. Ve a la hoja o cuaderno donde lo quieres y pega (Ctrl+V o «Insertar → Pegar lo copiado»).', 5500); }
+  else toast(o.text ? 'Texto copiado: pégalo en otra hoja, otro cuaderno o en cualquier app (Word, WhatsApp…).' : 'Copiado. Pégalo en otra hoja o cuaderno.', 4500);
+}
+function cutMsel() { copyMsel(true); deleteMsel(); toast('Cortado. Ve a la hoja o cuaderno donde lo quieres y pega (Ctrl+V o «Insertar → Pegar lo copiado»).', 5500); }
+window.addEventListener('keydown', e => {
+  if (!(e.ctrlKey || e.metaKey) || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || !$('library').hidden) return;
+  const k = e.key.toLowerCase();
+  if (k === 'x' && msel && msel.length) { e.preventDefault(); cutMsel(); }
+  else if ((k === 'c' || k === 'x') && (!msel || !msel.length) && tool === 'select' && pg().objs[sel]) { e.preventDefault(); copySel(k === 'x'); }
+  else if (k === 'd' && tool === 'select' && pg().objs[sel]) { e.preventDefault(); duplicateSel(); }
+}, true);
+document.querySelector('#paste-clip').textContent = 'Pegar lo copiado o cortado';
+
+/* 22 · traducir: dónde ponerla, idioma detectado y hoja completa */
+const LANG_NAMES = { es: 'español', en: 'inglés', pt: 'portugués', fr: 'francés', de: 'alemán', it: 'italiano', zh: 'chino', ja: 'japonés', ru: 'ruso', ko: 'coreano', ar: 'árabe', nl: 'neerlandés', ca: 'catalán' };
+let trSrc = '';
+translateText = async function (text, to) {
+  if (!navigator.onLine) throw new Error('offline');
+  const parts = chunks(text, 1500), out = []; trSrc = '';
+  for (const p of parts) {
+    try {
+      const j = await (await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${to}&dt=t&q=${encodeURIComponent(p)}`)).json();
+      out.push(j[0].map(x => x[0]).join('')); if (!trSrc && j[2]) trSrc = j[2];
+    } catch (e) {
+      for (const q of chunks(p, 480)) {
+        const src = looksSpanish(q) ? 'es' : 'en'; if (!trSrc) trSrc = src;
+        const j = await (await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(q)}&langpair=${src}|${to}`)).json();
+        out.push(j.responseData.translatedText);
+      }
+    }
+  }
+  return out.join('');
+};
+const TR_PLACES = [['below', 'Debajo del original (en azul)'], ['right', 'Al lado del original'], ['replace', 'Reemplazar el original'], ['copy', 'Solo copiarla (para pegarla donde quieras)']];
+translateObjs = async function (objs) {
+  const text = textOfObjs(objs).trim(); hideFloat();
+  if (!text) { toast('Selecciona un texto (o escritura convertida en letra) para traducirlo.'); return; }
+  const to = await askSelect('Traducir', 'Traducir al', TR_LANGS, looksSpanish(text) ? (prefs.trLang && prefs.trLang !== 'es' ? prefs.trLang : 'en') : 'es');
+  if (!to) return; prefs.trLang = to;
+  const place = await askSelect('Traducir', '¿Dónde pongo la traducción?', TR_PLACES, prefs.trPlace || 'below');
+  if (!place) return; prefs.trPlace = place; savePrefs();
+  try {
+    toast('Traduciendo…', 20000);
+    const t = await translateText(text, to), from = LANG_NAMES[trSrc] ? ` del ${LANG_NAMES[trSrc]}` : '';
+    const bb = objs.map(bbox).reduce((a, b) => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])]);
+    const ref = objs.find(o => o.t === 'text') || {}, size = ref.size ? (place === 'replace' ? ref.size : Math.max(12, ref.size * .85)) : 18, f = ref.f || prefs.font;
+    if (place === 'copy') { toast((await copyText(t)) ? `Traducción${from} copiada. Pégala donde quieras.` : 'No se pudo copiar.'); return; }
+    if (place === 'replace' && objs.length === 1 && (objs[0].t === 'text' || objs[0].t === 'note' || objs[0].t === 'node')) {
+      const o = objs[0]; mutate(() => { o.text = o.t === 'text' ? wrapLines(t, o.size, o.f, Math.max(220, bb[2] - bb[0] + 40)).join('\n') : t; delete o.ink; delete o.alts; o.trOrig = text; });
+      requestPaint(); toast(`Traducido${from}. Si quieres el original, usa Deshacer.`); return;
+    }
+    let b;
+    if (place === 'right' && W - bb[2] > 220) b = blockAt(t, bb[2] + 24, bb[1], size, f, Math.min(W - bb[2] - 48, Math.max(260, bb[2] - bb[0])), 'blue');
+    else b = blockAt(t, bb[0], bb[3] + size * .6, size, f, Math.max(260, Math.min(W - bb[0] - 24, Math.max(bb[2] - bb[0], 420))), 'blue');
+    if (place === 'replace') { const s = new Set(objs); mutate(() => { pg().objs = pg().objs.filter(o => !s.has(o)); b.c = ref.c || 'ink'; b.x = bb[0]; b.y = bb[1]; pg().objs.push(b); }); }
+    else mutate(() => pg().objs.push(b));
+    sel = pg().objs.indexOf(b); msel = null; showSelFloat(); requestPaint();
+    toast(`Traducción${from} lista.`);
+  } catch (e) { toast(e.message === 'offline' ? 'Traducir necesita internet.' : 'No se pudo traducir ahora. Inténtalo otra vez.'); }
+};
+$('page-tr').onclick = async () => {
+  closeMenus(); if (!curNb) return; commitEditor();
+  const p = pg(), text = pageText(p);
+  if (!text) { toast('Esta hoja no tiene texto para traducir. Si es una foto o escaneo, usa primero «Leer el texto de esta hoja».', 6000); return; }
+  const to = await askSelect('Traducir esta hoja', 'Traducir al', TR_LANGS, looksSpanish(text) ? 'en' : 'es'); if (!to) return;
+  try {
+    toast('Traduciendo la hoja…', 30000);
+    const t = await translateText(text.replace(/\s*\n\s*/g, ' '), to), from = LANG_NAMES[trSrc] ? ` (del ${LANG_NAMES[trSrc]})` : '';
+    const np = newPage(p); np.objs = []; delete np.bgImg; delete np.ptext; delete np.ptw; addPageAfter(np);
+    const size = 17, f = prefs.font, lh = size * 1.35, maxLines = Math.floor((pg().H - 110) / lh);
+    let lines = wrapLines(t, size, f, pg().W - 96), first = true, n = 0;
+    while (lines.length) {
+      const chunk = lines.splice(0, maxLines); n++;
+      if (!first) { addPageAfter(newPage(pg())); pg().objs = []; }
+      const objs = [{ t: 'text', x: 48, y: 54, text: chunk.join('\n'), c: 'ink', size, f }];
+      if (first) objs.unshift({ t: 'text', x: 48, y: 18, text: `Traducción de la hoja ${doc.pages.indexOf(p) + 1}${from}`, c: 'blue', size: 14, f: 'plex' });
+      mutate(() => pg().objs.push(...objs)); first = false;
+    }
+    requestPaint(); toast(`Listo: ${n === 1 ? 'la traducción está en una hoja nueva' : `la traducción ocupa ${n} hojas nuevas`}, justo después de la original.`);
+  } catch (e) { toast(e.message === 'offline' ? 'Traducir necesita internet.' : 'No se pudo traducir ahora. Inténtalo otra vez.'); }
+};
+
+/* 23 · exportar: qué hojas, Word editable y notas en PowerPoint */
+async function askPages(title) {
+  const n = doc.pages.length; if (n === 1) return [0];
+  const v = await askSelect(title, '¿Qué hojas?', [['all', `Todas (${n})`], ['cur', `Solo esta hoja (${doc.cur + 1})`], ['range', 'Elegir hojas…']], 'all'); if (!v) return null;
+  if (v === 'all') return [...Array(n).keys()]; if (v === 'cur') return [doc.cur];
+  const r = await askText(title, `Hojas, por ejemplo: 1-3, 5 (hay ${n})`, `1-${n}`); if (!r) return null;
+  const out = new Set(); r.split(/[,;\s]+/).forEach(part => { const m = part.match(/^(\d+)(?:-(\d+))?$/); if (m) { let a = +m[1], b = +(m[2] || m[1]); if (a > b) [a, b] = [b, a]; for (let i = a; i <= b; i++) if (i >= 1 && i <= n) out.add(i - 1); } });
+  if (!out.size) { toast('No entendí las hojas. Escribe por ejemplo 1-3, 5.'); return null; }
+  return [...out].sort((a, b) => a - b);
+}
+pageImages = async function (onStep, idxs) {
+  commitEditor(); await finishSmart(); await fontsReady();
+  const list = idxs || [...doc.pages.keys()], out = [];
+  for (let k = 0; k < list.length; k++) {
+    onStep(k, list.length);
+    const p = doc.pages[list[k]], c = await renderPageCanvas(p, clamp(2000 / Math.max(p.W, p.H), 1.2, 2.2));
+    out.push({ pt: ptOf(p), url: c.toDataURL('image/jpeg', .88), page: p, i: list[k] }); c.width = c.height = 0;
+    await new Promise(r => setTimeout(r, 0));
+  }
+  return out;
+};
+const DOCX_NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
+function docxPic(rid, n, cx, cy) { return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${n}" name="Imagen ${n}"/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="${n}" name="img${n}"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`; }
+const docxRun = (t, o) => { o = o || {}; return t.split('\n').map((ln, i) => `${i ? '<w:r><w:br/></w:r>' : ''}<w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/>${o.b ? '<w:b/>' : ''}${o.col ? `<w:color w:val="${o.col}"/>` : ''}<w:sz w:val="${o.sz || 22}"/></w:rPr><w:t xml:space="preserve">${xesc(ln)}</w:t></w:r>`).join(''); };
+const docxP = (inner, o) => { o = o || {}; return `<w:p><w:pPr><w:spacing w:before="${o.before || 0}" w:after="${o.after == null ? 120 : o.after}"/>${o.shade ? `<w:shd w:val="clear" w:color="auto" w:fill="${o.shade}"/>` : ''}${o.pb ? '' : ''}</w:pPr>${inner}</w:p>`; };
+const HEX = { ink: '1B2430', blue: '1F5FD1', red: 'D92D20', green: '12805C', orange: 'E8710A', purple: '7C3AED' };
+async function buildEditableDocx(idxs) {
+  await needLib('jszip'); commitEditor(); await finishSmart(); await fontsReady();
+  const z = new JSZip(), rels = []; let body = '', nimg = 0;
+  const addImg = (dataUrl, wPt, hPt) => {
+    nimg++; const ext = /^data:image\/png/.test(dataUrl) ? 'png' : 'jpeg', rid = 'rIdI' + nimg;
+    z.file(`word/media/i${nimg}.${ext}`, dataUrl.split(',')[1], { base64: true }); rels.push(`<Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/i${nimg}.${ext}"/>`);
+    const k = Math.min(1, 451 / wPt, 640 / hPt); return docxP(docxPic(rid, nimg, Math.round(wPt * k * 12700), Math.round(hPt * k * 12700)), { after: 160 });
+  };
+  for (let k = 0; k < idxs.length; k++) {
+    const i = idxs[k], p = doc.pages[i];
+    toast(`Creando el Word editable: hoja ${k + 1} de ${idxs.length}…`, 60000);
+    if (k) body += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+    body += docxP(docxRun(`Hoja ${i + 1}${p.tags && p.tags.length ? ' · ' + p.tags.join(', ') : ''}`, { sz: 18, col: '8894A3' }), { after: 80 });
+    const items = p.objs.filter(o => ['text', 'note', 'node', 'table', 'img', 'link'].includes(o.t)).sort((a, b) => (a.y - b.y) || (a.x - b.x));
+    const sizes = items.filter(o => o.t === 'text').map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 18;
+    for (const o of items) {
+      if (o.t === 'text') { const big = o.size >= med * 1.35; body += docxP(docxRun(o.text.replace(/\n(?=[a-záéíóúñ])/g, ' '), { b: big, sz: big ? Math.min(40, Math.round(o.size / med * 24)) : 22, col: HEX[o.c] }), { before: big ? 160 : 0 }); }
+      else if (o.t === 'note') body += docxP(docxRun('📝 ' + o.text), { shade: 'FFF3A6' });
+      else if (o.t === 'node' && o.text) body += docxP(docxRun('▸ ' + o.text));
+      else if (o.t === 'link') body += docxP(docxRun('🔗 ' + o.text, { col: '0B6E75' }));
+      else if (o.t === 'table') {
+        const cols = (o.cells[0] || []).length, tw = Math.round(9000 / Math.max(1, cols));
+        body += `<w:tbl><w:tblPr><w:tblW w:w="9000" w:type="dxa"/><w:tblBorders>${['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(s => `<w:${s} w:val="single" w:sz="4" w:color="9AA6B4"/>`).join('')}</w:tblBorders></w:tblPr><w:tblGrid>${'<w:gridCol w:w="' + tw + '"/>'.repeat(cols)}</w:tblGrid>${o.cells.map((row, ri) => `<w:tr>${row.map(c => `<w:tc><w:tcPr><w:tcW w:w="${tw}" w:type="dxa"/>${ri === 0 ? '<w:shd w:val="clear" w:color="auto" w:fill="E8EEF4"/>' : ''}</w:tcPr>${docxP(docxRun(String(c || ''), { b: ri === 0, sz: 20 }), { after: 0 })}</w:tc>`).join('')}</w:tr>`).join('')}</w:tbl>` + docxP('', { after: 120 });
+      } else if (o.t === 'img') {
+        const im = await loadImg(o.id); if (!im) continue;
+        const cr = o.crop || [0, 0, im.naturalWidth, im.naturalHeight], c = document.createElement('canvas'), s = Math.min(1, 1400 / Math.max(cr[2], cr[3]));
+        c.width = Math.round(cr[2] * s); c.height = Math.round(cr[3] * s); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, cr[0], cr[1], cr[2], cr[3], 0, 0, c.width, c.height);
+        body += addImg(c.toDataURL('image/jpeg', .88), o.w * .75, o.h * .75);
+      }
+    }
+    if (p.bgImg || p.objs.some(o => ['pen', 'line', 'arrow', 'rect', 'ellipse', 'chart', 'axes', 'conn'].includes(o.t))) {
+      body += docxP(docxRun(items.length ? 'Escritura a mano, resaltados y dibujos de esta hoja:' : 'Esta hoja tal como la escribiste:', { sz: 18, col: '5A6676' }), { before: 120, after: 60 });
+      const TXT = new Set(['text', 'note', 'node', 'table', 'img', 'link']), only = Object.assign({}, p, { objs: p.objs.filter(o => !TXT.has(o.t)) }); const c = await renderPageCanvas(only, clamp(1600 / Math.max(p.W, p.H), 1, 2)); const pt = ptOf(p);
+      body += addImg(c.toDataURL('image/jpeg', .85), pt[0], pt[1]); c.width = c.height = 0;
+    }
+  }
+  z.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+  z.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+  z.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels.join('')}</Relationships>`);
+  z.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${DOCX_NS}><w:body>${docxP(docxRun(curNb ? curNb.title : fileBase(), { b: true, sz: 36 }), { after: 200 })}${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1418" w:right="1418" w:bottom="1418" w:left="1418" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr></w:body></w:document>`);
+  return z.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+}
+exportDocx = async function () {
+  closeMenus(); if (exporting) return;
+  const mode = await askSelect('Exportar como Word', '¿Cómo lo quieres?', [['img', 'Igual a tus hojas (cada hoja como imagen, sin cambios)'], ['edit', 'Texto editable (para tu monografía o tesis)']], prefs.docxMode || 'img'); if (!mode) return;
+  prefs.docxMode = mode; savePrefs();
+  const idxs = await askPages('Exportar como Word'); if (!idxs) return;
+  exporting = true;
+  try {
+    if (mode === 'edit') { const blob = await buildEditableDocx(idxs); await downloadBlob(blob, fileBase() + ' (editable).docx'); toast('Listo: el texto se puede editar. La escritura a mano que no convertiste va como imagen al final de cada hoja.', 7000); return; }
+    await needLib('jszip');
+    const imgs = await pageImages((k, n) => toast(`Creando el Word: hoja ${k + 1} de ${n}…`, 60000), idxs);
+    const z = new JSZip(), n = imgs.length;
+    const sect = pt => `<w:pgSz w:w="${Math.round(pt[0] * 20)}" w:h="${Math.round(pt[1] * 20)}"${pt[0] > pt[1] ? ' w:orient="landscape"' : ''}/><w:pgMar w:top="0" w:right="0" w:bottom="0" w:left="0" w:header="0" w:footer="0" w:gutter="0"/>`;
+    let body = '';
+    imgs.forEach((im, i) => {
+      const k = (im.pt[1] - 4) / im.pt[1], cx = Math.round(im.pt[0] * 12700 * k), cy = Math.round(im.pt[1] * 12700 * k);
+      z.file(`word/media/hoja${i + 1}.jpeg`, im.url.split(',')[1], { base64: true });
+      body += `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/><w:jc w:val="center"/>${i < n - 1 ? `<w:sectPr>${sect(im.pt)}</w:sectPr>` : ''}</w:pPr>${docxPic('rIdH' + (i + 1), i + 1, cx, cy)}</w:p>`;
+    });
+    z.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+    z.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    z.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${imgs.map((_, i) => `<Relationship Id="rIdH${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/hoja${i + 1}.jpeg"/>`).join('')}</Relationships>`);
+    z.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${DOCX_NS}><w:body>${body}<w:sectPr>${sect(imgs[n - 1].pt)}</w:sectPr></w:body></w:document>`);
+    await downloadBlob(await z.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' }), fileBase() + '.docx');
+    toast('Listo: cada hoja es una página del Word, con su misma orientación.');
+  } catch (e) { toast('No se pudo crear el Word. Inténtalo otra vez.'); }
+  finally { exporting = false; }
+};
+exportPptx = async function () {
+  closeMenus(); if (exporting) return;
+  const idxs = await askPages('Exportar como PowerPoint'); if (!idxs) return;
+  exporting = true;
+  try {
+    if (!window.PptxGenJS) await loadScript('lib/pptxgen.bundle.js');
+    const imgs = await pageImages((k, n) => toast(`Creando el PowerPoint: diapositiva ${k + 1} de ${n}…`, 60000), idxs);
+    const p = new PptxGenJS(), f = imgs[0].pt, sw = f[0] / 72, sh = f[1] / 72;
+    p.defineLayout({ name: 'HOJA', width: sw, height: sh }); p.layout = 'HOJA'; p.title = fileBase(); p.author = 'Pizarra de Apuntes';
+    imgs.forEach(im => {
+      const s = p.addSlide(); s.background = { color: 'FFFFFF' };
+      const iw = im.pt[0] / 72, ih = im.pt[1] / 72, k = Math.min(sw / iw, sh / ih), w = iw * k, h = ih * k;
+      s.addImage({ data: im.url, x: (sw - w) / 2, y: (sh - h) / 2, w, h });
+      const notes = pageText(im.page); if (notes) s.addNotes(notes.slice(0, 4000));
+    });
+    await downloadBlob(await p.write({ outputType: 'blob' }), fileBase() + '.pptx'); toast('Listo: cada hoja es una diapositiva y el texto de la hoja va en las notas del orador.', 6000);
+  } catch (e) { toast('No se pudo crear el PowerPoint. Inténtalo otra vez.'); }
+  finally { exporting = false; }
+};
+$('save-docx').onclick = exportDocx;
+$('save-pptx').onclick = exportPptx;
+
+/* 24 · compartir: WhatsApp, correo, QR, lista de compartidos y actualización automática */
+function shareExtras() {
+  const s = curNb && curNb.share; $('share-more').hidden = !s; if (!s) return;
+  const msg = `${curNb.title} — mis apuntes: ${s.link}`;
+  $('share-wa').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  $('share-mail').href = `mailto:?subject=${encodeURIComponent('Apuntes: ' + curNb.title)}&body=${encodeURIComponent(msg)}`;
+  $('share-auto').checked = !!s.auto; $('share-qr').innerHTML = '';
+}
+const _shareShow = shareShow;
+shareShow = function (msg) { _shareShow(msg); shareExtras(); };
+$('share-auto').onchange = e => { if (curNb && curNb.share) { curNb.share.auto = e.target.checked; curNb.mod = Date.now(); saveLibrary(); toast(e.target.checked ? 'Cuando cierres este cuaderno, el enlace se actualizará solo con lo nuevo.' : 'El enlace solo se actualizará cuando pulses «Actualizar».'); } };
+$('share-qr-btn').onclick = async () => {
+  const s = curNb && curNb.share; if (!s) return;
+  try { if (!window.qrcode) await loadScript('lib/qrcode.js'); const q = qrcode(0, 'M'); q.addData(s.link); q.make(); $('share-qr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 2 }) + '<small>Escanéalo con la cámara del celular</small>'; }
+  catch (e) { toast('No se pudo crear el código QR.'); }
+};
+const _closeNb = closeNotebook;
+closeNotebook = async function () {
+  const nb = curNb, s = nb && nb.share;
+  if (s && s.auto && navigator.onLine && driveReady() && (nb.updated || 0) > (s.at || 0)) {
+    try {
+      toast('Actualizando tu enlace compartido…', 15000);
+      const blob = await buildPdfBlob(() => {});
+      await _closeNb();
+      gupload(`${nb.title} (compartido).pdf`, blob, 'application/pdf', { id: s.id }, { share: '1', nb: nb.id }).then(() => { s.at = Date.now(); nb.mod = Date.now(); saveLibrary(); toast(`Enlace de «${nb.title}» actualizado.`); }).catch(() => toast('No se pudo actualizar el enlace compartido; hazlo desde «Compartir por enlace».'));
+      return;
+    } catch (e) {}
+  }
+  return _closeNb();
+};
+function renderShared(main) {
+  const list = liveNbs().filter(n => n.share);
+  headEl(main, '🔗 Compartidos', 'Cuadernos que compartiste por enlace de solo lectura. Desde aquí copias el enlace o dejas de compartir.');
+  if (!list.length) { const p = document.createElement('p'); p.className = 'sub'; p.textContent = 'Aún no compartes nada. Dentro de un cuaderno: «⋯ → 🔗 Compartir por enlace».'; main.appendChild(p); return; }
+  list.forEach(n => {
+    const row = nbRow(n, true);
+    row.appendChild(mkBtn('Copiar enlace', async () => toast((await copyText(n.share.link)) ? 'Enlace copiado.' : n.share.link)));
+    row.appendChild(mkBtn('Dejar de compartir', async () => {
+      if (!(await confirmBox(`¿Dejar de compartir «${n.title}»? El enlace dejará de funcionar.`, 'Dejar de compartir'))) return;
+      try { if (!driveReady()) await driveConnect(true); await gfetch(`${GAPI}/files/${n.share.id}`, { method: 'DELETE' }).catch(e => { if (!/404/.test(e.message)) throw e; }); delete n.share; n.mod = Date.now(); saveLibrary(); renderLibrary(); toast('Ya no se comparte.'); }
+      catch (e) { toast('No se pudo: ' + (e.message === 'auth' ? 'conecta Google Drive.' : e.message)); }
+    }, 'danger'));
+    main.appendChild(row);
+  });
+}
+
+/* 25 · presentación: cronómetro, pantalla en blanco y vista de todas las hojas */
+let presT0 = 0, presTimer = 0;
+const _presStart = presentStart, _presStop = presentStop;
+presentStart = function () { _presStart(); if (!presenting) return; presT0 = Date.now(); clearInterval(presTimer); presTimer = setInterval(() => { const s = Math.floor((Date.now() - presT0) / 1000); $('pres-clock').textContent = fmt(s); }, 500); $('pres-clock').textContent = '00:00'; };
+presentStop = function () { clearInterval(presTimer); $('pres-cover').hidden = true; $('pres-grid').hidden = true; _presStop(); };
+$('present-btn').onclick = presentStart;
+$('pres-exit').onclick = presentStop;
+$('pres-clock').onclick = () => { presT0 = Date.now(); $('pres-clock').textContent = '00:00'; };
+function presCover(kind) { const c = $('pres-cover'); if (!c.hidden && c.dataset.k === kind) { c.hidden = true; return; } c.dataset.k = kind; c.style.background = kind === 'b' ? '#000' : '#fff'; c.hidden = false; }
+$('pres-blank').onclick = () => presCover('w');
+$('pres-cover').onclick = () => { $('pres-cover').hidden = true; };
+async function presGrid() {
+  const g = $('pres-grid'); if (!g.hidden) { g.hidden = true; return; }
+  g.innerHTML = '<div class="pg-head">Toca una hoja para ir a ella · Esc para cerrar</div><div class="pg-list"></div>'; g.hidden = false;
+  const list = g.querySelector('.pg-list');
+  for (let i = 0; i < doc.pages.length; i++) {
+    const b = document.createElement('button'); b.className = 'pr-item' + (i === doc.cur ? ' on' : ''); b.innerHTML = `<span>${i + 1}</span>`;
+    b.onclick = () => { g.hidden = true; presGo(i - doc.cur); };
+    list.appendChild(b);
+    renderPageCanvas(doc.pages[i], 240 / Math.max(doc.pages[i].W, doc.pages[i].H)).then(c => { c.className = 'pg-c'; b.prepend(c); });
+  }
+}
+$('pres-grid-btn').onclick = presGrid;
+window.addEventListener('keydown', e => {
+  if (!presenting || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName || '')) return;
+  const k = e.key.toLowerCase();
+  if (k === 'escape' && (!$('pres-grid').hidden || !$('pres-cover').hidden)) { e.preventDefault(); e.stopImmediatePropagation(); $('pres-grid').hidden = true; $('pres-cover').hidden = true; return; }
+  if (k === 'b' || k === '.') { e.preventDefault(); e.stopImmediatePropagation(); presCover('b'); }
+  else if (k === 'w' || k === ',') { e.preventDefault(); e.stopImmediatePropagation(); presCover('w'); }
+  else if (k === 'g') { e.preventDefault(); e.stopImmediatePropagation(); presGrid(); }
+  else if (/^\d$/.test(k) && !e.ctrlKey) { e.preventDefault(); e.stopImmediatePropagation(); presNum = (presNum + k).slice(-3); clearTimeout(presNumT); presNumT = setTimeout(() => { const n = +presNum; presNum = ''; if (n >= 1 && n <= doc.pages.length) presGo(n - 1 - doc.cur); }, 600); }
+}, true);
+let presNum = '', presNumT = 0;
+let swipe0 = null;
+$('stage').addEventListener('touchstart', e => { if (presenting && e.touches.length === 2) swipe0 = { x: (e.touches[0].clientX + e.touches[1].clientX) / 2, t: Date.now() }; }, { passive: true });
+$('stage').addEventListener('touchend', e => { if (!presenting || !swipe0 || e.touches.length) return; const t = e.changedTouches[0], dx = t.clientX - swipe0.x; if (Math.abs(dx) > 80 && Date.now() - swipe0.t < 700) presGo(dx < 0 ? 1 : -1); swipe0 = null; }, { passive: true });
+
+/* 26 · Pomodoro: contador del día, pausar entre fases y curso */
+function pomoDoneToday() { const d = todayISO(); return (prefs.pomoDone && prefs.pomoDone.d === d) ? prefs.pomoDone.n : 0; }
+const _pomoNext = pomoNext;
+pomoNext = function () {
+  const was = pomo.phase; _pomoNext();
+  if (was === 'focus') { prefs.pomoDone = { d: todayISO(), n: pomoDoneToday() + 1 }; savePrefs(); }
+  if (prefs.pomoPause && pomo.run) { clearInterval(pomo.int); pomo.run = false; }
+};
+const _pomoDraw = pomoDraw;
+pomoDraw = function () {
+  _pomoDraw();
+  const n = pomoDoneToday(), c = curNb && courseOf(curNb.cursoId);
+  $('pomo-count').innerHTML = n ? `Hoy: ${'🍅'.repeat(Math.min(n, 12))}${n > 12 ? ' ×' + n : ''} <b>${n}</b> bloque${n > 1 ? 's' : ''}` : 'Hoy aún no completas ningún bloque.';
+  $('pomo-course').textContent = c ? `El tiempo de enfoque se suma a «${c.name}».` : '';
+  $('pomo-pause').checked = !!prefs.pomoPause;
+};
+$('pomo-pause').onchange = e => { prefs.pomoPause = e.target.checked; savePrefs(); };
+
+/* 27 · avance y notas: versión breve con «Ver detalle» */
+function progSummary() {
+  const P = prog(), cs = liveCursos(), stats = cs.map(c => [c, courseAvg(c)]), cr = c => +c.credits || 0;
+  const withAvg = stats.filter(([, a]) => a.avg != null), wsum = withAvg.reduce((a, [c]) => a + (cr(c) || 1), 0);
+  const gen = wsum ? withAvg.reduce((a, [c, s]) => a + s.avg * (cr(c) || 1), 0) / wsum : null;
+  const approved = stats.filter(([, a]) => a.final != null && a.final >= P.pass).reduce((a, [c]) => a + cr(c), 0);
+  const risk = stats.filter(([, a]) => a.avg != null && ((a.final != null && a.final < P.pass) || (a.final == null && a.need > 20) || (a.final == null && a.avg < P.pass)));
+  const hours = cs.reduce((a, c) => a + studyWeek(c.id, 0), 0);
+  return { P, stats, gen, approved, risk, hours };
+}
+function progCard(main) {
+  const s = progSummary(); if (!liveCursos().length) return;
+  const d = document.createElement('button'); d.type = 'button'; d.className = 'psum';
+  d.innerHTML = `<span><b>${nf(s.gen)}</b><small>promedio</small></span><span><b>${s.approved}/${s.P.total}</b><small>créditos</small></span><span><b>${thesisPct()}%</b><small>tesis</small></span><span><b>${hm(s.hours)}</b><small>esta semana</small></span>${s.risk.length ? `<span class="warn">⚠ ${s.risk.length} curso${s.risk.length > 1 ? 's' : ''} en riesgo</span>` : '<span class="good">✔ Todo en orden</span>'}<em>Ver detalle →</em>`;
+  d.onclick = () => { lib.cur.progDetail = false; setView('prog'); };
+  main.appendChild(d);
+}
+const _renderProgress = renderProgress;
+renderProgress = function (main) {
+  if (lib.cur.progDetail) {
+    _renderProgress(main);
+    const hd = main.querySelector('.lib-head'); if (hd) hd.insertBefore(mkBtn('← Vista breve', () => { lib.cur.progDetail = false; renderLibrary(); }), hd.querySelector('.btn'));
+    return;
+  }
+  const s = progSummary();
+  headEl(main, '📊 Avance y notas', 'Lo esencial de un vistazo. Toca «Ver detalle» para escribir notas, pesos y créditos.', [mkBtn('Ver detalle', () => { lib.cur.progDetail = true; renderLibrary(); }, 'primary')]);
+  const box = document.createElement('div'); box.className = 'study prog';
+  box.innerHTML = `<div class="st-kpis"><div><b class="${s.gen != null && s.gen < s.P.pass ? 'bad' : ''}">${nf(s.gen)}</b><span>promedio general</span></div><div><b>${s.approved} / ${s.P.total}</b><span>créditos aprobados</span><span class="pbar"><i style="width:${Math.min(100, s.approved / Math.max(1, s.P.total) * 100)}%"></i></span></div><div><b>${thesisPct()} %</b><span>tesis</span><span class="pbar"><i style="width:${thesisPct()}%;background:#7c3aed"></i></span></div></div>`;
+  const tb = document.createElement('div'); tb.className = 'pbrief';
+  s.stats.forEach(([c, a]) => {
+    const st = a.avg == null ? ['', 'Sin notas aún'] : a.final != null ? (a.final >= s.P.pass ? ['ok', 'Aprobado'] : ['bad', 'Desaprobado']) : a.need <= 0 ? ['ok', 'Aprobado asegurado'] : a.need > 20 ? ['bad', 'No alcanza'] : [a.need > 16 ? 'bad' : '', `Necesitas ${nf(a.need)}`];
+    const r = document.createElement('button'); r.type = 'button'; r.className = 'pb-row';
+    r.innerHTML = `<span class="dot" style="background:${c.color}"></span><span class="pb-n">${escH(c.name)}</span><span class="pill ${a.avg == null ? '' : a.avg >= s.P.pass ? 'ok' : 'bad'}">${nf(a.avg)}</span><span class="pb-s ${st[0]}">${st[1]}</span><span class="pb-go">›</span>`;
+    r.onclick = () => { progOpen[c.id] = true; lib.cur.progDetail = true; renderLibrary(); };
+    tb.appendChild(r);
+  });
+  box.appendChild(tb); main.appendChild(box);
+};
+const _renderCiclo = renderCiclo;
+renderCiclo = function (main) { _renderCiclo(main); const hd = main.querySelector('.lib-head'); const tmp = document.createElement('div'); progCard(tmp); if (tmp.firstChild && hd) hd.after(tmp.firstChild); };
+
+/* 29 · glosario automático: primero tus definiciones, luego lo que se infiere de tus apuntes */
+const GL_STOP = new Set(['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'este', 'esta', 'esto', 'eso', 'ese', 'esa', 'que', 'y', 'o', 'pero', 'como', 'cuando', 'donde', 'si', 'no', 'ya', 'es', 'son', 'hay', 'nota', 'ojo', 'tarea', 'fecha', 'hoja', 'clase', 'sesión', 'tema', 'ejemplo', 'ej', 'pregunta', 'respuesta', 'importante', 'resumen', 'conclusión', 'objetivo', 'docente', 'profesor', 'página', 'pág', 'cap', 'capítulo', 'ver', 'link', 'http', 'https']);
+function glClean(t) { return t.replace(/^[\s•\-–—*·▸>]+/, '').replace(/^(el|la|los|las|un|una|lo)\s+/i, '').replace(/[\s:;,.\-–—=]+$/, '').replace(/\s+/g, ' ').trim(); }
+function glCap(s) { s = s.trim().replace(/\s+/g, ' '); return s ? s.charAt(0).toLocaleUpperCase('es') + s.slice(1) : s; }
+function glDef(s) { s = glCap(s.replace(/^[\s:=\-–—→]+/, '')); return s && !/[.!?…)]$/.test(s) ? s + '.' : s; }
+function glTermOk(t) { const w = t.split(/\s+/); return t.length >= 3 && t.length <= 60 && w.length <= 6 && /\p{L}{3}/u.test(t) && !GL_STOP.has(t.toLowerCase()) && !/^\d/.test(t) && !/https?:|www\./i.test(t); }
+async function glossScan(cid) {
+  const nbs = liveNbs().filter(n => n.cursoId === cid), found = new Map();
+  const add = (term, def, kind, src) => {
+    term = glClean(term); def = (def || '').trim();
+    if (!glTermOk(term) || def.length < 8 || def.length > 400) return;
+    const k = normS(term), cur = found.get(k), rank = { tuyo: 3, frase: 2, pdf: 1 }[kind];
+    if (!cur) found.set(k, { term: glCap(term), def: glDef(def), kind, src, alts: [] });
+    else if (rank > { tuyo: 3, frase: 2, pdf: 1 }[cur.kind]) { cur.alts.unshift(cur.def); Object.assign(cur, { def: glDef(def), kind, src }); }
+    else if (!cur.alts.includes(glDef(def)) && glDef(def) !== cur.def) cur.alts.push(glDef(def));
+  };
+  const DEF_RE = /(?:^|[.!?;]\s+|\n)\s*(?:el|la|los|las|un|una|lo)?\s*([\p{L}][\p{L}\s\-]{2,50}?)\s+(?:es|son|se define como|se entiende por|se refiere a|consiste en|significa|representa|se denomina)\s+((?:el|la|los|las|un|una|aquel|aquella|aquellos|aquellas|la\s|el\s|todo|toda|cuando|una?\s)?[^.!?\n]{10,260})/giu;
+  const NAMED_RE = /([^.!?\n]{12,220}?)[,]?\s+(?:se denomina|se llama|se conoce como|recibe el nombre de)\s+(?:el|la|los|las)?\s*([\p{L}][\p{L}\s\-]{2,50})/giu;
+  const hlTerms = new Map();
+  for (const nb of nbs) {
+    let d = null; try { d = nb === curNb ? doc : await store.get('doc:' + nb.id); } catch (e) {}
+    if (!d || !d.pages) continue;
+    d.pages.forEach((p, i) => {
+      const src = { nb: nb.id, p: i, label: `${nb.title} · hoja ${i + 1}` };
+      const mine = (p.objs || []).filter(o => (o.t === 'text' || o.t === 'note' || o.t === 'node') && o.text);
+      const isGlossPage = mine.some(o => /glosario|definiciones|conceptos clave/i.test(o.text));
+      mine.forEach(o => {
+        const txt = o.text.replace(/\r/g, '');
+        txt.split('\n').forEach(line => {
+          const m = line.match(/^\s*[•\-–*·▸]?\s*([^:=\n]{2,60}?)\s*(?::|=|→|⇒|\s[-–—]\s)\s*(.{8,})$/);
+          if (m && (isGlossPage || m[1].split(/\s+/).length <= 5)) add(m[1], m[2], 'tuyo', src);
+        });
+        const flat = txt.replace(/\n(?=[\p{Ll}])/gu, ' ');
+        for (const m of flat.matchAll(DEF_RE)) add(m[1], m[2], 'frase', src);
+        for (const m of flat.matchAll(NAMED_RE)) add(m[2], m[1], 'frase', src);
+      });
+      if (p.ptext) {
+        for (const m of p.ptext.slice(0, 20000).matchAll(DEF_RE)) add(m[1], m[2], 'pdf', src);
+        for (const m of p.ptext.slice(0, 20000).matchAll(NAMED_RE)) add(m[2], m[1], 'pdf', src);
+      }
+      (p.objs || []).filter(o => o.t === 'pen' && o.hl && o.pts && o.pts.length).forEach(h => {
+        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; h.pts.forEach(q => { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); });
+        mine.filter(o => o.t === 'text').forEach(o => {
+          const lines = o.text.split('\n'), lh = o.size * 1.25;
+          lines.forEach((ln, li) => {
+            const ly = o.y + li * lh; if (y1 < ly - 4 || y0 > ly + lh + 4) return;
+            setFont(mctx, o.size, o.f); let x = o.x; const words = [];
+            ln.split(/(\s+)/).forEach(w => { const ww = mctx.measureText(w).width; if (w.trim() && x + ww > x0 - 2 && x < x1 + 2) words.push(w); x += ww; });
+            const term = glClean(words.join(' ').replace(/[,.;:]+$/, '')); if (glTermOk(term)) hlTerms.set(normS(term), { term, sentence: ln, src });
+          });
+        });
+        if (p.ptw) {
+          const words = p.ptw.filter(w => w[0] + w[2] > x0 && w[0] < x1 && w[1] + w[3] > y0 && w[1] < y1).map(w => w[4]);
+          const term = glClean(words.join(' ')); if (term && glTermOk(term)) hlTerms.set(normS(term), { term, sentence: '', src });
+        }
+      });
+    });
+  }
+  for (const [k, h] of hlTerms) {
+    if (found.has(k)) { found.get(k).hl = true; continue; }
+    if (h.sentence && h.sentence.trim().length > h.term.length + 12) { found.set(k, { term: glCap(h.term), def: glDef(h.sentence), kind: 'frase', src: h.src, alts: [], hl: true }); }
+  }
+  const have = new Set((lib.gloss || []).filter(g => !g.trashed && g.cursoId === cid).map(g => normS(g.term)));
+  return [...found.entries()].filter(([k]) => !have.has(k)).map(([, v]) => v).sort((a, b) => ({ tuyo: 0, frase: 1, pdf: 2 }[a.kind] - { tuyo: 0, frase: 1, pdf: 2 }[b.kind]) || (b.hl ? 1 : 0) - (a.hl ? 1 : 0) || a.term.localeCompare(b.term, 'es'));
+}
+const GL_KIND = { tuyo: ['Tu definición', 'k-tuyo'], frase: ['Inferido de tus apuntes', 'k-frase'], pdf: ['De la lectura (PDF)', 'k-pdf'] };
+async function glossAuto(cid) {
+  const cs = liveCursos(); if (!cs.length) { toast('Primero crea un curso.'); return; }
+  if (!cid) { cid = await askSelect('Crear glosario desde mis apuntes', 'Curso', cs.map(c => [c.id, c.name]), glossCourse.v || (curNb && curNb.cursoId) || cs[0].id); if (!cid) return; }
+  const c = courseOf(cid); toast(`Leyendo tus apuntes de «${c.name}»…`, 20000);
+  const items = await glossScan(cid); toast('', 1);
+  const m = $('gscan'), list = $('gs-list'); list.innerHTML = '';
+  $('gs-title').textContent = `✨ Glosario de «${c.name}»`;
+  if (!items.length) {
+    list.innerHTML = `<p class="sub">No encontré términos nuevos en tus apuntes de este curso. Ayuda escribir en tus hojas «Término: definición» (por ejemplo «Elasticidad: sensibilidad de la demanda al precio») o frases como «La inflación es…». También uso lo que resaltas.</p>`;
+    $('gs-add').hidden = true;
+  } else {
+    $('gs-add').hidden = false;
+    $('gs-sub').textContent = `Encontré ${items.length} término${items.length > 1 ? 's' : ''}. Primero van los que tú definiste; luego los que deduje de tus apuntes y lecturas. Corrige, cambia o desmarca lo que no quieras antes de guardar.`;
+    items.forEach((it, i) => {
+      const r = document.createElement('div'); r.className = 'gs-row';
+      r.innerHTML = `<input type="checkbox" ${it.kind !== 'pdf' || it.hl ? 'checked' : ''} aria-label="Incluir"><div class="gs-body"><div class="gs-top"><input class="gs-term" value="${escH(it.term)}" aria-label="Término"><span class="gs-k ${GL_KIND[it.kind][1]}">${GL_KIND[it.kind][0]}${it.hl ? ' · resaltado' : ''}</span></div><textarea class="gs-def" rows="2" aria-label="Definición">${escH(it.def)}</textarea><div class="gs-src">📍 ${escH(it.src.label)}${it.alts.length ? ` · <button type="button" class="gs-alt">Otra versión (${it.alts.length})</button>` : ''}</div></div>`;
+      const alt = r.querySelector('.gs-alt'); let ai = -1;
+      if (alt) alt.onclick = () => { const all = [it.def, ...it.alts]; ai = (ai + 1) % all.length; r.querySelector('.gs-def').value = all[(ai + 1) % all.length]; };
+      r.dataset.i = i; list.appendChild(r);
+    });
+  }
+  m.hidden = false;
+  $('gs-all').onclick = () => { const boxes = list.querySelectorAll('input[type=checkbox]'), on = [...boxes].some(b => !b.checked); boxes.forEach(b => { b.checked = on; }); };
+  $('gs-cancel').onclick = () => { m.hidden = true; };
+  $('gs-add').onclick = () => {
+    lib.gloss = lib.gloss || []; let n = 0;
+    list.querySelectorAll('.gs-row').forEach(r => {
+      if (!r.querySelector('input[type=checkbox]').checked) return;
+      const it = items[+r.dataset.i], term = r.querySelector('.gs-term').value.trim(), def = r.querySelector('.gs-def').value.trim(); if (!term || !def) return;
+      lib.gloss.push({ id: uid('g'), term, def, cursoId: cid, mod: Date.now(), nb: it.src.nb, p: it.src.p, auto: it.kind !== 'tuyo' ? 1 : undefined, alts: it.alts.length ? it.alts.slice(0, 4) : undefined }); n++;
+    });
+    m.hidden = true; saveLibrary(); glossCourse.v = cid;
+    if (!$('library').hidden) setView('gloss'); toast(n ? `${n} término${n > 1 ? 's' : ''} agregado${n > 1 ? 's' : ''} al glosario de «${c.name}». Puedes editarlos cuando quieras.` : 'No agregué nada.');
+  };
+}
+const _renderGloss = renderGloss;
+renderGloss = function (main) {
+  _renderGloss(main);
+  const hd = main.querySelector('.lib-head'); if (hd) hd.insertBefore(mkBtn('✨ Crear desde mis apuntes', () => glossAuto(glossCourse.v || null), 'primary', 'Busca tus definiciones y deduce las que falten de tus apuntes y lecturas'), hd.querySelector('.btn'));
+  main.querySelectorAll('.gl-item').forEach(el => {
+    const name = el.querySelector('b') && el.querySelector('b').textContent, g = (lib.gloss || []).find(x => !x.trashed && x.term === name && (!glossCourse.v || x.cursoId === glossCourse.v)); if (!g) return;
+    if (g.auto) { const t = document.createElement('span'); t.className = 'gs-k k-frase'; t.textContent = '✨ inferido'; t.title = 'Lo dedujo la pizarra de tus apuntes; revísalo o mejóralo con «Editar»'; el.querySelector('b').after(t); }
+    if (g.alts && g.alts.length) el.querySelector('.gl-acts').prepend(mkBtn('Otra versión', async () => { const v = await askSelect(g.term, 'Elige la definición', [g.def, ...g.alts].map((d, i) => [String(i), d.length > 110 ? d.slice(0, 110) + '…' : d]), '0'); if (v === null || v === '0') return; const all = [g.def, ...g.alts]; g.def = all[+v]; g.alts = all.filter((_, i) => i !== +v); delete g.auto; g.mod = Date.now(); saveLibrary(); renderLibrary(); }));
+  });
+};
+$('gl-auto-btn').onclick = () => { closeMenus(); glossAuto(curNb && curNb.cursoId); };
+
+$('pomo-skip').onclick = () => { _pomoNext(); if (pomo.run) pomo.end = Date.now() + pomo.left * 1000; pomoDraw(); };
 
 init();
 

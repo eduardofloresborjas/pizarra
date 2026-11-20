@@ -6333,7 +6333,7 @@ async function buildEditableDocx(idxs) {
     if (k) body += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
     body += docxP(docxRun(`Hoja ${i + 1}${p.tags && p.tags.length ? ' · ' + p.tags.join(', ') : ''}`, { sz: 18, col: '8894A3' }), { after: 80 });
     const items = p.objs.filter(o => ['text', 'note', 'node', 'table', 'img', 'link'].includes(o.t)).sort((a, b) => (a.y - b.y) || (a.x - b.x));
-    const sizes = items.filter(o => o.t === 'text').map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 18;
+    const sizes = items.filter(o => o.t === 'text').map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor((sizes.length - 1) / 2)] : 18;
     for (const o of items) {
       if (o.t === 'text') { const big = o.size >= med * 1.35; body += docxP(docxRun(o.text.replace(/\n(?=[a-záéíóúñ])/g, ' '), { b: big, sz: big ? Math.min(40, Math.round(o.size / med * 24)) : 22, col: HEX[o.c] }), { before: big ? 160 : 0 }); }
       else if (o.t === 'note') body += docxP(docxRun('📝 ' + o.text), { shade: 'FFF3A6' });
@@ -6812,7 +6812,7 @@ async function nbConcepts(nb) {
   (d.pages || []).forEach((p, i) => {
     if (p.toc) return;
     const texts = (p.objs || []).filter(o => o.t === 'text' && o.text); if (!texts.length) return;
-    const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes[Math.floor(sizes.length / 2)];
+    const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes[Math.floor((sizes.length - 1) / 2)];
     texts.filter(o => o.size >= med * 1.3 && o.text.length <= 60 && !o.text.includes('\n')).forEach(o => {
       const t = glClean(o.text); if (!glTermOk(t) || seen.has(normS(t))) return; seen.add(normS(t));
       found.push({ term: glCap(t), def: '', kind: 'titulo', src: { nb: nb.id, p: i, label: `${nb.title} · hoja ${i + 1}` }, alts: [] });
@@ -7175,7 +7175,7 @@ function tocEntries() {
   doc.pages.forEach((p, i) => {
     if (p.toc) return;
     const texts = p.objs.filter(o => o.t === 'text' && o.text && !o.cite);
-    const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 18;
+    const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor((sizes.length - 1) / 2)] : 18;
     const heads = texts.filter(o => (o.size >= Math.max(22, med * 1.25) || (o.c === 'blue' && o.size >= med)) && o.text.trim().length <= 80).sort((a, b) => a.y - b.y);
     if (!heads.length) { const t = (texts.sort((a, b) => a.y - b.y)[0] || {}).text; if (t) out.push({ i, t: t.split('\n')[0].slice(0, 60), lvl: 1, weak: 1 }); return; }
     const top = Math.max(...heads.map(o => o.size));
@@ -7630,7 +7630,7 @@ function tocHeads() {
   doc.pages.forEach((p, i) => {
     if (p.toc) return;
     const texts = p.objs.filter(o => o.t === 'text' && o.text && !o.cite);
-    const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 18;
+    const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor((sizes.length - 1) / 2)] : 18;
     const heads = texts.filter(o => (o.size >= Math.max(22, med * 1.25) || (o.c === 'blue' && o.size >= med)) && o.text.trim().length <= 90).sort((a, b) => a.y - b.y);
     if (!heads.length) return;
     const top = Math.max(...heads.map(o => o.size));
@@ -8115,7 +8115,7 @@ $('fm-go').onclick = async () => {
   const portrait = base.filter(p => p.H >= p.W).length >= base.length / 2;
   base.forEach(p => {
     p.bg = 'blank'; p.board = 'white'; delete p.tags; delete p.toc; p.formal = 1;
-    const texts = p.objs.filter(o => o.t === 'text' && o.text && !o.cite), sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 18;
+    const texts = p.objs.filter(o => o.t === 'text' && o.text && !o.cite), sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor((sizes.length - 1) / 2)] : 18;
     const heads = texts.filter(o => (o.size >= Math.max(22, med * 1.25) || (o.c === 'blue' && o.size >= med)) && o.text.trim().length <= 90), top = heads.length ? Math.max(...heads.map(o => o.size)) : 0;
     const keep = [];
     p.objs.forEach(o => {
@@ -8150,7 +8150,7 @@ $('fm-go').onclick = async () => {
     const intro = `Este documento reúne los apuntes de «${src.title}»${c.name ? ` del curso ${c.name}` : ''}. Los puntos clave son:`;
     const il = wrapLines(intro, 15, ff, maxW); p.objs.push({ t: 'text', x: left, y, text: il.join('\n'), c: 'ink', size: 15, f: ff }); y += il.length * 15 * 1.4 + 14;
     let pts = ideas.slice();
-    if (pts.length < 3) { base.forEach(p => p.objs.forEach(o => { if (o.t === 'text' && o.text && o.size < 19) o.text.split('\n').forEach(ln => { const t = ln.replace(/^\s*([•\-–▸*→✓►]|\d+[.)])\s*/, '').trim(); if (t.split(/\s+/).length >= 3 && pts.length < 6 && !pts.some(x => x.t === t)) pts.push({ t: glCap(t) }); }); })); }
+    if (pts.length < 3) { base.forEach(p => p.objs.forEach(o => { if (o.t === 'text' && o.text && o.size < 19 && o.c === 'ink' && !/^Nota:/.test(o.text)) o.text.split('\n').forEach(ln => { const t = ln.replace(/^\s*([•\-–▸*→✓►]|\d+[.)])\s*/, '').trim(); if (t.split(/\s+/).length >= 3 && pts.length < 6 && !pts.some(x => x.t === t)) pts.push({ t: glCap(t) }); }); })); }
     if (!pts.length) pts = tocHeads().slice(0, 6).map(h => ({ t: h.t }));
     pts.forEach((s, k) => { const l = wrapLines(`${k + 1}.  ${s.t}`, 15, ff, maxW - 18).map((x, j) => (j ? '     ' : '') + x); if (y + l.length * 21 > p.H - 80) return; p.objs.push({ t: 'text', x: left + 6, y, text: l.join('\n'), c: 'ink', size: 15, f: ff }); y += l.length * 15 * 1.4 + 10; });
     front.push(p);

@@ -122,6 +122,8 @@ body.touch #float .btn{height:40px}
 .keys{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12px;color:var(--muted)}
 .keys dt{font-family:var(--f-mono);color:var(--text)}
 .keys dd{margin:0}
+#progress{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:61;display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:8px 8px 8px 14px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:min(92vw,560px)}
+#net-chip{display:inline-flex;align-items:center;border-color:var(--warn);color:var(--warn);font-family:var(--f-body);font-size:12px}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 14px;border-radius:6px;max-width:min(92vw,560px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
 #toast.show{opacity:1}
 
@@ -211,7 +213,7 @@ body.touch #float .btn{height:40px}
         <button class="btn" data-menu="menu-img" aria-haspopup="true" aria-expanded="false">Imagen ▾</button>
         <div class="menu" id="menu-img" hidden>
           <button id="paste-btn">Pegar la imagen que copié</button>
-          <button id="import-btn2">Importar PDF o imágenes como hojas…</button>
+          <button id="import-btn2">Importar PDF, Word, PowerPoint o Excel como hojas…</button>
           <button id="img-btn">Insertar imagen desde archivo…</button>
         </div>
       </div>
@@ -235,17 +237,18 @@ body.touch #float .btn{height:40px}
           <button id="save-file">Guardar mis apuntes como archivo</button>
           <button id="open-file-btn">Abrir un archivo de apuntes…</button>
           <hr>
-          <button id="import-btn">Importar PDF o imágenes para anotar…</button>
+          <button id="import-btn">Importar PDF, Word, PowerPoint, Excel o imágenes…</button>
           <hr>
           <button id="save-png">Guardar esta hoja como imagen PNG</button>
         </div>
       </div>
       <input type="file" id="open-file" accept=".json,application/json" hidden>
-      <input type="file" id="import-file" accept="application/pdf,.pdf,image/*" multiple hidden>
+      <input type="file" id="import-file" accept="application/pdf,.pdf,image/*,.heic,.heif,.docx,.pptx,.xlsx,.xls,.ods,.csv,.txt,.md,.json,.html,.htm" multiple hidden>
       <button class="btn primary" id="export-pdf" title="Descargar todas las hojas en un PDF">Exportar PDF</button>
       <button class="btn" id="full" title="Pantalla completa (F)" aria-label="Pantalla completa"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
     <div class="group">
+      <span class="chip" id="net-chip" hidden title="Tus cambios se guardan en este dispositivo. La escritura inteligente se convertirá cuando vuelva la conexión.">Sin internet</span>
       <button class="chip" id="timer-chip" hidden title="Abrir el temporizador">00:00</button>
       <button class="btn" id="side-toggle" aria-expanded="false" aria-controls="side" title="Temporizador, alumno al azar y atajos">Clase</button>
     </div>
@@ -342,6 +345,7 @@ body.touch #float .btn{height:40px}
     </aside>
   </div>
   <div id="toast" role="status" aria-live="polite"></div>
+  <div id="progress" hidden role="status" aria-live="polite"><span id="progress-text"></span><button class="btn" id="progress-stop">Detener</button></div>
 </div>
 
 <div id="lock" hidden role="dialog" aria-modal="true" aria-labelledby="lock-title">
@@ -397,7 +401,7 @@ body.touch #float .btn{height:40px}
     </div>
     <p class="warn" id="setup-warn" hidden></p>
     <div class="actions">
-      <button class="btn" id="setup-pdf" title="Empieza un cuaderno nuevo a partir de un PDF o de fotos">Anotar sobre un PDF…</button>
+      <button class="btn" id="setup-pdf" title="Empieza un cuaderno nuevo a partir de un PDF, Word, PowerPoint, Excel o fotos">Anotar sobre un archivo…</button>
       <button class="btn" id="setup-continue" hidden>Seguir con mis apuntes</button>
       <button class="btn primary" id="setup-start">Empezar cuaderno nuevo</button>
     </div>
@@ -463,7 +467,7 @@ const r1 = v => Math.round(v * 10) / 10;
 const PREF_KEY = 'pizarra-prefs-v2', NAMES_KEY = 'pizarra-alumnos-v2';
 const JSPDF_URLS = ['lib/jspdf.umd.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'];
 const PDFJS_URLS = [['lib/pdf.min.js', 'lib/pdf.worker.min.js'], ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js']];
-const PT_PER_UNIT = 595.28 / 840, MAX_IMPORT = 150;
+const PT_PER_UNIT = 595.28 / 840;
 const HW_URL = 'https://inputtools.google.com/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8';
 
 const FORMATS = {
@@ -614,9 +618,13 @@ function serialize(withImages) {
 }
 const savedImgs = new Set();
 async function loadStoredImages() {
-  const ids = usedImageIds().filter(id => !doc.images[id]);
-  for (const id of ids) { try { const v = await store.get('img:' + id); if (v) { doc.images[id] = v; savedImgs.add(id); imgEls.delete(id); } } catch (e) {} }
-  if (ids.length) invalidate();
+  usedImageIds().forEach(id => { if (!doc.images[id]) savedImgs.add(id); });
+  invalidate();
+}
+async function serializeFull() {
+  const d = serialize(false); d.images = {};
+  for (const id of usedImageIds()) { const v = doc.images[id] || await store.get('img:' + id).catch(() => null); if (v) d.images[id] = v; }
+  return d;
 }
 async function forgetImages() { for (const id of savedImgs) await store.del('img:' + id); savedImgs.clear(); }
 function validDoc(d) { return d && Array.isArray(d.pages) && d.pages.length; }
@@ -632,7 +640,7 @@ function loadDoc(d) {
     })
   };
   doc.cur = clamp(d.cur | 0, 0, doc.pages.length - 1);
-  imgEls.clear(); applyFormat(); sel = -1; hideFloat(); pend = { strokes: [], page: doc.cur };
+  imgEls.clear(); imgMissing.clear(); applyFormat(); sel = -1; hideFloat(); pend = { strokes: [], page: doc.cur };
 }
 let saveTimer = 0, saveWarned = false;
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 600); }
@@ -640,6 +648,7 @@ async function saveNow() {
   clearTimeout(saveTimer);
   try {
     for (const id of usedImageIds()) if (!savedImgs.has(id) && doc.images[id]) { await store.set('img:' + id, doc.images[id]); savedImgs.add(id); }
+    for (const id of Object.keys(doc.images)) if (savedImgs.has(id) && imgEls.has(id)) delete doc.images[id];
     await store.set('doc', serialize(false)); saveWarned = false;
   }
   catch (e) { if (!saveWarned) { saveWarned = true; toast('No se pudo guardar en este navegador (quizá hay demasiadas imágenes). Guarda tus apuntes como archivo o PDF.'); } }
@@ -708,13 +717,37 @@ function drawBg(c, bg) {
   c.fillText('x', W - 10, OY + 10); c.textAlign = 'left'; c.fillText('y', OX + 12, 6);
 }
 
-const imgEls = new Map();
-function getImg(id) {
-  let im = imgEls.get(id);
-  if (!im && doc.images[id]) {
-    im = new Image(); im.onload = () => invalidate(); im.src = doc.images[id]; imgEls.set(id, im);
+/* imágenes: se guardan en el dispositivo y se cargan solo cuando se necesitan */
+const imgEls = new Map(), imgLoading = new Map(), imgMissing = new Set(), IMG_CACHE = 36;
+const pageImgIds = p => { const ids = p.objs.filter(o => o.t === 'img').map(o => o.id); if (p.bgImg) ids.push(p.bgImg); return ids; };
+function makeImg(id, src) {
+  const im = new Image(); im.onload = () => invalidate(); im.src = src; imgEls.set(id, im);
+  if (imgEls.size > IMG_CACHE) {
+    const keep = new Set(doc ? pageImgIds(pg()) : []);
+    for (const k of [...imgEls.keys()]) { if (imgEls.size <= IMG_CACHE) break; if (!keep.has(k) && k !== id) imgEls.delete(k); }
   }
   return im;
+}
+function getImg(id) {
+  let im = imgEls.get(id);
+  if (im) { imgEls.delete(id); imgEls.set(id, im); return im; }
+  if (doc.images[id]) return makeImg(id, doc.images[id]);
+  if (!imgLoading.has(id) && !imgMissing.has(id)) {
+    imgLoading.set(id, store.get('img:' + id).then(v => { imgLoading.delete(id); if (v) { savedImgs.add(id); makeImg(id, v); } else imgMissing.add(id); }).catch(() => { imgLoading.delete(id); imgMissing.add(id); }));
+  }
+  return undefined;
+}
+async function loadImg(id) {
+  let im = getImg(id);
+  if (!im && imgLoading.has(id)) { await imgLoading.get(id); im = imgEls.get(id); }
+  if (!im) return null;
+  if (im.complete && im.naturalWidth) return im;
+  return new Promise(res => { im.addEventListener('load', () => res(im), { once: true }); im.addEventListener('error', () => res(null), { once: true }); });
+}
+let storeWarned = false;
+async function putImage(id, url) {
+  try { await store.set('img:' + id, url); savedImgs.add(id); imgMissing.delete(id); }
+  catch (e) { doc.images[id] = url; if (!storeWarned) { storeWarned = true; toast('Este dispositivo se está quedando sin espacio. Exporta tus apuntes a PDF por si acaso.'); } }
 }
 function setFont(c, size, f) { c.font = `${size}px ${fontCss(f)}`; }
 
@@ -1256,6 +1289,14 @@ function runSmart() {
     if (!page || !doc.pages.includes(page)) return;
     const inkObjs = batch.strokes.map(s => { const o = Object.assign({}, s); delete o.ts; return o; });
     const text = cands && cands.length ? cands[0].trim() : '';
+    if (!cands) {
+      const q = 'q' + Date.now().toString(36) + Math.floor(Math.random() * 1e4);
+      const queued = batch.strokes.map(s => Object.assign({}, s, { hwq: q, hwf: prefs.font }));
+      mutatePage(page, () => page.objs.push(...queued));
+      const now = Date.now();
+      if (now - lastHwFail > 20000) { lastHwFail = now; toast('Sin internet: tu escritura quedó a mano y se convertirá sola cuando vuelva la conexión.', 6000); }
+      return;
+    }
     if (!text) {
       mutatePage(page, () => page.objs.push(...inkObjs));
       const now = Date.now();
@@ -1269,6 +1310,31 @@ function runSmart() {
   });
   batch.job = job;
   return job;
+}
+let hwRetrying = false;
+async function retryQueuedHW() {
+  if (hwRetrying || !navigator.onLine || !doc) return;
+  hwRetrying = true; let done = 0;
+  try {
+    for (const page of doc.pages) {
+      const groups = new Map();
+      page.objs.forEach(o => { if (o.hwq) { if (!groups.has(o.hwq)) groups.set(o.hwq, []); groups.get(o.hwq).push(o); } });
+      for (const [q, strokes] of groups) {
+        let cands = null;
+        try { cands = await recognizeInk(strokes); } catch (e) { return; }
+        const text = cands && cands.length ? cands[0].trim() : '';
+        mutatePage(page, () => {
+          const ink = strokes.map(s => { const o = Object.assign({}, s); delete o.ts; delete o.hwq; delete o.hwf; return o; });
+          page.objs = page.objs.filter(o => o.hwq !== q);
+          if (!text) { page.objs.push(...ink); return; }
+          const bb = ptsBox(strokes), f = strokes[0].hwf || prefs.font, fit = withPage(page, () => fitText(text, bb, f));
+          page.objs.push({ t: 'text', x: r1(fit.x), y: r1(fit.y), text, c: strokes[0].c, size: Math.round(fit.size * 10) / 10, f, ink, alts: [...new Set(cands.map(c => c.trim()).filter(Boolean))].slice(0, 6), bb });
+        });
+        if (text) done++;
+      }
+    }
+  } finally { hwRetrying = false; }
+  if (done) toast(`Volvió la conexión: convertí ${done} escritura${done > 1 ? 's' : ''} pendiente${done > 1 ? 's' : ''} a texto.`, 5000);
 }
 async function finishSmart() { await runSmart(); await Promise.all(busy.map(b => b.job)); }
 async function recognizeInk(strokes) {
@@ -1399,11 +1465,7 @@ function setCrop(o, nc) {
   const cr = o.crop || [0, 0, im.naturalWidth, im.naturalHeight], k = o.w / cr[2];
   o.x += (nc[0] - cr[0]) * k; o.y += (nc[1] - cr[1]) * k; o.w = nc[2] * k; o.h = nc[3] * k; o.crop = nc.map(v => Math.round(v * 10) / 10);
 }
-function withImg(o, fn) {
-  const im = getImg(o.id);
-  if (!im) { toast('No encuentro esa imagen.'); return; }
-  if (im.complete && im.naturalWidth) fn(im); else im.addEventListener('load', () => fn(im), { once: true });
-}
+function withImg(o, fn) { loadImg(o.id).then(im => { if (im) fn(im); else toast('No encuentro esa imagen.'); }); }
 function autoTrimObj(o) {
   withImg(o, im => {
     const b = trimBounds(im);
@@ -1519,6 +1581,7 @@ function goPage(i) {
   const ch = prev.W !== pg().W || prev.H !== pg().H;
   applyPage(pg()); if (ch) fitView(cam.fit || 'page');
   changed();
+  [doc.pages[i + 1], doc.pages[i - 1]].forEach(n => { if (n && n.bgImg) getImg(n.bgImg); });
 }
 function addPageAfter(p) { commitEditor(); doc.pages.splice(doc.cur + 1, 0, p); goPage(doc.cur + 1); }
 $('page-prev').onclick = () => goPage(doc.cur - 1);
@@ -1705,8 +1768,8 @@ async function downloadBlob(blob, name) {
 }
 function fileBase() { const d = new Date(); return `apuntes-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 function ensureImages(page) {
-  const ids = page.objs.filter(o => o.t === 'img').map(o => o.id); if (page.bgImg) ids.push(page.bgImg);
-  return Promise.all(ids.map(id => new Promise(res => {
+  return Promise.all(pageImgIds(page).map(loadImg));
+  return Promise.all([].map(id => new Promise(res => {
     const im = getImg(id); if (!im || (im.complete && im.naturalWidth)) res();
     else { im.addEventListener('load', res, { once: true }); im.addEventListener('error', res, { once: true }); }
   })));
@@ -1767,7 +1830,8 @@ $('save-png').onclick = async () => {
 };
 $('save-file').onclick = async () => {
   closeMenus(); commitEditor(); await finishSmart();
-  const data = JSON.stringify(Object.assign({ app: 'pizarra-apuntes' }, serialize(true)));
+  toast('Preparando el archivo…', 20000);
+  const data = JSON.stringify(Object.assign({ app: 'pizarra-apuntes' }, await serializeFull()));
   downloadBlob(new Blob([data], { type: 'application/json' }), fileBase() + '.json');
 };
 $('open-file-btn').onclick = () => { closeMenus(); $('open-file').click(); };
@@ -2052,10 +2116,9 @@ $('import-file').onchange = async e => {
   if (!files.length) return;
   const pdfFile = files.find(f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
   if (pdfFile) { await preparePdf(pdfFile); return; }
-  const imgs = files.filter(f => /^image\//.test(f.type));
-  if (!imgs.length) { toast('Elige un PDF o imágenes (JPG, PNG). Si tienes un Word o PowerPoint, guárdalo antes como PDF.'); return; }
   if (imp.newDoc && !(await replaceDocOk())) return;
-  await importImages(imgs);
+  imp.pos = 'after';
+  await importFiles(files);
 };
 async function replaceDocOk() {
   if (!hasContent()) return true;
@@ -2070,8 +2133,8 @@ async function preparePdf(file) {
   imp.name = file.name.replace(/\.pdf$/i, '');
   const n = imp.pdf.numPages;
   $('im-title').textContent = imp.newDoc ? 'Anotar sobre un PDF' : 'Importar PDF';
-  $('im-info').textContent = `«${imp.name}» tiene ${n} página${n > 1 ? 's' : ''}.` + (n > MAX_IMPORT ? ` Puedes importar hasta ${MAX_IMPORT} a la vez.` : '');
-  $('im-from').max = $('im-to').max = n; $('im-from').value = 1; $('im-to').value = Math.min(n, MAX_IMPORT);
+  $('im-info').textContent = `«${imp.name}» tiene ${n} página${n > 1 ? 's' : ''}.` + (n > 150 ? ' Es largo: puede tardar unos minutos. Puedes detenerlo cuando quieras y se quedan las páginas ya importadas.' : '');
+  $('im-from').max = $('im-to').max = n; $('im-from').value = 1; $('im-to').value = n;
   $('im-pos-wrap').hidden = imp.newDoc; imp.pos = 'after'; markPos();
   $('toast').classList.remove('show');
   $('importer').hidden = false; $('im-ok').focus();
@@ -2083,7 +2146,6 @@ $('im-ok').onclick = async () => {
   const n = imp.pdf.numPages;
   let a = clamp(parseInt($('im-from').value, 10) || 1, 1, n), b = clamp(parseInt($('im-to').value, 10) || a, 1, n);
   if (b < a) [a, b] = [b, a];
-  if (b - a + 1 > MAX_IMPORT) { toast(`Son ${b - a + 1} páginas. Importa como máximo ${MAX_IMPORT} a la vez (por ejemplo, 1 a ${MAX_IMPORT}).`); return; }
   if (imp.newDoc && !(await replaceDocOk())) return;
   $('importer').hidden = true;
   await importPdfRange(a, b);
@@ -2115,12 +2177,13 @@ async function finishImport(pages, label) {
   toast(`Listo: ${label}. Escribe, resalta o dibuja encima.`, 5000);
 }
 async function importPdfRange(a, b) {
-  imp.busy = true;
+  imp.busy = true; imp.stop = false;
   await startImport();
   const pages = [], total = b - a + 1;
   try {
     for (let i = a; i <= b; i++) {
-      toast(`Importando página ${i - a + 1} de ${total}…`, 60000);
+      if (imp.stop) break;
+      setProgress(`Importando página ${i - a + 1} de ${total}…`, true);
       const page = await imp.pdf.getPage(i);
       const vp1 = page.getViewport({ scale: 1 });
       const s = clamp(2000 / Math.max(vp1.width, vp1.height), 1, 4);
@@ -2128,32 +2191,171 @@ async function importPdfRange(a, b) {
       const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
       const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
       await page.render({ canvasContext: x, viewport: vp }).promise;
-      const id = newImgId(); doc.images[id] = c.toDataURL('image/jpeg', .86);
+      const id = newImgId(); await putImage(id, c.toDataURL('image/jpeg', .86));
       pages.push(pageFromSize(vp1.width, vp1.height, id));
       page.cleanup(); c.width = c.height = 0;
       await new Promise(r => setTimeout(r, 0));
     }
   } catch (e) { toast(`Se detuvo en la página ${a + pages.length}. Importé ${pages.length}.`); }
-  finally { imp.busy = false; try { imp.pdf.destroy(); } catch (e) {} imp.pdf = null; }
+  finally { imp.busy = false; setProgress(''); try { imp.pdf.destroy(); } catch (e) {} imp.pdf = null; }
   await finishImport(pages, `${pages.length} página${pages.length > 1 ? 's' : ''} de «${imp.name}»`);
 }
-async function importImages(files) {
-  imp.pos = 'after';
-  await startImport();
-  const pages = [];
-  for (let i = 0; i < files.length; i++) {
-    toast(`Importando imagen ${i + 1} de ${files.length}…`, 60000);
-    const url = URL.createObjectURL(files[i]);
-    const im = await loadImage(url).catch(() => null); URL.revokeObjectURL(url);
-    if (!im || !im.naturalWidth) continue;
-    const m = Math.min(1, 2000 / Math.max(im.naturalWidth, im.naturalHeight));
-    const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * m); c.height = Math.round(im.naturalHeight * m);
-    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
-    const id = newImgId(); doc.images[id] = c.toDataURL('image/jpeg', .88);
-    const portrait = c.height >= c.width, base = portrait ? 595.28 : 841.89;
-    pages.push(pageFromSize(base, base * c.height / c.width, id));
+function setProgress(text, stoppable) {
+  const el = $('progress'); if (!text) { el.hidden = true; return; }
+  $('progress-text').textContent = text; $('progress-stop').hidden = !stoppable; el.hidden = false;
+}
+$('progress-stop').onclick = () => { imp.stop = true; $('progress-text').textContent = 'Deteniendo…'; };
+async function canvasToPage(c, pt) {
+  const id = newImgId(); await putImage(id, c.toDataURL('image/jpeg', .86));
+  return pageFromSize(pt[0], pt[1], id);
+}
+async function imageFileToPage(file) {
+  let blob = file;
+  if (/\.(heic|heif)$/i.test(file.name) || /hei[cf]/i.test(file.type)) {
+    const url0 = URL.createObjectURL(file), ok = await loadImage(url0).then(() => true).catch(() => false); URL.revokeObjectURL(url0);
+    if (!ok) { await needLib('heic'); const r = await window.heic2any({ blob: file, toType: 'image/jpeg', quality: .9 }); blob = Array.isArray(r) ? r[0] : r; }
   }
-  await finishImport(pages, `${pages.length} imagen${pages.length > 1 ? 'es' : ''} como hoja${pages.length > 1 ? 's' : ''}`);
+  const url = URL.createObjectURL(blob);
+  const im = await loadImage(url).catch(() => null); URL.revokeObjectURL(url);
+  if (!im || !im.naturalWidth) throw new Error('imagen');
+  const m = Math.min(1, 2000 / Math.max(im.naturalWidth, im.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * m); c.height = Math.round(im.naturalHeight * m);
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+  const portrait = c.height >= c.width, base = portrait ? 595.28 : 841.89;
+  return [await canvasToPage(c, [base, base * c.height / c.width])];
+}
+/* ---------- convertir Word, PowerPoint, Excel, texto y HTML en hojas ---------- */
+const LIBS = { jszip: 'lib/jszip.min.js', docx: 'lib/docx-preview.min.js', h2c: 'lib/html2canvas.min.js', xlsx: 'lib/xlsx.full.min.js', heic: 'lib/heic2any.min.js', pptx: 'https://cdn.jsdelivr.net/npm/pptx-preview@1.0.7/dist/pptx-preview.umd.js' };
+const libLoads = {};
+function needLib(k) { return libLoads[k] || (libLoads[k] = loadScript(LIBS[k]).catch(e => { delete libLoads[k]; throw e; })); }
+const A4P = [595.28, 841.89], A4L = [841.89, 595.28];
+function convHost(widthPx) {
+  let h = $('conv-host');
+  if (!h) { h = document.createElement('div'); h.id = 'conv-host'; h.setAttribute('aria-hidden', 'true'); document.body.appendChild(h); }
+  h.style.cssText = `position:fixed;left:-30000px;top:0;background:#fff;color:#111;font:15px/1.5 Arial,Helvetica,sans-serif;${widthPx ? 'width:' + widthPx + 'px;' : ''}`;
+  h.innerHTML = ''; return h;
+}
+async function snapEl(el, scale) {
+  await needLib('h2c');
+  return window.html2canvas(el, { scale, backgroundColor: '#ffffff', logging: false, useCORS: true, windowWidth: Math.max(el.scrollWidth, 800) });
+}
+function blankRow(ctx, y, w) { const d = ctx.getImageData(0, y, w, 1).data; for (let i = 0; i < d.length; i += 12) if (d[i] < 230 || d[i + 1] < 230 || d[i + 2] < 230) return false; return true; }
+/* corta una imagen alta en páginas, buscando una fila en blanco para no partir una línea de texto */
+function sliceCanvas(c, pageH) {
+  const out = [], ctx = c.getContext('2d', { willReadFrequently: true });
+  let y = 0; pageH = Math.max(50, Math.round(pageH));
+  while (y < c.height - 4) {
+    let end = Math.min(c.height, y + pageH);
+    if (end < c.height) { const lim = y + pageH * .7; let k = end; while (k > lim && !blankRow(ctx, k, c.width)) k--; if (k > lim) end = k; }
+    const p = document.createElement('canvas'); p.width = c.width; p.height = pageH;
+    const x = p.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, p.width, p.height);
+    x.drawImage(c, 0, y, c.width, end - y, 0, 0, c.width, end - y);
+    out.push(p); y = end;
+  }
+  return out;
+}
+async function pagesFromElement(el, pt, scale) {
+  const c = await snapEl(el, scale || 2);
+  const pages = [];
+  for (const part of sliceCanvas(c, c.width * pt[1] / pt[0])) { if (imp.stop) break; pages.push(await canvasToPage(part, pt)); }
+  return pages;
+}
+async function convDocx(buf) {
+  await needLib('jszip'); await needLib('docx');
+  const host = convHost();
+  await window.docx.renderAsync(buf, host, null, { inWrapper: false, breakPages: true, ignoreLastRenderedPageBreak: false, experimental: true, useBase64URL: true });
+  const nh = document.createElement('style'); nh.textContent = '#conv-host *{hyphens:manual!important;-webkit-hyphens:manual!important}'; host.appendChild(nh);
+  await new Promise(r => setTimeout(r, 300));
+  const secs = [...host.querySelectorAll('section.docx')], pages = [];
+  for (let i = 0; i < secs.length; i++) {
+    if (imp.stop) break;
+    setProgress(`Convirtiendo Word: página ${i + 1} de ${secs.length}…`, true);
+    const s = secs[i], w = s.offsetWidth, h = parseFloat(getComputedStyle(s).minHeight) || w * 1.414;
+    pages.push(...await pagesFromElement(s, [w * .75, h * .75], 2));
+  }
+  host.innerHTML = '';
+  return pages;
+}
+async function convPptx(buf) {
+  await needLib('pptx');
+  const host = convHost(1280);
+  const pv = window.pptxPreview.init(host, { width: 1280, height: 720, mode: 'list' });
+  await pv.preview(buf);
+  await new Promise(r => setTimeout(r, 400));
+  const slides = [...host.querySelectorAll('.pptx-preview-slide-wrapper')], pages = [];
+  for (let i = 0; i < slides.length; i++) {
+    if (imp.stop) break;
+    setProgress(`Convirtiendo PowerPoint: diapositiva ${i + 1} de ${slides.length}…`, true);
+    const el = slides[i], c = await snapEl(el, 1.5);
+    pages.push(await canvasToPage(c, [el.offsetWidth * .75, el.offsetHeight * .75]));
+  }
+  try { pv.destroy(); } catch (e) {}
+  host.innerHTML = '';
+  return pages;
+}
+async function convSheet(buf) {
+  await needLib('xlsx');
+  const wb = window.XLSX.read(buf, { type: 'array', cellDates: true }), pages = [];
+  for (const name of wb.SheetNames) {
+    if (imp.stop) break;
+    setProgress(`Convirtiendo Excel: hoja «${name}»…`, true);
+    const host = convHost();
+    host.innerHTML = `<div style="padding:36px 40px;display:inline-block;min-width:1043px"><h2 style="margin:0 0 14px;font-size:20px">${name.replace(/[<>&]/g, '')}</h2>${window.XLSX.utils.sheet_to_html(wb.Sheets[name], { header: '', footer: '' })}</div>`;
+    const st = document.createElement('style');
+    st.textContent = '#conv-host table{border-collapse:collapse;font-size:13px}#conv-host td,#conv-host th{border:1px solid #b9c3cf;padding:4px 8px;white-space:nowrap}#conv-host tr:first-child td{background:#eef2f6;font-weight:bold}';
+    host.appendChild(st);
+    const box = host.firstElementChild;
+    if (!box.querySelector('td')) continue;
+    pages.push(...await pagesFromElement(box, A4L, Math.min(2, 2400 / Math.max(box.offsetWidth, 1))));
+  }
+  convHost().innerHTML = '';
+  return pages;
+}
+function esc(t) { return t.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+async function convText(text, kind) {
+  const host = convHost(794);
+  let html;
+  if (kind === 'md') html = text.split('\n').map(l => { const m = l.match(/^(#{1,6})\s+(.*)/); return m ? `<div style="font-weight:bold;font-size:${26 - m[1].length * 2}px;margin:10px 0 4px">${esc(m[2])}</div>` : `<div style="min-height:1.5em">${esc(l)}</div>`; }).join('');
+  else html = `<div style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(kind === 'json' ? (() => { try { return JSON.stringify(JSON.parse(text), null, 2); } catch (e) { return text; } })() : text)}</div>`;
+  host.innerHTML = `<div style="padding:64px 72px;width:794px;box-sizing:border-box">${html}</div>`;
+  return pagesFromElement(host.firstElementChild, A4P, 2);
+}
+async function convHtml(text) {
+  const d = new DOMParser().parseFromString(text, 'text/html');
+  d.querySelectorAll('script,iframe,object,embed,link,meta,base,form').forEach(n => n.remove());
+  d.querySelectorAll('*').forEach(n => [...n.attributes].forEach(a => { if (/^on/i.test(a.name) || /^\s*javascript:/i.test(a.value)) n.removeAttribute(a.name); }));
+  const host = convHost(794);
+  host.innerHTML = `<div style="padding:56px 64px;width:794px;box-sizing:border-box">${d.body ? d.body.innerHTML : ''}</div>`;
+  host.querySelectorAll('style').forEach(st => st.remove());
+  return pagesFromElement(host.firstElementChild, A4P, 2);
+}
+async function convertFile(file) {
+  const n = file.name.toLowerCase(), ext = (n.match(/\.([a-z0-9]+)$/) || [])[1] || '';
+  if (/^image\//.test(file.type) || ['heic', 'heif', 'jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return imageFileToPage(file);
+  if (ext === 'docx') return convDocx(await file.arrayBuffer());
+  if (ext === 'pptx') return convPptx(await file.arrayBuffer());
+  if (['xlsx', 'xls', 'ods', 'csv'].includes(ext)) return convSheet(await file.arrayBuffer());
+  if (['txt', 'md', 'json'].includes(ext)) return convText(await file.text(), ext);
+  if (['html', 'htm'].includes(ext)) return convHtml(await file.text());
+  if (['doc', 'ppt', 'rtf', 'odt', 'odp', 'pages', 'key'].includes(ext)) throw new Error('viejo');
+  throw new Error('tipo');
+}
+async function importFiles(files) {
+  imp.pos = imp.pos || 'after'; imp.stop = false;
+  await startImport();
+  const pages = [], failed = [], old = [];
+  for (let i = 0; i < files.length; i++) {
+    if (imp.stop) break;
+    setProgress(`Preparando «${files[i].name}» (${i + 1} de ${files.length})…`, true);
+    try { pages.push(...await convertFile(files[i])); }
+    catch (e) { (e && e.message === 'viejo' ? old : failed).push(files[i].name); }
+  }
+  setProgress('');
+  await finishImport(pages, `${pages.length} hoja${pages.length !== 1 ? 's' : ''} nueva${pages.length !== 1 ? 's' : ''}`);
+  const msgs = [];
+  if (old.length) msgs.push(`${old.join(', ')}: es un formato antiguo; ábrelo y guárdalo como .docx, .pptx o PDF`);
+  if (failed.length) msgs.push(`No pude convertir ${failed.join(', ')}`);
+  if (msgs.length) setTimeout(() => toast(msgs.join('. ') + '.', 9000), 5200);
 }
 
 /* ---------- temporizador ---------- */
@@ -2334,6 +2536,17 @@ async function init() {
   openSetup();
 }
 init();
+
+/* ---------- sin internet ---------- */
+function netChanged() {
+  $('net-chip').hidden = navigator.onLine;
+  if (navigator.onLine) setTimeout(retryQueuedHW, 1500);
+}
+window.addEventListener('online', netChanged); window.addEventListener('offline', netChanged);
+setTimeout(netChanged, 3000);
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 })();
 </script>
 </body>

@@ -122,6 +122,70 @@ body.touch #float .btn{height:40px}
 .keys{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12px;color:var(--muted)}
 .keys dt{font-family:var(--f-mono);color:var(--text)}
 .keys dd{margin:0}
+/* biblioteca */
+#library{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column}
+.lib-top{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;padding:14px 20px;background:var(--panel);border-bottom:1px solid var(--line)}
+.lib-top h1{font:600 22px/1.2 var(--f-display);margin:0;flex:1;min-width:180px;display:flex;align-items:center;gap:8px}
+.lib-top h1 button{border:0;background:none;color:var(--muted);font-size:15px;padding:4px}
+#lib-search{height:var(--ctl);border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--panel);width:min(300px,100%)}
+.lib-body{flex:1;min-height:0;display:flex}
+.lib-side{width:240px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.lib-side h2{font:600 11px/1 var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 6px 6px}
+.lib-side h2:first-child{margin-top:4px}
+.lib-side .it{display:flex;align-items:center;gap:6px;width:100%;text-align:left;border:0;background:none;padding:8px 10px;border-radius:7px;min-height:var(--ctl)}
+.lib-side .it:hover{background:var(--hover)}
+.lib-side .it[aria-current="true"]{background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--accent);font-weight:600}
+.lib-side .it .n{margin-left:auto;font-size:11px;color:var(--muted);font-weight:400}
+.lib-main{flex:1;min-width:0;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+.lib-head{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.lib-head h2{font:600 19px/1.2 var(--f-display);margin:0;flex:1;min-width:160px}
+.lib-head .sub{color:var(--muted);font-size:13px;width:100%;margin:-6px 0 0}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.ccard{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.ccard .bar{height:10px}
+.ccard .in{padding:14px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.ccard .t{display:flex;align-items:flex-start;gap:6px}
+.ccard .t button.name{all:unset;cursor:pointer;font-weight:600;font-size:16px;flex:1}
+.ccard .t button.name:focus-visible{outline:2px solid var(--accent)}
+.ccard small{color:var(--muted);font-size:13px}
+.ccard .ss{border-top:1px solid var(--line);margin-top:6px;padding-top:8px;display:flex;flex-direction:column;gap:2px}
+.ccard .ss button{all:unset;cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:4px 2px;border-radius:4px}
+.ccard .ss button:hover{background:var(--hover)}
+.ccard .ss .empty{font-size:13px;color:var(--muted)}
+.ccard .acts{display:flex;gap:6px;padding:0 16px 14px}
+.ccard.add{border-style:dashed;display:grid;place-items:center;min-height:170px;color:var(--muted);background:transparent;cursor:pointer;font-size:15px}
+.pill{font-size:11px;border-radius:10px;padding:2px 8px;background:var(--hover);color:var(--muted);white-space:nowrap}
+.star{border:0;background:none;font-size:18px;line-height:1;color:var(--muted);padding:2px 4px}
+.star[aria-pressed="true"]{color:#e0a400}
+.nblist{display:flex;flex-direction:column;gap:8px}
+.nbrow{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.nbrow .th{width:64px;height:64px;flex:none;border-radius:6px;border:1px solid var(--line);background:#fff center/contain no-repeat}
+.nbrow .info{all:unset;cursor:pointer;flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.nbrow .info b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nbrow .info span{font-size:12px;color:var(--muted)}
+.nbrow .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+.lib-empty{color:var(--muted);padding:30px 0;text-align:center}
+.colors{display:flex;gap:8px;flex-wrap:wrap}
+.colors button{width:30px;height:30px;border-radius:50%;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
+.colors button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent)}
+.field{display:flex;flex-direction:column;gap:4px}
+.field input,.field select{height:40px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--panel);max-width:none}
+.frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+#nb-title{cursor:pointer}
+@media (max-width:760px){.lib-side{display:none}.lib-main{padding:14px}}
+/* miniaturas */
+#pages-panel{width:178px;flex:none;background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:10px 8px;touch-action:pan-y}
+#pages-list{display:flex;flex-direction:column;gap:10px;position:relative}
+.pg-item{display:grid;grid-template-columns:22px 1fr 18px;align-items:start;gap:4px;border-top:3px solid transparent;padding-top:2px}
+.pg-item.drop{border-top-color:var(--accent)}
+.pg-item.dropafter{border-bottom:3px solid var(--accent)}
+.pg-num{font-size:11px;color:var(--muted);text-align:right;padding-top:4px;font-variant-numeric:tabular-nums}
+.pg-thumb{all:unset;cursor:pointer;display:block;border-radius:3px;box-shadow:0 0 0 1px var(--line);background:#fff;overflow:hidden}
+.pg-thumb img{display:block;width:100%;height:auto;background:#fff}
+.pg-item.cur .pg-thumb{box-shadow:0 0 0 3px var(--accent)}
+.pg-handle{cursor:grab;color:var(--muted);font-size:16px;line-height:1;padding:4px 0;text-align:center;touch-action:none;user-select:none;-webkit-user-select:none}
+.pg-ghost{position:fixed;z-index:80;pointer-events:none;width:120px;opacity:.85;transform:rotate(-2deg);box-shadow:0 10px 26px rgba(0,0,0,.3);border-radius:4px;background:#fff}
+@media (max-width:820px){#pages-panel{position:absolute;left:0;top:0;bottom:0;z-index:15;box-shadow:8px 0 24px rgba(0,0,0,.2)}}
 #progress{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:61;display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:8px 8px 8px 14px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:min(92vw,560px)}
 #net-chip{display:inline-flex;align-items:center;border-color:var(--warn);color:var(--warn);font-family:var(--f-body);font-size:12px}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 14px;border-radius:6px;max-width:min(92vw,560px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
@@ -188,7 +252,9 @@ body.touch #float .btn{height:40px}
 <body>
 <div id="app">
   <header class="top">
-    <div class="brand">Pizarra de Apuntes<small id="doc-format">A4 vertical</small></div>
+    <button class="btn" id="to-lib" title="Volver a la biblioteca de tu maestría">‹ Biblioteca</button>
+    <div class="brand"><span id="nb-title" title="Toca para cambiar el nombre">Pizarra de Apuntes</span><small id="doc-format">A4 vertical</small></div>
+    <button class="btn" id="pages-toggle" aria-expanded="false" aria-controls="pages-panel" title="Ver todas las hojas en miniatura">☰ Hojas</button>
     <div class="group">
       <button class="btn" id="page-prev" aria-label="Página anterior" title="Página anterior (←)">‹</button>
       <button class="btn" id="page-label" title="Ir a otra hoja">Hoja 1 de 1</button>
@@ -225,6 +291,7 @@ body.touch #float .btn{height:40px}
           <button id="page-new-custom">Agregar hoja con otro formato…</button>
           <hr>
           <button id="page-dup">Duplicar esta hoja</button>
+          <button id="paste-clip" disabled>Pegar lo copiado con el lazo</button>
           <button id="clear">Limpiar esta hoja</button>
           <button id="page-del">Eliminar esta hoja…</button>
         </div>
@@ -291,6 +358,7 @@ body.touch #float .btn{height:40px}
 
   <div class="main">
     <nav class="rail" id="rail" aria-label="Herramientas"></nav>
+    <aside id="pages-panel" hidden aria-label="Hojas del cuaderno"><div id="pages-list"></div></aside>
     <div class="stage" id="stage">
       <canvas id="cv"></canvas>
       <canvas id="fx"></canvas>
@@ -363,11 +431,19 @@ body.touch #float .btn{height:40px}
 <div class="modal" id="setup" hidden role="dialog" aria-modal="true" aria-labelledby="setup-title">
   <div class="sheet">
     <div>
-      <h1 id="setup-title">Prepara tu cuaderno</h1>
-      <p class="sub">Elige la hoja y cómo vas a escribir. El dispositivo y la letra los puedes cambiar después.</p>
+      <h1 id="setup-title">Nuevo cuaderno</h1>
+      <p class="sub" id="setup-sub">Ponle nombre, elige la hoja y cómo vas a escribir. El dispositivo y la letra los puedes cambiar después.</p>
     </div>
     <div class="setup-body">
     <div class="setup-qs">
+    <div class="q">
+      <div class="frow">
+        <label class="field"><span class="lbl">Curso</span><select id="nb-course"></select></label>
+        <label class="field"><span class="lbl">Nombre</span><input id="nb-name" type="text" maxlength="80" placeholder="Sesión 1 · Introducción"></label>
+        <label class="field"><span class="lbl">Fecha</span><input id="nb-date" type="date"></label>
+      </div>
+      <div class="pills" role="radiogroup" aria-label="Tipo" data-group="kind" style="margin-top:10px"></div>
+    </div>
     <div class="q">
       <h3>1. ¿Cómo quieres la hoja?</h3>
       <div class="cards" role="radiogroup" aria-label="Hoja" data-group="format"></div>
@@ -402,8 +478,51 @@ body.touch #float .btn{height:40px}
     <p class="warn" id="setup-warn" hidden></p>
     <div class="actions">
       <button class="btn" id="setup-pdf" title="Empieza un cuaderno nuevo a partir de un PDF, Word, PowerPoint, Excel o fotos">Anotar sobre un archivo…</button>
-      <button class="btn" id="setup-continue" hidden>Seguir con mis apuntes</button>
-      <button class="btn primary" id="setup-start">Empezar cuaderno nuevo</button>
+      <button class="btn" id="setup-continue">Cancelar</button>
+      <button class="btn primary" id="setup-start">Crear cuaderno</button>
+    </div>
+  </div>
+</div>
+
+<div id="library" hidden>
+  <header class="lib-top">
+    <h1><span id="lib-name">Mi maestría</span><button id="lib-rename" title="Cambiar el nombre" aria-label="Cambiar el nombre de la biblioteca">✎</button></h1>
+    <input id="lib-search" type="search" placeholder="Buscar curso o sesión…" aria-label="Buscar curso o sesión">
+    <button class="btn" id="lib-open-file" title="Abrir un archivo de apuntes guardado (.json)">Abrir archivo</button>
+    <button class="btn primary" id="lib-new-course">+ Nuevo curso</button>
+  </header>
+  <div class="lib-body">
+    <nav class="lib-side" id="lib-side" aria-label="Ciclos y accesos"></nav>
+    <main class="lib-main" id="lib-main"></main>
+  </div>
+</div>
+
+<div class="modal" id="ask" hidden role="dialog" aria-modal="true" aria-labelledby="ask-title">
+  <div class="sheet small">
+    <h1 id="ask-title" style="font-size:19px"></h1>
+    <label class="field" id="ask-field"><span class="lbl" id="ask-label"></span><input id="ask-input" type="text" maxlength="80"><select id="ask-select" hidden></select></label>
+    <div class="actions">
+      <button class="btn danger" id="ask-extra" hidden style="margin-right:auto"></button>
+      <button class="btn" id="ask-no">Cancelar</button>
+      <button class="btn primary" id="ask-yes">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="course-modal" hidden role="dialog" aria-modal="true" aria-labelledby="cm-title">
+  <div class="sheet" style="width:min(520px,100%)">
+    <h1 id="cm-title" style="font-size:20px">Nuevo curso</h1>
+    <label class="field"><span class="lbl">Nombre del curso</span><input id="cm-name" type="text" maxlength="80" placeholder="Metodología de la Investigación"></label>
+    <div class="frow">
+      <label class="field"><span class="lbl">Docente</span><input id="cm-teacher" type="text" maxlength="60" placeholder="Dr. Ramírez"></label>
+      <label class="field"><span class="lbl">Horario</span><input id="cm-time" type="text" maxlength="40" placeholder="Sábados 8:00"></label>
+    </div>
+    <label class="field"><span class="lbl">Ciclo</span><select id="cm-cycle"></select></label>
+    <div class="field"><span class="lbl">Color</span><div class="colors" id="cm-colors"></div></div>
+    <div class="actions">
+      <button class="btn danger" id="cm-delete" style="margin-right:auto">Eliminar curso</button>
+      <button class="btn" id="cm-cancel">Cancelar</button>
+      <button class="btn primary" id="cm-save">Guardar</button>
     </div>
   </div>
 </div>
@@ -514,6 +633,7 @@ const HL_NAMES = { yellow: 'Amarillo', green: 'Verde', pink: 'Rosa', blue: 'Cele
 const COLOR_NAMES = { ink: 'Tinta', blue: 'Azul', red: 'Rojo', green: 'Verde', orange: 'Naranja', purple: 'Morado' };
 const TOOLS = [
   { id: 'select', key: 'V', label: 'Seleccionar y mover', icon: '<path d="M5 3l14 8-6 2-2 6z"/>' },
+  { id: 'lasso', key: 'S', label: 'Lazo: encierra varias cosas para moverlas, copiarlas o cambiarlas', icon: '<path d="M12 4c5 0 8 2.2 8 5s-3.6 5-8 5-8-2.2-8-5 3-5 8-5z" stroke-dasharray="3 2.4"/><path d="M8 13.5c-1 1.5-.6 3.4 1 4.2 1.5.8 1.2 2.6-.4 3.3"/>' },
   { id: 'hand', key: 'M', label: 'Mover la hoja', icon: '<path d="M8 13V5.5a1.5 1.5 0 013 0V11m0-1V4.5a1.5 1.5 0 013 0V11m0-5.5a1.5 1.5 0 013 0V13m-9 0V9.5a1.5 1.5 0 00-3 0V14a7 7 0 007 7h1a6 6 0 006-6v-2.5a1.5 1.5 0 00-3 0"/>' },
   { id: 'pen', key: 'P', label: 'Lápiz', icon: '<path d="M4 20l4-1L19 8l-3-3L5 16z"/>' },
   { id: 'smart', key: 'I', label: 'Escritura inteligente: escribe y se convierte en letra limpia', icon: '<path d="M3 21l3-1 8-8-2-2-8 8z"/><path d="M17 3l1 2.3L20.5 6l-2.5 1-1 2.5L16 7l-2.5-1 2.5-.7z"/>' },
@@ -626,7 +746,7 @@ async function serializeFull() {
   for (const id of usedImageIds()) { const v = doc.images[id] || await store.get('img:' + id).catch(() => null); if (v) d.images[id] = v; }
   return d;
 }
-async function forgetImages() { for (const id of savedImgs) await store.del('img:' + id); savedImgs.clear(); }
+async function forgetImages() { /* cada cuaderno guarda sus imágenes; se borran solo al eliminar el cuaderno */ }
 function validDoc(d) { return d && Array.isArray(d.pages) && d.pages.length; }
 function loadDoc(d) {
   const oldFmt = FORMATS[d.format] ? d.format : 'wide', oldBoard = BOARDS[d.board] ? d.board : 'white';
@@ -649,7 +769,9 @@ async function saveNow() {
   try {
     for (const id of usedImageIds()) if (!savedImgs.has(id) && doc.images[id]) { await store.set('img:' + id, doc.images[id]); savedImgs.add(id); }
     for (const id of Object.keys(doc.images)) if (savedImgs.has(id) && imgEls.has(id)) delete doc.images[id];
-    await store.set('doc', serialize(false)); saveWarned = false;
+    if (!curNb) return;
+    await store.set('doc:' + curNb.id, serialize(false)); saveWarned = false;
+    touchNbMeta();
   }
   catch (e) { if (!saveWarned) { saveWarned = true; toast('No se pudo guardar en este navegador (quizá hay demasiadas imágenes). Guarda tus apuntes como archivo o PDF.'); } }
 }
@@ -944,6 +1066,7 @@ function paint() {
       ctx.setLineDash([6 / cam.s, 4 / cam.s]); ctx.strokeRect(x, y, w, h);
     }
   }
+  drawLassoOverlay(ctx);
   if (eraserPos) {
     ctx.strokeStyle = 'rgba(120,130,140,.9)'; ctx.lineWidth = 1.5 / cam.s;
     ctx.beginPath(); ctx.arc(eraserPos.x, eraserPos.y, eraseRadius(), 0, 7); ctx.stroke();
@@ -954,6 +1077,7 @@ function paint() {
 /* ---------- historial ---------- */
 const snapJSON = page => JSON.stringify({ o: page.objs, f: page.fmt, W: page.W, H: page.H, pt: page.pt, bg: page.bg, b: page.board });
 function restoreSnap(page, str) {
+  if (typeof clearMsel === 'function') clearMsel();
   const d = JSON.parse(str);
   if (Array.isArray(d)) { page.objs = d; return; }
   page.objs = d.o; page.fmt = d.f; page.W = d.W; page.H = d.H; page.bg = d.bg; page.board = d.b;
@@ -967,7 +1091,7 @@ function pushUndo(page, before) {
 }
 function mutatePage(page, fn) { const b = snapJSON(page); fn(); pushUndo(page, b); }
 function mutate(fn) { mutatePage(pg(), fn); }
-function changed() { invalidate(); scheduleSave(); updateUI(); }
+function changed() { invalidate(); scheduleSave(); updateUI(); if (doc && pg()) { pg()._v = (pg()._v || 0) + 1; panelChanged(); } }
 function undo() {
   if (pend.strokes.length) { pend.strokes.pop(); if (pend.strokes.length) scheduleSmart(); requestPaint(); return; }
   cancelEditor(); cancelCrop();
@@ -982,7 +1106,7 @@ function redo() {
 
 /* ---------- herramientas ---------- */
 function setTool(t) {
-  commitEditor(); cancelCrop();
+  commitEditor(); cancelCrop(); if (t !== 'lasso') clearMsel();
   if (t !== 'smart') runSmart();
   tool = t; cur = null; drag = null; eraserPos = null;
   if (t !== 'select') { sel = -1; if (floatKind !== 'smart') hideFloat(); }
@@ -995,7 +1119,7 @@ function setTool(t) {
   requestPaint();
 }
 function updateCursor() {
-  cv.style.cursor = spaceDown || tool === 'hand' ? 'grab' : tool === 'select' ? (cropping ? 'crosshair' : 'default') : tool === 'text' ? 'text' : tool === 'laser' ? 'none' : tool === 'eraser' ? 'cell' : 'crosshair';
+  cv.style.cursor = spaceDown || tool === 'hand' ? 'grab' : tool === 'lasso' ? 'crosshair' : tool === 'select' ? (cropping ? 'crosshair' : 'default') : tool === 'text' ? 'text' : tool === 'laser' ? 'none' : tool === 'eraser' ? 'cell' : 'crosshair';
 }
 function screenPt(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
 const toWorld = p => ({ x: (p.x - cam.x) / cam.s, y: (p.y - cam.y) / cam.s });
@@ -1132,6 +1256,8 @@ function updateGesture(sp) {
 function abortStroke() {
   if (drawId === null) return;
   drawId = null; cur = null;
+  if (mdrag) { restoreSnap(pg(), mdrag.before); mdrag = null; }
+  if (lasso) { lasso = null; }
   if (erasing) { restoreSnap(pg(), erasing.before); erasing = null; invalidate(); }
   if (drag) { restoreSnap(pg(), drag.before); drag = null; invalidate(); }
   cropRect = null; eraserPos = null; requestPaint();
@@ -1170,6 +1296,7 @@ function begin(p, e, t) {
     }
     hideFloat();
   } else if (t === 'laser') { laser.pts.push({ x: p.x, y: p.y, t: performance.now() }); laser.on = true; }
+  else if (t === 'lasso') lassoBegin(p);
   requestPaint();
 }
 function move(p, e) {
@@ -1201,6 +1328,7 @@ function move(p, e) {
     requestPaint();
   } else if (erasing) { eraserPos = p; eraseAt(p); }
   else if (cropRect) { cropRect.x2 = p.x; cropRect.y2 = p.y; requestPaint(); }
+  else if (at === 'lasso') lassoMove(p);
   else if (drag) {
     const o = pg().objs[sel]; if (!o) return;
     const dx = p.x - drag.start.x, dy = p.y - drag.start.y;
@@ -1222,6 +1350,7 @@ function end(cancelled) {
   }
   if (erasing) { if (erasing.any) pushUndo(pg(), erasing.before); erasing = null; if (touchUI()) eraserPos = null; requestPaint(); }
   if (cropRect) { applyCrop(); return; }
+  if (at === 'lasso') { lassoEnd(cancelled); return; }
   if (drag) { if (drag.moved) pushUndo(pg(), drag.before); drag = null; }
   if (at === 'select') { if (pg().objs[sel]) showSelFloat(); updateUI(); requestPaint(); }
   if (at === 'laser' && touchUI()) laser.on = false;
@@ -1389,6 +1518,8 @@ function showFloat(kind, o) {
   if (kind === 'crop') {
     fnote('Arrastra sobre la imagen la parte que quieres conservar');
     fbtn('Cancelar', cancelCrop);
+  } else if (kind === 'multi') {
+    buildMultiFloat(o);
   } else {
     if (o.t === 'text' && o.ink) {
       const alts = (o.alts || []).filter(a => a !== o.text).slice(0, 4);
@@ -1412,8 +1543,9 @@ function showFloat(kind, o) {
 function hideFloat() { $('float').hidden = true; floatObj = null; floatKind = null; clearTimeout(floatTimer); }
 function placeFloat() {
   if (!floatObj) return;
-  if (floatKind !== 'crop' && !pg().objs.includes(floatObj)) { hideFloat(); return; }
-  const f = $('float'), bb = bbox(floatObj);
+  if (floatKind === 'multi') { if (!msel || !msel.length) { hideFloat(); return; } }
+  else if (floatKind !== 'crop' && !pg().objs.includes(floatObj)) { hideFloat(); return; }
+  const f = $('float'), bb = floatKind === 'multi' ? mselBox() : bbox(floatObj);
   const sx = cam.x + bb[0] * cam.s, sy = cam.y + bb[1] * cam.s, ex = cam.x + bb[2] * cam.s, ey = cam.y + bb[3] * cam.s;
   const fw = f.offsetWidth, fh = f.offsetHeight;
   let top = sy - fh - 16;
@@ -1534,12 +1666,15 @@ $('paste-btn').onclick = async () => {
   } catch (e) { toast('Tu navegador no dejó leer lo copiado. Usa Ctrl+V (o Cmd+V en iPad con teclado).'); }
 };
 window.addEventListener('paste', e => {
+  if (!$('library').hidden) return;
   const t = e.target;
   if (t === ta || t.id === 'names' || t.tagName === 'INPUT') return;
   const items = [...(e.clipboardData ? e.clipboardData.items : [])];
   const it = items.find(i => i.type.startsWith('image/'));
   if (it) { e.preventDefault(); addImageBlob(it.getAsFile()); return; }
   const txt = e.clipboardData && e.clipboardData.getData('text/plain');
+  if (txt && clip && txt === clip.marker) { e.preventDefault(); pasteClip(); return; }
+  if (!txt && clip) { e.preventDefault(); pasteClip(); return; }
   if (txt) { e.preventDefault(); addPastedText(txt); }
 });
 $('stage').addEventListener('dragover', e => e.preventDefault());
@@ -1577,7 +1712,7 @@ function laserFrame() {
 function goPage(i) {
   if (i < 0 || i >= doc.pages.length) return;
   commitEditor(); cancelCrop(); runSmart();
-  const prev = pg(); doc.cur = i; sel = -1; hideFloat();
+  const prev = pg(); doc.cur = i; sel = -1; clearMsel(); hideFloat();
   const ch = prev.W !== pg().W || prev.H !== pg().H;
   applyPage(pg()); if (ch) fitView(cam.fit || 'page');
   changed();
@@ -1766,7 +1901,11 @@ async function downloadBlob(blob, name) {
   setTimeout(() => URL.revokeObjectURL(url), 60000);
   toast('Listo: ' + name);
 }
-function fileBase() { const d = new Date(); return `apuntes-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function fileBase() {
+  const d = new Date(), date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const t = curNb ? curNb.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 50) : '';
+  return t ? t : 'apuntes-' + date;
+}
 function ensureImages(page) {
   return Promise.all(pageImgIds(page).map(loadImg));
   return Promise.all([].map(id => new Promise(res => {
@@ -1841,8 +1980,11 @@ $('open-file').onchange = async e => {
   let d;
   try { d = JSON.parse(await f.text()); } catch (err) { d = null; }
   if (!validDoc(d)) { toast('Ese archivo no es un archivo de apuntes de esta pizarra.'); return; }
-  if (hasContent() && !(await confirmBox('Abrir este archivo reemplaza lo que tienes ahora en la pizarra. ¿Continuar?', 'Abrir archivo'))) return;
-  commitEditor(); await forgetImages(); loadDoc(d); cam.fit = 'page'; fitView('page'); changed(); setTool(tool);
+  const courseId = (curNb && curNb.cursoId) || (lib.cursos.find(c => c.cicloId === lib.cur.ciclo) || lib.cursos[0] || {}).id;
+  if (!courseId) { toast('Primero crea un curso para guardar ahí el archivo.'); return; }
+  const nb = createNb(courseId, f.name.replace(/\.json$/i, ''), 'sesion', todayISO());
+  savedImgs.clear();
+  await openNotebook(nb, d);
   toast(`Abrí tus apuntes: ${doc.pages.length} hoja${doc.pages.length > 1 ? 's' : ''}.`);
 };
 const hasContent = () => doc && doc.pages.some(p => p.objs.length || p.bgImg);
@@ -1873,6 +2015,8 @@ function buildSetup() {
   Object.entries(DEVICES).forEach(([k, d]) => dg.appendChild(optButton('device', k, `<b>${d.label}</b>`)));
   const boG = document.querySelector('[data-group="board"]');
   Object.entries(BOARD_NAMES).forEach(([k, v]) => boG.appendChild(optButton('board', k, `<span style="display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #9aa6b4;background:${BOARDS[k].fill}"></span>${v}`)));
+  const kG = document.querySelector('[data-group="kind"]');
+  Object.entries(KINDS).forEach(([k, v]) => kG.appendChild(optButton('kind', k, v)));
   const bgG = document.querySelector('[data-group="bg"]');
   Object.entries(BGS).forEach(([k, v]) => bgG.appendChild(optButton('bg', k, v)));
   const box = $('font-groups');
@@ -1902,6 +2046,7 @@ function markSetup() {
   $('font-groups').classList.toggle('flat', !showAllFonts);
   $('more-fonts').textContent = showAllFonts ? 'Ver solo los recomendados' : 'Ver los 22 estilos';
   $('device-hint').textContent = DEVICES[choice.device].hint;
+  if (!$('setup').hidden) suggestNbName();
   renderPreview();
 }
 /* vista previa: dibuja una hoja de ejemplo con las elecciones actuales */
@@ -1981,20 +2126,28 @@ function sampleObjs(bg, f) {
   objs.push({ t: 'text', x: ax + size * 2.7, y: ay - size * .55, text: 'energía', c: 'green', size, f });
   return objs;
 }
-function openSetup() {
-  Object.assign(choice, { format: prefs.format, device: prefs.device, font: prefs.font, bg: prefs.bg, board: prefs.board || 'white' });
-  const has = hasContent();
-  $('setup-continue').hidden = !has;
-  if (has) $('setup-continue').textContent = `Seguir con mis apuntes (${doc.pages.length} hoja${doc.pages.length > 1 ? 's' : ''})`;
-  $('setup-warn').hidden = true; $('setup-start').textContent = 'Empezar cuaderno nuevo'; startArmed = false;
+function openSetup(courseId, kind) {
+  Object.assign(choice, { format: prefs.format, device: prefs.device, font: prefs.font, bg: prefs.bg, board: prefs.board || 'white', kind: kind || 'sesion' });
+  fillCourseSelect($('nb-course'), courseId || (curNb && curNb.cursoId) || (lib.cursos[0] && lib.cursos[0].id));
+  suggestNbName(); $('nb-date').value = todayISO();
+  const has = false;
+  $('setup-continue').hidden = false;
+  $('setup-warn').hidden = true; startArmed = false;
   $('setup').hidden = false; markSetup();
-  setTimeout(() => (has ? $('setup-continue') : $('setup-start')).focus(), 0);
+  setTimeout(() => $('nb-name').focus(), 0);
 }
 function savePrefsFromChoice() {
   prefs.device = choice.device; prefs.font = choice.font; prefs.format = choice.format; prefs.bg = choice.bg; prefs.board = choice.board; savePrefs();
 }
 let startArmed = false;
-$('setup-start').onclick = () => {
+$('setup-start').onclick = async () => {
+  if (!$('nb-course').value) { toast('Primero crea un curso desde la biblioteca.'); return; }
+  savePrefsFromChoice();
+  const nb = createNb($('nb-course').value, $('nb-name').value.trim() || suggestNbName(true), choice.kind, $('nb-date').value);
+  $('setup').hidden = true;
+  await openNotebook(nb, newDoc(prefs));
+};
+const _oldStart = () => {
   if (hasContent() && !startArmed) {
     startArmed = true;
     $('setup-warn').textContent = `Empezar de nuevo borra los apuntes que tienes ahora (${doc.pages.length} hoja${doc.pages.length > 1 ? 's' : ''}). Si quieres conservarlos, pulsa «Seguir con mis apuntes» y expórtalos a PDF o guárdalos como archivo.`;
@@ -2006,10 +2159,7 @@ $('setup-start').onclick = () => {
   loadDoc(newDoc(prefs)); width = pg().fmt === 'wide' ? 4 : 3; $('width').value = width; $('width-val').textContent = width;
   closeSetup(); fitView('page'); changed();
 };
-$('setup-continue').onclick = () => {
-  prefs.device = choice.device; prefs.font = choice.font; savePrefs();
-  closeSetup(); updateUI();
-};
+$('setup-continue').onclick = () => { $('setup').hidden = true; if (!curNb) showLibrary(); };
 function closeSetup() {
   $('setup').hidden = true;
   document.fonts && document.fonts.load(`40px ${fontCss(prefs.font)}`).then(invalidate).catch(() => {});
@@ -2017,7 +2167,7 @@ function closeSetup() {
   setTool(DEVICES[prefs.device].pen ? 'pen' : tool);
   resize();
 }
-$('new-doc').onclick = () => { closeMenus(); commitEditor(); runSmart(); openSetup(); };
+$('new-doc').onclick = () => { closeMenus(); commitEditor(); runSmart(); openSetup(curNb && curNb.cursoId); };
 
 /* ---------- formato de cada hoja ---------- */
 const ps = { mode: 'edit', fmt: 'a4p', bg: 'lines', board: 'white' };
@@ -2110,13 +2260,13 @@ const imp = { pdf: null, name: '', pos: 'after', newDoc: false, busy: false };
 function pickImport(newDocMode) { imp.newDoc = !!newDocMode; $('import-file').click(); }
 $('import-btn').onclick = () => { closeMenus(); pickImport(false); };
 $('import-btn2').onclick = () => { closeMenus(); pickImport(false); };
-$('setup-pdf').onclick = () => pickImport(true);
+$('setup-pdf').onclick = () => { if (!$('nb-course').value) { toast('Primero crea un curso desde la biblioteca.'); return; } pickImport(true); };
 $('import-file').onchange = async e => {
   const files = [...e.target.files]; e.target.value = '';
   if (!files.length) return;
   const pdfFile = files.find(f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
   if (pdfFile) { await preparePdf(pdfFile); return; }
-  if (imp.newDoc && !(await replaceDocOk())) return;
+  if (imp.newDoc && !$('nb-name').value.trim()) $('nb-name').value = files[0].name.replace(/\.[a-z0-9]+$/i, '');
   imp.pos = 'after';
   await importFiles(files);
 };
@@ -2146,7 +2296,7 @@ $('im-ok').onclick = async () => {
   const n = imp.pdf.numPages;
   let a = clamp(parseInt($('im-from').value, 10) || 1, 1, n), b = clamp(parseInt($('im-to').value, 10) || a, 1, n);
   if (b < a) [a, b] = [b, a];
-  if (imp.newDoc && !(await replaceDocOk())) return;
+  if (imp.newDoc && !$('nb-name').value.trim()) $('nb-name').value = imp.name;
   $('importer').hidden = true;
   await importPdfRange(a, b);
 };
@@ -2162,9 +2312,10 @@ function newImgId() { return 'i' + Date.now().toString(36) + Math.floor(Math.ran
 async function startImport() {
   commitEditor(); await finishSmart();
   if (imp.newDoc) {
-    savePrefsFromChoice(); await forgetImages();
-    loadDoc({ pages: [newPage({ fmt: 'a4p' })] });
+    savePrefsFromChoice();
+    const nb = createNb($('nb-course').value || (lib.cursos[0] && lib.cursos[0].id), $('nb-name').value.trim() || imp.name || 'Lectura', 'lectura', $('nb-date').value);
     $('setup').hidden = true;
+    await openNotebook(nb, { pages: [newPage({ fmt: 'a4p' })] });
   }
 }
 async function finishImport(pages, label) {
@@ -2433,6 +2584,9 @@ $('pick').onclick = () => {
 
 /* ---------- teclado ---------- */
 window.addEventListener('keydown', e => {
+  if (!$('library').hidden || !$('ask').hidden || !$('course-modal').hidden) { if (e.key === 'Escape') { if (!$('ask').hidden) $('ask-no').click(); else if (!$('course-modal').hidden) $('cm-cancel').click(); } return; }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && msel && msel.length && !/INPUT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); copyMsel(); return; }
+  if ((e.key === 'Delete' || e.key === 'Backspace') && msel && msel.length && !/INPUT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); deleteMsel(); return; }
   if (!$('pageset').hidden || !$('importer').hidden) { if (e.key === 'Escape') { $('pageset').hidden = true; if (!$('importer').hidden) $('im-cancel').click(); } return; }
   if (!$('setup').hidden || !$('confirm').hidden) { if (e.key === 'Escape' && !$('confirm').hidden) $('confirm-no').click(); else if (e.key === 'Escape' && !$('setup-continue').hidden) $('setup-continue').click(); return; }
   const t = e.target;
@@ -2448,7 +2602,7 @@ window.addEventListener('keydown', e => {
   if ((e.key === 'Delete' || e.key === 'Backspace') && tool === 'select' && pg().objs[sel]) { e.preventDefault(); deleteSel(); return; }
   if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); goPage(doc.cur - 1); return; }
   if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); goPage(doc.cur + 1); return; }
-  if (e.key === 'Escape') { if (cropping) cancelCrop(); else { sel = -1; hideFloat(); requestPaint(); } return; }
+  if (e.key === 'Escape') { if (cropping) cancelCrop(); else { sel = -1; clearMsel(); hideFloat(); requestPaint(); } return; }
   if (e.key === '+' || e.key === '=') { zoomAt(1.25, SW / 2, SH / 2); return; }
   if (e.key === '-' || e.key === '_') { zoomAt(.8, SW / 2, SH / 2); return; }
   if (e.key === '0') { fitView('page'); return; }
@@ -2525,16 +2679,556 @@ async function init() {
   await unlock();
   buildSetup();
   try { const d = JSON.parse(localStorage.getItem(NAMES_KEY) || 'null'); if (d) { $('names').value = d.text || ''; $('norepeat').checked = d.norepeat !== false; } } catch (e) {}
-  let saved = null;
-  try { saved = await store.get('doc'); } catch (e) {}
-  if (validDoc(saved)) { loadDoc(saved); if (saved.images && Object.keys(saved.images).length) savedImgs.clear(); await loadStoredImages(); } else loadDoc(newDoc(prefs));
-  width = pg().fmt === 'wide' ? 4 : 3; $('width').value = width; $('width-val').textContent = width;
+  loadDoc(newDoc(prefs));
+  await loadLibrary();
+  width = 3; $('width').value = width; $('width-val').textContent = width;
   new ResizeObserver(resize).observe($('stage'));
   window.addEventListener('resize', () => { resize(); if (!$('setup').hidden) renderPreview(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(invalidate);
   resize(); updateUI(); pickCount(); drawTimer(); setTool('pen');
-  openSetup();
+  showLibrary();
 }
+
+/* ======================= BIBLIOTECA DE LA MAESTRÍA ======================= */
+const KINDS = { sesion: 'Sesión de clase', lectura: 'Lectura / PDF', tesis: 'Tesis', otro: 'Otro' };
+const COURSE_COLORS = ['#1d5fd1', '#12805c', '#e8730c', '#7a3fd1', '#d92d20', '#0b6e75', '#b8860b', '#c2185b'];
+const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'set', 'oct', 'nov', 'dic'];
+let lib = null, curNb = null;
+const uid = p => p + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
+function todayISO() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function shortDate(iso) { if (!iso) return ''; const [y, m, d] = iso.split('-').map(Number); return `${d} ${MONTHS[m - 1] || ''}`; }
+function escH(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+const courseOf = id => lib.cursos.find(c => c.id === id);
+const nbsOf = cid => lib.nbs.filter(n => n.cursoId === cid).sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.created - a.created);
+async function loadLibrary() {
+  try { lib = await store.get('library'); } catch (e) { lib = null; }
+  if (!lib || !Array.isArray(lib.nbs)) {
+    lib = { name: 'Mi maestría', ciclos: [], cursos: [], nbs: [], cur: { view: 'ciclo', ciclo: null } };
+    const c = { id: uid('y'), name: 'Ciclo I' }; lib.ciclos.push(c); lib.cur.ciclo = c.id;
+    let old = null; try { old = await store.get('doc'); } catch (e) {}
+    if (validDoc(old) && old.pages.some(p => (p.objs && p.objs.length) || p.bgImg)) {
+      const cu = { id: uid('k'), cicloId: c.id, name: 'Mis apuntes anteriores', teacher: '', time: '', color: COURSE_COLORS[0], fav: false };
+      lib.cursos.push(cu);
+      const nb = { id: uid('n'), cursoId: cu.id, title: 'Apuntes', kind: 'sesion', date: todayISO(), fav: false, created: Date.now(), updated: Date.now(), opened: 0, pages: old.pages.length };
+      lib.nbs.push(nb);
+      await store.set('doc:' + nb.id, old);
+    }
+    await saveLibrary();
+  }
+  if (!lib.cur) lib.cur = { view: 'ciclo', ciclo: lib.ciclos[0] && lib.ciclos[0].id };
+}
+async function saveLibrary() { try { await store.set('library', lib); } catch (e) {} }
+function createNb(cursoId, title, kind, date) {
+  const nb = { id: uid('n'), cursoId, title: title || 'Sin nombre', kind: KINDS[kind] ? kind : 'sesion', date: date || todayISO(), fav: false, created: Date.now(), updated: Date.now(), opened: Date.now(), pages: 1 };
+  lib.nbs.push(nb); saveLibrary();
+  return nb;
+}
+let metaTimer = 0;
+function touchNbMeta() {
+  if (!curNb) return;
+  curNb.updated = Date.now(); curNb.pages = doc.pages.length;
+  clearTimeout(metaTimer); metaTimer = setTimeout(makeNbThumb, 2500);
+  saveLibrary();
+}
+async function makeNbThumb() {
+  if (!curNb || !doc) return;
+  const nb = curNb, page = doc.pages[0];
+  try { const c = await renderPageCanvas(page, 128 / Math.max(page.W, page.H)); if (nb === curNb) { nb.thumb = c.toDataURL('image/jpeg', .72); saveLibrary(); } } catch (e) {}
+}
+async function openNotebook(nb, data) {
+  if (curNb && curNb !== nb) await closeNotebook();
+  let d = data;
+  if (!d) { try { d = await store.get('doc:' + nb.id); } catch (e) { d = null; } }
+  loadDoc(validDoc(d) ? d : newDoc(prefs));
+  savedImgs.clear(); await loadStoredImages();
+  if (d && d.images && Object.keys(d.images).length) Object.keys(d.images).forEach(id => savedImgs.delete(id));
+  curNb = nb; nb.opened = Date.now(); saveLibrary();
+  $('nb-title').textContent = nb.title;
+  document.title = nb.title + ' · Pizarra de Apuntes';
+  $('library').hidden = true; $('setup').hidden = true;
+  width = pg().fmt === 'wide' ? 4 : 3; $('width').value = width; $('width-val').textContent = width;
+  closeSetup(); if (prefs.pagesPanel && $('pages-panel').hidden) { $('pages-panel').hidden = false; $('pages-toggle').setAttribute('aria-expanded', 'true'); } cam.fit = 'page'; resize(); fitView('page'); panelDirty = true; changed(); buildPagesPanel(true);
+  saveNow();
+}
+async function closeNotebook() {
+  if (!curNb) return;
+  commitEditor(); cancelCrop(); clearMsel();
+  try { await finishSmart(); } catch (e) {}
+  await saveNow(); await makeNbThumb();
+  curNb = null;
+}
+async function showLibrary() {
+  await closeNotebook();
+  document.title = 'Pizarra de Apuntes';
+  $('library').hidden = false; $('lib-search').value = ''; $('toast').classList.remove('show'); setProgress('');
+  renderLibrary();
+}
+$('to-lib').onclick = () => showLibrary();
+$('nb-title').onclick = async () => {
+  if (!curNb) return;
+  const t = await askText('Nombre del cuaderno', 'Nombre', curNb.title);
+  if (t) { curNb.title = t; $('nb-title').textContent = t; saveLibrary(); }
+};
+function setView(v, extra) { lib.cur.view = v; Object.assign(lib.cur, extra || {}); saveLibrary(); renderLibrary(); $('lib-main').scrollTop = 0; }
+function sideItem(label, active, onclick, count) {
+  const b = document.createElement('button'); b.className = 'it'; b.type = 'button';
+  b.innerHTML = `<span>${label}</span>${count != null ? `<span class="n">${count}</span>` : ''}`;
+  b.setAttribute('aria-current', String(!!active)); b.onclick = onclick; return b;
+}
+function renderLibrary() {
+  $('lib-name').textContent = lib.name;
+  const side = $('lib-side'); side.innerHTML = '';
+  const h = t => { const e = document.createElement('h2'); e.textContent = t; side.appendChild(e); };
+  const v = lib.cur.view;
+  h('Ciclos');
+  lib.ciclos.forEach(c => side.appendChild(sideItem(escH(c.name), v === 'ciclo' && lib.cur.ciclo === c.id, () => setView('ciclo', { ciclo: c.id }), lib.cursos.filter(k => k.cicloId === c.id).length)));
+  side.appendChild(sideItem('+ Agregar ciclo', false, addCiclo));
+  h('Accesos');
+  const favN = lib.cursos.filter(c => c.fav).length + lib.nbs.filter(n => n.fav).length;
+  side.appendChild(sideItem('⭐ Favoritos', v === 'fav', () => setView('fav'), favN));
+  side.appendChild(sideItem('🕘 Recientes', v === 'recent', () => setView('recent')));
+  side.appendChild(sideItem('📄 PDFs y lecturas', v === 'lecturas', () => setView('lecturas'), lib.nbs.filter(n => n.kind === 'lectura').length));
+  side.appendChild(sideItem('🎓 Tesis', v === 'tesis', () => setView('tesis'), lib.nbs.filter(n => n.kind === 'tesis').length));
+  const main = $('lib-main'); main.innerHTML = '';
+  const q = $('lib-search').value.trim().toLowerCase();
+  if (q) return renderSearch(main, q);
+  if (v === 'curso' && courseOf(lib.cur.curso)) return renderCourse(main, courseOf(lib.cur.curso));
+  if (v === 'fav') return renderFav(main);
+  if (v === 'recent') return renderNbList(main, 'Recientes', 'Lo último que abriste.', lib.nbs.filter(n => n.opened).sort((a, b) => b.opened - a.opened).slice(0, 30));
+  if (v === 'lecturas') return renderNbList(main, 'PDFs y lecturas', 'Cuadernos creados a partir de PDF, Word, PowerPoint u otros archivos.', lib.nbs.filter(n => n.kind === 'lectura').sort((a, b) => b.updated - a.updated));
+  if (v === 'tesis') return renderNbList(main, 'Tesis', 'Avances, observaciones y todo lo de tu tesis.', lib.nbs.filter(n => n.kind === 'tesis').sort((a, b) => b.updated - a.updated), true);
+  renderCiclo(main);
+}
+function headEl(main, title, sub, buttons) {
+  const hd = document.createElement('div'); hd.className = 'lib-head';
+  hd.innerHTML = `<h2>${title}</h2>`;
+  (buttons || []).forEach(b => hd.appendChild(b));
+  if (sub) { const p = document.createElement('p'); p.className = 'sub'; p.textContent = sub; hd.appendChild(p); }
+  main.appendChild(hd);
+}
+function mkBtn(label, fn, cls, title) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn' + (cls ? ' ' + cls : ''); b.textContent = label; b.onclick = fn; if (title) b.title = title; return b; }
+function starBtn(obj, label) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'star'; b.textContent = obj.fav ? '★' : '☆';
+  b.setAttribute('aria-pressed', String(!!obj.fav)); b.setAttribute('aria-label', (obj.fav ? 'Quitar de favoritos: ' : 'Agregar a favoritos: ') + label);
+  b.onclick = e => { e.stopPropagation(); obj.fav = !obj.fav; saveLibrary(); renderLibrary(); };
+  return b;
+}
+function renderCiclo(main) {
+  const cy = lib.ciclos.find(c => c.id === lib.cur.ciclo) || lib.ciclos[0];
+  if (!cy) { headEl(main, 'Agrega tu primer ciclo', '', [mkBtn('+ Agregar ciclo', addCiclo, 'primary')]); return; }
+  lib.cur.ciclo = cy.id;
+  headEl(main, escH(cy.name), 'Tus cursos de este ciclo. Toca un curso para ver todas sus sesiones.', [mkBtn('Renombrar ciclo', () => editCiclo(cy))]);
+  const grid = document.createElement('div'); grid.className = 'cgrid';
+  lib.cursos.filter(c => c.cicloId === cy.id).forEach(c => grid.appendChild(courseCard(c)));
+  const add = document.createElement('button'); add.type = 'button'; add.className = 'ccard add'; add.textContent = '+ Agregar curso'; add.onclick = () => editCourse(null, cy.id);
+  grid.appendChild(add); main.appendChild(grid);
+}
+function courseCard(c) {
+  const card = document.createElement('div'); card.className = 'ccard';
+  const list = nbsOf(c.id);
+  card.innerHTML = `<div class="bar" style="background:${c.color}"></div><div class="in"><div class="t"><button class="name">${escH(c.name)}</button></div><small>${escH([c.teacher, c.time].filter(Boolean).join(' · ') || 'Sin docente ni horario')}</small><div class="ss"></div></div><div class="acts"></div>`;
+  card.querySelector('.t').appendChild(starBtn(c, c.name));
+  card.querySelector('.name').onclick = () => setView('curso', { curso: c.id });
+  const ss = card.querySelector('.ss');
+  if (!list.length) ss.innerHTML = '<span class="empty">Aún no hay sesiones</span>';
+  list.slice(0, 3).forEach(n => {
+    const b = document.createElement('button');
+    b.innerHTML = `<span>${escH(n.title)}</span><span class="pill">${n.kind === 'lectura' ? 'Lectura' : n.kind === 'tesis' ? 'Tesis' : escH(shortDate(n.date))}</span>`;
+    b.onclick = () => openNotebook(n); ss.appendChild(b);
+  });
+  if (list.length > 3) { const b = document.createElement('button'); b.innerHTML = `<span style="color:var(--accent)">Ver las ${list.length} sesiones</span>`; b.onclick = () => setView('curso', { curso: c.id }); ss.appendChild(b); }
+  const acts = card.querySelector('.acts');
+  acts.appendChild(mkBtn('+ Nueva sesión', () => openSetup(c.id, 'sesion'), 'primary'));
+  acts.appendChild(mkBtn('Editar', () => editCourse(c)));
+  return card;
+}
+function nbRow(n, showCourse) {
+  const c = courseOf(n.cursoId) || { name: 'Sin curso', color: '#8894a3' };
+  const row = document.createElement('div'); row.className = 'nbrow';
+  row.innerHTML = `<div class="th" style="${n.thumb ? `background-image:url(${n.thumb})` : ''}"></div><button class="info"><b>${escH(n.title)}</b><span>${showCourse ? `<span class="dot" style="background:${c.color}"></span>${escH(c.name)} · ` : ''}${escH(shortDate(n.date))} · ${n.pages || 1} hoja${(n.pages || 1) > 1 ? 's' : ''} · ${escH(KINDS[n.kind] || '')}</span></button>`;
+  row.querySelector('.info').onclick = () => openNotebook(n);
+  row.appendChild(starBtn(n, n.title));
+  row.appendChild(mkBtn('⋯', () => nbMenu(n), '', 'Opciones del cuaderno'));
+  return row;
+}
+function renderCourse(main, c) {
+  const back = mkBtn('‹ Volver', () => setView('ciclo', { ciclo: c.cicloId }));
+  headEl(main, `<span class="dot" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.color};margin-right:6px"></span>${escH(c.name)}`,
+    [c.teacher, c.time].filter(Boolean).join(' · '), [back, mkBtn('Editar curso', () => editCourse(c)), mkBtn('+ Nueva sesión', () => openSetup(c.id, 'sesion'), 'primary')]);
+  const list = document.createElement('div'); list.className = 'nblist';
+  const nbs = nbsOf(c.id);
+  if (!nbs.length) list.innerHTML = '<p class="lib-empty">Aún no hay sesiones en este curso. Crea la primera con «+ Nueva sesión».</p>';
+  nbs.forEach(n => list.appendChild(nbRow(n, false)));
+  main.appendChild(list);
+}
+function renderNbList(main, title, sub, nbs, tesis) {
+  const btns = tesis ? [mkBtn('+ Nuevo cuaderno de tesis', () => { if (!lib.cursos.length) { toast('Primero crea un curso (por ejemplo, Seminario de Tesis).'); return; } openSetup(null, 'tesis'); }, 'primary')] : [];
+  headEl(main, title, sub, btns);
+  const list = document.createElement('div'); list.className = 'nblist';
+  if (!nbs.length) list.innerHTML = '<p class="lib-empty">No hay nada aquí todavía.</p>';
+  nbs.forEach(n => list.appendChild(nbRow(n, true)));
+  main.appendChild(list);
+}
+function renderFav(main) {
+  headEl(main, 'Favoritos', 'Toca la estrella ☆ de un curso o de un cuaderno para tenerlo aquí.');
+  const cs = lib.cursos.filter(c => c.fav);
+  if (cs.length) { const g = document.createElement('div'); g.className = 'cgrid'; cs.forEach(c => g.appendChild(courseCard(c))); main.appendChild(g); }
+  const nbs = lib.nbs.filter(n => n.fav);
+  const list = document.createElement('div'); list.className = 'nblist';
+  nbs.forEach(n => list.appendChild(nbRow(n, true)));
+  if (!cs.length && !nbs.length) list.innerHTML = '<p class="lib-empty">Aún no marcaste favoritos.</p>';
+  main.appendChild(list);
+}
+function renderSearch(main, q) {
+  const cs = lib.cursos.filter(c => [c.name, c.teacher].join(' ').toLowerCase().includes(q));
+  const nbs = lib.nbs.filter(n => n.title.toLowerCase().includes(q));
+  headEl(main, `Resultados para «${escH(q)}»`, `${cs.length} curso${cs.length !== 1 ? 's' : ''} y ${nbs.length} cuaderno${nbs.length !== 1 ? 's' : ''}`);
+  if (cs.length) { const g = document.createElement('div'); g.className = 'cgrid'; cs.forEach(c => g.appendChild(courseCard(c))); main.appendChild(g); }
+  const list = document.createElement('div'); list.className = 'nblist'; nbs.forEach(n => list.appendChild(nbRow(n, true))); main.appendChild(list);
+}
+$('lib-search').addEventListener('input', renderLibrary);
+$('lib-rename').onclick = async () => { const t = await askText('Nombre de tu biblioteca', 'Nombre', lib.name); if (t) { lib.name = t; saveLibrary(); renderLibrary(); } };
+$('lib-new-course').onclick = () => editCourse(null, lib.cur.ciclo || (lib.ciclos[0] && lib.ciclos[0].id));
+$('lib-open-file').onclick = () => { if (!lib.cursos.length) { toast('Primero crea un curso para guardar ahí el archivo.'); return; } $('open-file').click(); };
+async function addCiclo() {
+  const t = await askText('Nuevo ciclo', 'Nombre del ciclo', `Ciclo ${['I', 'II', 'III', 'IV', 'V', 'VI'][lib.ciclos.length] || lib.ciclos.length + 1}`);
+  if (!t) return;
+  const c = { id: uid('y'), name: t }; lib.ciclos.push(c); setView('ciclo', { ciclo: c.id });
+}
+async function editCiclo(cy) {
+  const empty = !lib.cursos.some(c => c.cicloId === cy.id);
+  const r = await askText('Ciclo', 'Nombre del ciclo', cy.name, empty && lib.ciclos.length > 1 ? 'Eliminar ciclo' : null);
+  if (r === '__extra__') { lib.ciclos = lib.ciclos.filter(c => c !== cy); setView('ciclo', { ciclo: lib.ciclos[0].id }); return; }
+  if (r) { cy.name = r; saveLibrary(); renderLibrary(); }
+}
+let cmCourse = null, cmColor = COURSE_COLORS[0];
+function editCourse(c, cicloId) {
+  cmCourse = c;
+  $('cm-title').textContent = c ? 'Editar curso' : 'Nuevo curso';
+  $('cm-name').value = c ? c.name : ''; $('cm-teacher').value = c ? c.teacher : ''; $('cm-time').value = c ? c.time : '';
+  const sel = $('cm-cycle'); sel.innerHTML = '';
+  lib.ciclos.forEach(y => { const o = document.createElement('option'); o.value = y.id; o.textContent = y.name; sel.appendChild(o); });
+  sel.value = c ? c.cicloId : (cicloId || (lib.ciclos[0] && lib.ciclos[0].id));
+  cmColor = c ? c.color : COURSE_COLORS[lib.cursos.length % COURSE_COLORS.length];
+  const box = $('cm-colors'); box.innerHTML = '';
+  COURSE_COLORS.forEach(col => { const b = document.createElement('button'); b.type = 'button'; b.style.background = col; b.setAttribute('aria-label', 'Color ' + col); b.setAttribute('aria-pressed', String(col === cmColor)); b.onclick = () => { cmColor = col; box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }; box.appendChild(b); });
+  $('cm-delete').hidden = !c;
+  $('course-modal').hidden = false; setTimeout(() => $('cm-name').focus(), 0);
+}
+$('cm-cancel').onclick = () => { $('course-modal').hidden = true; };
+$('cm-save').onclick = () => {
+  const name = $('cm-name').value.trim();
+  if (!name) { toast('Escribe el nombre del curso.'); $('cm-name').focus(); return; }
+  if (!lib.ciclos.length) { const y = { id: uid('y'), name: 'Ciclo I' }; lib.ciclos.push(y); $('cm-cycle').innerHTML = `<option value="${y.id}"></option>`; }
+  const data = { name, teacher: $('cm-teacher').value.trim(), time: $('cm-time').value.trim(), cicloId: $('cm-cycle').value || lib.ciclos[0].id, color: cmColor };
+  if (cmCourse) Object.assign(cmCourse, data); else lib.cursos.push(Object.assign({ id: uid('k'), fav: false }, data));
+  $('course-modal').hidden = true; saveLibrary();
+  if (lib.cur.view === 'ciclo') lib.cur.ciclo = data.cicloId;
+  renderLibrary();
+};
+$('cm-delete').onclick = async () => {
+  const c = cmCourse; if (!c) return;
+  const n = lib.nbs.filter(x => x.cursoId === c.id).length;
+  if (!(await confirmBox(n ? `¿Eliminar «${c.name}» y sus ${n} cuaderno${n > 1 ? 's' : ''}? Esto no se puede deshacer.` : `¿Eliminar el curso «${c.name}»?`, 'Eliminar curso'))) return;
+  for (const nb of lib.nbs.filter(x => x.cursoId === c.id)) await deleteNbData(nb);
+  lib.nbs = lib.nbs.filter(x => x.cursoId !== c.id); lib.cursos = lib.cursos.filter(x => x !== c);
+  $('course-modal').hidden = true; saveLibrary(); setView('ciclo', { ciclo: c.cicloId });
+};
+async function deleteNbData(nb) {
+  let d = null; try { d = await store.get('doc:' + nb.id); } catch (e) {}
+  const ids = new Set(); if (d && d.pages) d.pages.forEach(p => { if (p.bgImg) ids.add(p.bgImg); (p.objs || []).forEach(o => { if (o.t === 'img') ids.add(o.id); }); });
+  const used = new Set();
+  for (const other of lib.nbs) if (other !== nb && other.copiedFrom === nb.id) used.add('*');
+  if (!used.size) for (const id of ids) await store.del('img:' + id);
+  await store.del('doc:' + nb.id);
+}
+async function nbMenu(n) {
+  const opts = [['rename', 'Cambiar nombre'], ['move', 'Mover a otro curso'], ['kind', 'Cambiar tipo (sesión, lectura, tesis)'], ['date', 'Cambiar fecha'], ['dup', 'Duplicar'], ['del', 'Eliminar']];
+  const r = await askSelect(n.title, 'Elige qué hacer', opts);
+  if (r === 'rename') { const t = await askText('Cambiar nombre', 'Nombre', n.title); if (t) n.title = t; }
+  else if (r === 'move') { const k = await askSelect('Mover a otro curso', 'Curso', lib.cursos.map(c => [c.id, `${c.name} (${(lib.ciclos.find(y => y.id === c.cicloId) || {}).name || ''})`]), n.cursoId); if (k) n.cursoId = k; }
+  else if (r === 'kind') { const k = await askSelect('Tipo de cuaderno', 'Tipo', Object.entries(KINDS), n.kind); if (k) n.kind = k; }
+  else if (r === 'date') { const t = await askText('Fecha', 'Fecha (año-mes-día)', n.date || todayISO(), null, 'date'); if (t) n.date = t; }
+  else if (r === 'dup') {
+    let d = null; try { d = await store.get('doc:' + n.id); } catch (e) {}
+    const c = Object.assign({}, n, { id: uid('n'), title: n.title + ' (copia)', created: Date.now(), updated: Date.now(), opened: 0, fav: false, copiedFrom: n.id });
+    if (d) await store.set('doc:' + c.id, d);
+    lib.nbs.push(c);
+  } else if (r === 'del') {
+    if (await confirmBox(`¿Eliminar «${n.title}»? Esto no se puede deshacer.`, 'Eliminar cuaderno')) { await deleteNbData(n); lib.nbs = lib.nbs.filter(x => x !== n); }
+  }
+  if (r) { saveLibrary(); renderLibrary(); }
+}
+/* ventanas pequeñas para escribir o elegir */
+function askBase(title, label, mode, value, extra, inputType) {
+  return new Promise(res => {
+    $('ask-title').textContent = title; $('ask-label').textContent = label;
+    const inp = $('ask-input'), sel = $('ask-select');
+    inp.hidden = mode !== 'text'; sel.hidden = mode !== 'select'; inp.type = inputType || 'text';
+    $('ask-extra').hidden = !extra; $('ask-extra').textContent = extra || '';
+    $('ask-yes').textContent = mode === 'select' ? 'Aceptar' : 'Guardar';
+    $('ask').hidden = false;
+    setTimeout(() => (mode === 'text' ? (inp.focus(), inp.select && inp.select()) : sel.focus()), 0);
+    const done = v => { $('ask').hidden = true; $('ask-yes').onclick = $('ask-no').onclick = $('ask-extra').onclick = null; inp.onkeydown = null; res(v); };
+    $('ask-yes').onclick = () => done(mode === 'text' ? (inp.value.trim() || null) : sel.value);
+    $('ask-no').onclick = () => done(null);
+    $('ask-extra').onclick = () => done('__extra__');
+    inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('ask-yes').click(); } };
+  });
+}
+function askText(title, label, value, extra, type) { $('ask-input').value = value || ''; return askBase(title, label, 'text', value, extra, type); }
+function askSelect(title, label, options, value) {
+  const sel = $('ask-select'); sel.innerHTML = '';
+  options.forEach(([v, t]) => { const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); });
+  if (value) sel.value = value;
+  return askBase(title, label, 'select');
+}
+function fillCourseSelect(sel, value) {
+  sel.innerHTML = '';
+  lib.ciclos.forEach(y => {
+    const cs = lib.cursos.filter(c => c.cicloId === y.id); if (!cs.length) return;
+    const g = document.createElement('optgroup'); g.label = y.name;
+    cs.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.name; g.appendChild(o); });
+    sel.appendChild(g);
+  });
+  if (value) sel.value = value;
+}
+function suggestNbName(force) {
+  const cid = $('nb-course').value, n = lib.nbs.filter(x => x.cursoId === cid && x.kind === choice.kind).length + 1;
+  const name = choice.kind === 'sesion' ? `Sesión ${n}` : choice.kind === 'tesis' ? `Tesis · avance ${n}` : choice.kind === 'lectura' ? `Lectura ${n}` : `Cuaderno ${n}`;
+  if (force) return name;
+  $('nb-name').placeholder = name;
+  return name;
+}
+$('nb-course').addEventListener('change', () => suggestNbName());
+
+/* ======================= MINIATURAS DE LAS HOJAS ======================= */
+const thumbCache = new WeakMap();
+let thumbQueue = [], thumbBusy = false, panelDirty = true, curThumbTimer = 0;
+const thumbObs = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) { const p = doc.pages[+en.target.dataset.i]; if (p) queueThumb(p); } });
+}, { root: $('pages-panel'), rootMargin: '300px 0px' }) : null;
+function panelOpen() { return !$('pages-panel').hidden; }
+$('pages-toggle').onclick = () => {
+  const pnl = $('pages-panel'); pnl.hidden = !pnl.hidden;
+  $('pages-toggle').setAttribute('aria-expanded', String(!pnl.hidden));
+  prefs.pagesPanel = !pnl.hidden; savePrefs();
+  if (!pnl.hidden) buildPagesPanel(true);
+  resize();
+};
+function queueThumb(p) {
+  const c = thumbCache.get(p);
+  if (c && c.v === (p._v || 0)) return;
+  if (!thumbQueue.includes(p)) thumbQueue.push(p);
+  runThumbs();
+}
+async function runThumbs() {
+  if (thumbBusy) return; thumbBusy = true;
+  try {
+    while (thumbQueue.length) {
+      const p = thumbQueue.shift(); if (!doc.pages.includes(p)) continue;
+      const v = p._v || 0;
+      const c = await renderPageCanvas(p, 150 / p.W);
+      const url = c.toDataURL('image/jpeg', .75);
+      thumbCache.set(p, { v, url });
+      const i = doc.pages.indexOf(p), img = $('pages-list').querySelector(`.pg-item[data-i="${i}"] img`);
+      if (img) img.src = url;
+      await new Promise(r => setTimeout(r, 0));
+    }
+  } catch (e) {} finally { thumbBusy = false; }
+}
+function buildPagesPanel(force) {
+  if (!panelOpen() || !doc) return;
+  const list = $('pages-list');
+  if (!force && !panelDirty && list.children.length === doc.pages.length) {
+    [...list.children].forEach((it, i) => it.classList.toggle('cur', i === doc.cur));
+    return;
+  }
+  panelDirty = false;
+  if (thumbObs) thumbObs.disconnect();
+  list.innerHTML = '';
+  doc.pages.forEach((p, i) => {
+    const it = document.createElement('div'); it.className = 'pg-item' + (i === doc.cur ? ' cur' : ''); it.dataset.i = i;
+    it.innerHTML = `<span class="pg-num">${i + 1}</span><button class="pg-thumb" aria-label="Ir a la hoja ${i + 1}"><img alt="" style="aspect-ratio:${p.W}/${p.H}"></button><span class="pg-handle" title="Mantén y arrastra para cambiar de lugar" aria-hidden="true">⠿</span>`;
+    const c = thumbCache.get(p); if (c) it.querySelector('img').src = c.url;
+    it.querySelector('.pg-thumb').onclick = () => goPage(+it.dataset.i);
+    it.querySelector('.pg-handle').addEventListener('pointerdown', e => startPageDrag(e, it));
+    list.appendChild(it);
+    if (thumbObs) thumbObs.observe(it); else queueThumb(p);
+  });
+  const cur = list.children[doc.cur]; if (cur) cur.scrollIntoView({ block: 'nearest' });
+}
+function panelChanged() {
+  if (!panelOpen()) { panelDirty = true; return; }
+  const list = $('pages-list');
+  if (panelDirty || list.children.length !== doc.pages.length) { buildPagesPanel(true); return; }
+  buildPagesPanel(false);
+  clearTimeout(curThumbTimer);
+  const p = pg(); curThumbTimer = setTimeout(() => queueThumb(p), 900);
+  const cur = list.children[doc.cur]; if (cur) cur.scrollIntoView({ block: 'nearest' });
+}
+function movePage(from, to) {
+  if (from === to || from + 1 === to) return;
+  const cur = pg(), [p] = doc.pages.splice(from, 1);
+  doc.pages.splice(to > from ? to - 1 : to, 0, p);
+  doc.cur = doc.pages.indexOf(cur); panelDirty = true; changed();
+  toast(`Moví la hoja a la posición ${doc.pages.indexOf(p) + 1}.`, 2500);
+}
+let pdrag = null;
+function startPageDrag(e, it) {
+  e.preventDefault();
+  const from = +it.dataset.i, img = it.querySelector('img');
+  const ghost = document.createElement('img'); ghost.className = 'pg-ghost'; ghost.src = img.src || ''; ghost.alt = '';
+  document.body.appendChild(ghost);
+  pdrag = { from, to: from, ghost, id: e.pointerId, el: e.currentTarget };
+  try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {}
+  const mv = ev => {
+    if (ev.pointerId !== pdrag.id) return;
+    ghost.style.left = ev.clientX + 12 + 'px'; ghost.style.top = ev.clientY - 20 + 'px';
+    const items = [...$('pages-list').children];
+    items.forEach(x => x.classList.remove('drop', 'dropafter'));
+    let to = items.length;
+    for (let k = 0; k < items.length; k++) { const r = items[k].getBoundingClientRect(); if (ev.clientY < r.top + r.height / 2) { to = k; break; } }
+    pdrag.to = to;
+    if (to < items.length) items[to].classList.add('drop'); else if (items.length) items[items.length - 1].classList.add('dropafter');
+    const pr = $('pages-panel').getBoundingClientRect();
+    if (ev.clientY < pr.top + 40) $('pages-panel').scrollTop -= 12; else if (ev.clientY > pr.bottom - 40) $('pages-panel').scrollTop += 12;
+  };
+  const up = ev => {
+    if (ev.pointerId !== pdrag.id) return;
+    pdrag.el.removeEventListener('pointermove', mv); pdrag.el.removeEventListener('pointerup', up); pdrag.el.removeEventListener('pointercancel', up);
+    ghost.remove(); [...$('pages-list').children].forEach(x => x.classList.remove('drop', 'dropafter'));
+    const { from: f, to: t } = pdrag; pdrag = null;
+    if (ev.type === 'pointerup') movePage(f, t);
+  };
+  e.currentTarget.addEventListener('pointermove', mv); e.currentTarget.addEventListener('pointerup', up); e.currentTarget.addEventListener('pointercancel', up);
+  mv(e);
+}
+
+/* ======================= SELECCIÓN CON LAZO ======================= */
+let lasso = null, msel = null, mdrag = null, clip = null;
+function clearMsel() { if (msel) { msel = null; if (floatKind === 'multi') hideFloat(); requestPaint(); } }
+function pointInPoly(x, y, poly) {
+  let ins = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) ins = !ins;
+  }
+  return ins;
+}
+function samplePts(o) {
+  if (o.t === 'pen') { const st = Math.max(1, Math.floor(o.pts.length / 24)); return o.pts.filter((_, i) => i % st === 0); }
+  const [a, b, c, d] = bbox(o); return [[a, b], [c, b], [a, d], [c, d], [(a + c) / 2, (b + d) / 2]];
+}
+function mselBox() {
+  let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
+  for (const o of msel) { const q = bbox(o), m = o.t === 'img' || o.t === 'text' ? 0 : (o.w || 0) / 2; a = Math.min(a, q[0] - m); b = Math.min(b, q[1] - m); c = Math.max(c, q[2] + m); d = Math.max(d, q[3] + m); }
+  return [a, b, c, d];
+}
+function onMselHandle(p) { if (!msel) return false; const [, , c, d] = mselBox(), m = 8 / cam.s; return Math.hypot(p.x - (c + m), p.y - (d + m)) <= handleSize() * 1.5; }
+function inMselBox(p) { if (!msel) return false; const [a, b, c, d] = mselBox(), m = 8 / cam.s; return p.x >= a - m && p.x <= c + m && p.y >= b - m && p.y <= d + m; }
+function lassoBegin(p) {
+  if (msel && onMselHandle(p)) { mdrag = { mode: 'scale', start: p, before: snapJSON(pg()), src: msel.map(clone), box: mselBox(), moved: false }; hideFloat(); return; }
+  if (msel && inMselBox(p)) { mdrag = { mode: 'move', start: p, before: snapJSON(pg()), src: msel.map(clone), moved: false }; hideFloat(); return; }
+  clearMsel(); lasso = { pts: [[p.x, p.y]] };
+}
+function scaleAbout(o, src, ox, oy, f) {
+  const sx = x => r1(ox + (x - ox) * f), sy = y => r1(oy + (y - oy) * f);
+  if (o.t === 'pen') o.pts = src.pts.map(q => { const n = q.slice(); n[0] = sx(q[0]); n[1] = sy(q[1]); return n; });
+  else if (o.t === 'text') { o.x = sx(src.x); o.y = sy(src.y); o.size = clamp(src.size * f, 6, 400); if (src.bb) o.bb = [sx(src.bb[0]), sy(src.bb[1]), sx(src.bb[2]), sy(src.bb[3])]; if (src.ink) o.ink = src.ink.map(s => { const n = clone(s); scaleAbout(n, s, ox, oy, f); return n; }); }
+  else if (o.t === 'img') { o.x = sx(src.x); o.y = sy(src.y); o.w = Math.max(8, src.w * f); o.h = Math.max(8, src.h * f); }
+  else { o.x1 = sx(src.x1); o.y1 = sy(src.y1); o.x2 = sx(src.x2); o.y2 = sy(src.y2); }
+}
+function lassoMove(p) {
+  if (lasso) { const l = lasso.pts[lasso.pts.length - 1]; if (Math.hypot(p.x - l[0], p.y - l[1]) > 2 / cam.s) lasso.pts.push([p.x, p.y]); requestPaint(); return; }
+  if (mdrag) {
+    const dx = p.x - mdrag.start.x, dy = p.y - mdrag.start.y;
+    if (!mdrag.moved && Math.hypot(dx, dy) < 2 / cam.s) return;
+    mdrag.moved = true;
+    if (mdrag.mode === 'move') msel.forEach((o, i) => moveObj(o, mdrag.src[i], dx, dy));
+    else { const [a, b, c, d] = mdrag.box, w = Math.max(10, c - a), h = Math.max(10, d - b), f = clamp(Math.max((w + dx) / w, (h + dy) / h), .1, 10); msel.forEach((o, i) => scaleAbout(o, mdrag.src[i], a, b, f)); }
+    invalidate();
+  }
+}
+function lassoEnd(cancelled) {
+  if (mdrag) { if (mdrag.moved && !cancelled) pushUndo(pg(), mdrag.before); mdrag = null; if (msel) showFloat('multi', { t: 'multi' }); requestPaint(); return; }
+  if (!lasso) return;
+  const poly = lasso.pts; lasso = null;
+  if (cancelled || poly.length < 4) { requestPaint(); return; }
+  const got = pg().objs.filter(o => { const pts = samplePts(o); const n = pts.filter(q => pointInPoly(q[0], q[1], poly)).length; return n / pts.length >= .5; });
+  if (!got.length) { toast('No quedó nada dentro del lazo. Rodea por completo lo que quieres seleccionar.', 3000); requestPaint(); return; }
+  msel = got; showFloat('multi', { t: 'multi' }); requestPaint();
+}
+function drawLassoOverlay(c) {
+  if (lasso && lasso.pts.length > 1) {
+    c.save(); c.strokeStyle = '#0b8f98'; c.fillStyle = 'rgba(11,143,152,.08)'; c.lineWidth = 2 / cam.s; c.setLineDash([7 / cam.s, 5 / cam.s]);
+    c.beginPath(); lasso.pts.forEach((q, i) => i ? c.lineTo(q[0], q[1]) : c.moveTo(q[0], q[1])); c.closePath(); c.fill(); c.stroke(); c.restore();
+  }
+  if (msel && msel.length && tool === 'lasso') {
+    const [a, b, x2, y2] = mselBox(), m = 8 / cam.s;
+    c.save(); c.strokeStyle = '#0b8f98'; c.lineWidth = 1.5 / cam.s; c.setLineDash([6 / cam.s, 4 / cam.s]);
+    c.strokeRect(a - m, b - m, x2 - a + 2 * m, y2 - b + 2 * m);
+    c.setLineDash([]); c.fillStyle = '#fff'; c.lineWidth = 2 / cam.s;
+    c.beginPath(); c.arc(x2 + m, y2 + m, handleSize() * .8, 0, 7); c.fill(); c.stroke(); c.restore();
+  }
+}
+function buildMultiFloat() {
+  const n = msel.length, pens = msel.filter(o => o.t === 'pen' && !o.a);
+  fnote(`${n} elemento${n > 1 ? 's' : ''} · arrástralos para moverlos`);
+  fbtn('Copiar', copyMsel);
+  fbtn('Duplicar', () => { const copies = msel.map(clone); copies.forEach((o, i) => moveObj(o, msel[i], 24, 24)); mutate(() => pg().objs.push(...copies)); msel = copies; showFloat('multi', { t: 'multi' }); requestPaint(); });
+  fbtn('Cambiar color', () => {
+    const f = $('float'); f.innerHTML = ''; fnote('Elige el color');
+    const hasHl = msel.some(o => o.a), cols = hasHl && msel.every(o => o.a) ? Object.keys(HL).map(k => 'hl:' + k) : Object.keys(COLOR_NAMES);
+    cols.forEach(cc => { const b = fbtn('', () => { mutate(() => msel.forEach(o => { if (o.t !== 'img') { o.c = cc; if (o.ink) o.ink.forEach(s => { s.c = cc; }); } })); showFloat('multi', { t: 'multi' }); }); b.style.cssText += `;width:34px;padding:0;border-radius:50%;background:${resolve(cc)}`; b.setAttribute('aria-label', 'Color'); });
+    fbtn('‹', () => showFloat('multi', { t: 'multi' }));
+    placeFloat();
+  });
+  if (pens.length) fbtn('Convertir a texto', convertMselToText, '', 'Pasa lo escrito a mano a letra limpia');
+  fbtn('Eliminar', deleteMsel, 'danger');
+}
+function deleteMsel() { if (!msel) return; const s = new Set(msel); mutate(() => { pg().objs = pg().objs.filter(o => !s.has(o)); }); msel = null; hideFloat(); requestPaint(); }
+function copyMsel() {
+  if (!msel || !msel.length) return;
+  clip = { objs: msel.map(clone), nb: curNb && curNb.id, marker: 'pizarra-copia-' + Date.now() };
+  $('paste-clip').disabled = false;
+  try { navigator.clipboard && navigator.clipboard.writeText(clip.marker).catch(() => {}); } catch (e) {}
+  toast('Copiado. Pégalo con Ctrl+V o desde «Hoja ▾ → Pegar lo copiado con el lazo», también en otra hoja o cuaderno.', 4500);
+}
+async function pasteClip() {
+  if (!clip) return;
+  commitEditor();
+  const objs = clip.objs.map(clone), same = clip.nb === (curNb && curNb.id);
+  for (const o of objs) {
+    if (o.t === 'img' && !same) {
+      const v = doc.images[o.id] || await store.get('img:' + o.id).catch(() => null);
+      if (v) { const nid = newImgId(); await putImage(nid, v); o.id = nid; }
+    }
+  }
+  const offset = 20;
+  objs.forEach(o => moveObj(o, clone(o), offset, offset));
+  mutate(() => pg().objs.push(...objs));
+  setTool('lasso'); msel = objs; showFloat('multi', { t: 'multi' }); requestPaint();
+}
+$('paste-clip').onclick = () => { closeMenus(); pasteClip(); };
+async function convertMselToText() {
+  const strokes = msel.filter(o => o.t === 'pen' && !o.a);
+  if (!navigator.onLine) { toast('Convertir a texto necesita internet. Inténtalo cuando tengas conexión.'); return; }
+  setStatus('Reconociendo tu escritura…', true);
+  let cands = null;
+  try { cands = await recognizeInk(strokes); } catch (e) {}
+  setStatus('');
+  const text = cands && cands.length ? cands[0].trim() : '';
+  if (!text) { toast(cands ? 'No reconocí esa escritura. Prueba seleccionando una sola línea.' : 'No pude conectar con el reconocedor. Inténtalo de nuevo.'); return; }
+  const bb = ptsBox(strokes), f = prefs.font, fit = fitText(text, bb, f);
+  const ink = strokes.map(s => { const o = clone(s); delete o.ts; delete o.hwq; delete o.hwf; return o; });
+  const obj = { t: 'text', x: r1(fit.x), y: r1(fit.y), text, c: strokes[0].c, size: Math.round(fit.size * 10) / 10, f, ink, alts: [...new Set(cands.map(c => c.trim()).filter(Boolean))].slice(0, 6), bb };
+  const s = new Set(strokes);
+  mutate(() => { pg().objs = pg().objs.filter(o => !s.has(o)); pg().objs.push(obj); });
+  msel = msel.filter(o => !s.has(o)).concat(obj);
+  showFloat('multi', { t: 'multi' }); requestPaint();
+}
+
 init();
 
 /* ---------- sin internet ---------- */

@@ -189,9 +189,11 @@ body.touch #float .btn{height:40px}
     <div class="brand">Pizarra de Apuntes<small id="doc-format">A4 vertical</small></div>
     <div class="group">
       <button class="btn" id="page-prev" aria-label="Página anterior" title="Página anterior (←)">‹</button>
-      <span id="page-label">Página 1 de 1</span>
+      <button class="btn" id="page-label" title="Ir a otra hoja">Hoja 1 de 1</button>
+      <input type="number" id="page-jump" min="1" hidden aria-label="Ir a la hoja número" style="width:72px;height:var(--ctl);border:1px solid var(--accent);border-radius:6px;padding:0 6px;background:var(--panel)">
       <button class="btn" id="page-next" aria-label="Página siguiente" title="Página siguiente (→)">›</button>
-      <button class="btn" id="page-add" title="Agregar una hoja en blanco después de esta">+ Hoja</button>
+      <button class="btn" id="page-add" title="Agregar una hoja nueva con el mismo formato, fondo y papel que esta">+ Hoja</button>
+      <button class="btn" id="page-fmt" title="Cambiar el formato, fondo y papel de esta hoja">A4 vertical ▾</button>
     </div>
     <div class="spacer"></div>
     <div class="group">
@@ -209,6 +211,7 @@ body.touch #float .btn{height:40px}
         <button class="btn" data-menu="menu-img" aria-haspopup="true" aria-expanded="false">Imagen ▾</button>
         <div class="menu" id="menu-img" hidden>
           <button id="paste-btn">Pegar la imagen que copié</button>
+          <button id="import-btn2">Importar PDF o imágenes como hojas…</button>
           <button id="img-btn">Insertar imagen desde archivo…</button>
         </div>
       </div>
@@ -216,6 +219,9 @@ body.touch #float .btn{height:40px}
       <div class="menu-wrap">
         <button class="btn" data-menu="menu-page" aria-haspopup="true" aria-expanded="false">Hoja ▾</button>
         <div class="menu" id="menu-page" hidden>
+          <button id="page-set">Formato, fondo y papel de esta hoja…</button>
+          <button id="page-new-custom">Agregar hoja con otro formato…</button>
+          <hr>
           <button id="page-dup">Duplicar esta hoja</button>
           <button id="clear">Limpiar esta hoja</button>
           <button id="page-del">Eliminar esta hoja…</button>
@@ -229,10 +235,13 @@ body.touch #float .btn{height:40px}
           <button id="save-file">Guardar mis apuntes como archivo</button>
           <button id="open-file-btn">Abrir un archivo de apuntes…</button>
           <hr>
+          <button id="import-btn">Importar PDF o imágenes para anotar…</button>
+          <hr>
           <button id="save-png">Guardar esta hoja como imagen PNG</button>
         </div>
       </div>
       <input type="file" id="open-file" accept=".json,application/json" hidden>
+      <input type="file" id="import-file" accept="application/pdf,.pdf,image/*" multiple hidden>
       <button class="btn primary" id="export-pdf" title="Descargar todas las hojas en un PDF">Exportar PDF</button>
       <button class="btn" id="full" title="Pantalla completa (F)" aria-label="Pantalla completa"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
@@ -388,8 +397,49 @@ body.touch #float .btn{height:40px}
     </div>
     <p class="warn" id="setup-warn" hidden></p>
     <div class="actions">
+      <button class="btn" id="setup-pdf" title="Empieza un cuaderno nuevo a partir de un PDF o de fotos">Anotar sobre un PDF…</button>
       <button class="btn" id="setup-continue" hidden>Seguir con mis apuntes</button>
       <button class="btn primary" id="setup-start">Empezar cuaderno nuevo</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="pageset" hidden role="dialog" aria-modal="true" aria-labelledby="ps-title">
+  <div class="sheet" style="width:min(640px,100%)">
+    <div>
+      <h1 id="ps-title">Formato de la hoja</h1>
+      <p class="sub" id="ps-sub">Cada hoja puede tener su propio formato, fondo y papel.</p>
+    </div>
+    <div class="q"><h3>Hoja</h3><div class="cards" id="ps-format" role="radiogroup" aria-label="Hoja"></div><p class="hint" id="ps-format-note" style="margin-top:8px" hidden></p></div>
+    <div class="q"><h3>Fondo</h3><div class="pills" id="ps-bg" role="radiogroup" aria-label="Fondo"></div></div>
+    <div class="q"><h3>Papel</h3><div class="pills" id="ps-board" role="radiogroup" aria-label="Papel"></div></div>
+    <label class="check" id="ps-all-wrap"><input type="checkbox" id="ps-all"> Aplicar a todas las hojas del cuaderno</label>
+    <label class="check"><input type="checkbox" id="ps-ask"> Cada vez que agregue una hoja, preguntarme su formato</label>
+    <div class="actions">
+      <button class="btn" id="ps-cancel">Cancelar</button>
+      <button class="btn primary" id="ps-ok">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="importer" hidden role="dialog" aria-modal="true" aria-labelledby="im-title">
+  <div class="sheet small" style="width:min(480px,100%)">
+    <h1 id="im-title" style="font-size:20px">Importar PDF</h1>
+    <p class="sub" id="im-info" style="margin:0"></p>
+    <div class="row">
+      <label class="lbl" for="im-from">Desde la página</label>
+      <input type="number" id="im-from" min="1" value="1" style="width:76px;height:var(--ctl);border:1px solid var(--line);border-radius:6px;padding:0 6px;background:var(--panel)">
+      <label class="lbl" for="im-to">hasta</label>
+      <input type="number" id="im-to" min="1" value="1" style="width:76px;height:var(--ctl);border:1px solid var(--line);border-radius:6px;padding:0 6px;background:var(--panel)">
+    </div>
+    <div id="im-pos-wrap" class="pills" role="radiogroup" aria-label="Dónde agregar">
+      <button class="opt" type="button" role="radio" data-pos="after" id="im-pos-after">Después de esta hoja</button>
+      <button class="opt" type="button" role="radio" data-pos="end" id="im-pos-end">Al final del cuaderno</button>
+    </div>
+    <p class="hint" id="im-note">Cada página del PDF será una hoja sobre la que puedes escribir, resaltar y dibujar. El contenido del PDF queda fijo debajo: el borrador no lo toca.</p>
+    <div class="actions">
+      <button class="btn" id="im-cancel">Cancelar</button>
+      <button class="btn primary" id="im-ok">Importar</button>
     </div>
   </div>
 </div>
@@ -411,7 +461,9 @@ const $ = id => document.getElementById(id);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const r1 = v => Math.round(v * 10) / 10;
 const PREF_KEY = 'pizarra-prefs-v2', NAMES_KEY = 'pizarra-alumnos-v2';
-const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+const JSPDF_URLS = ['lib/jspdf.umd.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'];
+const PDFJS_URLS = [['lib/pdf.min.js', 'lib/pdf.worker.min.js'], ['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js']];
+const PT_PER_UNIT = 595.28 / 840, MAX_IMPORT = 150;
 const HW_URL = 'https://inputtools.google.com/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8';
 
 const FORMATS = {
@@ -486,8 +538,9 @@ const cache = document.createElement('canvas'), cctx = cache.getContext('2d');
 const mctx = document.createElement('canvas').getContext('2d');
 const ta = $('ed');
 const pg = () => doc.pages[doc.cur];
-const isDark = () => BOARDS[doc.board].dark;
-const resolve = c => typeof c === 'string' && c.startsWith('hl:') ? (HL[c.slice(3)] ? HL[c.slice(3)][isDark() ? 1 : 0] : c.slice(3)) : c === 'ink' ? BOARDS[doc.board].ink : INKS[c] ? INKS[c][isDark() ? 1 : 0] : c;
+let BRD = 'white';
+const isDark = () => BOARDS[BRD].dark;
+const resolve = c => typeof c === 'string' && c.startsWith('hl:') ? (HL[c.slice(3)] ? HL[c.slice(3)][isDark() ? 1 : 0] : c.slice(3)) : c === 'ink' ? BOARDS[BRD].ink : INKS[c] ? INKS[c][isDark() ? 1 : 0] : c;
 const touchUI = () => prefs.device !== 'mouse';
 const fingerDraws = () => prefs.device === 'finger' || (DEVICES[prefs.device].pen && prefs.fingerDraw);
 
@@ -504,13 +557,27 @@ function loadPrefs() {
 }
 function savePrefs() { try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch (e) {} }
 
-const newPage = bg => ({ bg: bg || 'lines', objs: [], undo: [], redo: [] });
-function newDoc(p) { return { v: 2, format: p.format, board: BOARDS[p.board] ? p.board : 'white', cur: 0, pages: [newPage(p.bg)], images: {} }; }
-function applyFormat() {
-  const f = FORMATS[doc.format] || FORMATS.wide;
-  W = f.W; H = f.H; U = f.U; OX = Math.round(W / 2 / U) * U; OY = Math.round(H / 2 / U) * U;
-  $('doc-format').textContent = f.label;
+function dimsOf(fmt) { const f = FORMATS[fmt] || FORMATS.a4p; return { W: f.W, H: f.H }; }
+/* hoja nueva: copia formato, fondo y papel de la hoja indicada (nunca el PDF de fondo) */
+function newPage(from) {
+  const f = from || {}, fmt = f.fmt || 'a4p', d = f.W && f.H ? { W: f.W, H: f.H } : dimsOf(fmt);
+  const p = { fmt, W: d.W, H: d.H, bg: f.bg || 'lines', board: BOARDS[f.board] ? f.board : 'white', objs: [], undo: [], redo: [] };
+  if (fmt === 'custom' && f.pt) p.pt = f.pt.slice();
+  return p;
 }
+function newDoc(p) { return { v: 3, cur: 0, pages: [newPage({ fmt: p.format, bg: p.bg, board: p.board })], images: {} }; }
+function pageLabel(p) { return FORMATS[p.fmt] ? FORMATS[p.fmt].label : (p.W >= p.H ? 'Tamaño del PDF (horizontal)' : 'Tamaño del PDF'); }
+function applyPage(p) {
+  W = p.W; H = p.H; U = p.fmt === 'wide' ? 40 : 24; OX = Math.round(W / 2 / U) * U; OY = Math.round(H / 2 / U) * U; BRD = p.board || 'white';
+  $('doc-format').textContent = pageLabel(p);
+  $('page-fmt').textContent = (FORMATS[p.fmt] ? FORMATS[p.fmt].label : 'Tamaño PDF') + ' ▾';
+}
+function withPage(p, fn) {
+  const sv = { W, H, U, OX, OY, BRD };
+  applyPage(p);
+  try { return fn(); } finally { W = sv.W; H = sv.H; U = sv.U; OX = sv.OX; OY = sv.OY; BRD = sv.BRD; if (doc) applyPage(pg()); }
+}
+function applyFormat() { applyPage(pg()); }
 
 /* ---------- almacenamiento (IndexedDB con respaldo en localStorage) ---------- */
 const store = (() => {
@@ -524,23 +591,45 @@ const store = (() => {
       try { const db = await open(); return await new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
       catch (e) { try { return JSON.parse(localStorage.getItem('pizarra-' + k) || 'null'); } catch (_) { return null; } }
     },
+    async del(k) {
+      try { const db = await open(); await new Promise(res => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').delete(k); t.oncomplete = res; t.onerror = res; }); }
+      catch (e) { try { localStorage.removeItem('pizarra-' + k); } catch (_) {} }
+    },
     async set(k, v) {
       try { const db = await open(); await new Promise((res, rej) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); }); }
       catch (e) { localStorage.setItem('pizarra-' + k, JSON.stringify(v)); }
     }
   };
 })();
-function serialize() {
-  const used = {};
-  const pages = doc.pages.map(p => { p.objs.forEach(o => { if (o.t === 'img' && doc.images[o.id]) used[o.id] = doc.images[o.id]; }); return { bg: p.bg, objs: p.objs }; });
-  return { v: 2, format: doc.format, board: doc.board, cur: doc.cur, pages, images: used };
+function usedImageIds() {
+  const ids = new Set();
+  doc.pages.forEach(p => { if (p.bgImg) ids.add(p.bgImg); p.objs.forEach(o => { if (o.t === 'img') ids.add(o.id); }); });
+  return [...ids];
 }
+function serialize(withImages) {
+  const images = {};
+  if (withImages) usedImageIds().forEach(id => { if (doc.images[id]) images[id] = doc.images[id]; });
+  const pages = doc.pages.map(p => { const o = { fmt: p.fmt, W: p.W, H: p.H, bg: p.bg, board: p.board, objs: p.objs }; if (p.pt) o.pt = p.pt; if (p.bgImg) o.bgImg = p.bgImg; return o; });
+  return { v: 3, cur: doc.cur, pages, images, imgIds: usedImageIds() };
+}
+const savedImgs = new Set();
+async function loadStoredImages() {
+  const ids = usedImageIds().filter(id => !doc.images[id]);
+  for (const id of ids) { try { const v = await store.get('img:' + id); if (v) { doc.images[id] = v; savedImgs.add(id); imgEls.delete(id); } } catch (e) {} }
+  if (ids.length) invalidate();
+}
+async function forgetImages() { for (const id of savedImgs) await store.del('img:' + id); savedImgs.clear(); }
 function validDoc(d) { return d && Array.isArray(d.pages) && d.pages.length; }
 function loadDoc(d) {
+  const oldFmt = FORMATS[d.format] ? d.format : 'wide', oldBoard = BOARDS[d.board] ? d.board : 'white';
   doc = {
-    v: 2, format: FORMATS[d.format] ? d.format : 'wide', board: BOARDS[d.board] ? d.board : 'white',
-    cur: 0, images: d.images || {},
-    pages: d.pages.map(p => ({ bg: BGS[p.bg] ? p.bg : 'grid', objs: Array.isArray(p.objs) ? p.objs : [], undo: [], redo: [] }))
+    v: 3, cur: 0, images: Object.assign({}, d.images || {}),
+    pages: d.pages.map(p => {
+      const fmt = p.fmt || oldFmt, dm = p.W > 0 && p.H > 0 ? { W: p.W, H: p.H } : dimsOf(fmt);
+      const q = { fmt, W: dm.W, H: dm.H, bg: BGS[p.bg] ? p.bg : 'grid', board: BOARDS[p.board] ? p.board : oldBoard, objs: Array.isArray(p.objs) ? p.objs : [], undo: [], redo: [] };
+      if (Array.isArray(p.pt)) q.pt = p.pt; if (p.bgImg) q.bgImg = p.bgImg;
+      return q;
+    })
   };
   doc.cur = clamp(d.cur | 0, 0, doc.pages.length - 1);
   imgEls.clear(); applyFormat(); sel = -1; hideFloat(); pend = { strokes: [], page: doc.cur };
@@ -549,7 +638,10 @@ let saveTimer = 0, saveWarned = false;
 function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 600); }
 async function saveNow() {
   clearTimeout(saveTimer);
-  try { await store.set('doc', serialize()); saveWarned = false; }
+  try {
+    for (const id of usedImageIds()) if (!savedImgs.has(id) && doc.images[id]) { await store.set('img:' + id, doc.images[id]); savedImgs.add(id); }
+    await store.set('doc', serialize(false)); saveWarned = false;
+  }
   catch (e) { if (!saveWarned) { saveWarned = true; toast('No se pudo guardar en este navegador (quizá hay demasiadas imágenes). Guarda tus apuntes como archivo o PDF.'); } }
 }
 document.addEventListener('visibilitychange', () => { if (document.hidden && doc) saveNow(); });
@@ -593,7 +685,7 @@ function drawBg(c, bg) {
     c.beginPath(); c.moveTo(0, OY + j * U); c.lineTo(W, OY + j * U); c.stroke();
   }
   if (bg !== 'cartesian') return;
-  const ink = BOARDS[doc.board].ink, fs = U >= 40 ? 13 : 11;
+  const ink = BOARDS[BRD].ink, fs = U >= 40 ? 13 : 11;
   c.strokeStyle = ink; c.fillStyle = ink; c.lineWidth = 2;
   c.beginPath(); c.moveTo(8, OY); c.lineTo(W - 8, OY); c.moveTo(OX, H - 8); c.lineTo(OX, 8); c.stroke();
   c.beginPath(); c.moveTo(W - 4, OY); c.lineTo(W - 17, OY - 6); c.lineTo(W - 17, OY + 6); c.closePath(); c.fill();
@@ -680,7 +772,12 @@ function drawObj(c, o) {
   c.restore();
 }
 function render(c, page, live) {
-  c.fillStyle = BOARDS[doc.board].fill; c.fillRect(0, 0, W, H);
+  c.fillStyle = BOARDS[BRD].fill; c.fillRect(0, 0, W, H);
+  if (page.bgImg) {
+    const im = getImg(page.bgImg);
+    if (im && im.complete && im.naturalWidth) c.drawImage(im, 0, 0, W, H);
+    else { c.fillStyle = '#8894a3'; c.font = '16px "IBM Plex Sans",sans-serif'; c.textAlign = 'center'; c.fillText('Cargando página…', W / 2, H / 2); c.textAlign = 'left'; }
+  }
   c.save(); drawBg(c, page.bg); c.restore();
   for (const o of page.objs) { if (live && ed && ed.ref === o) continue; drawObj(c, o); }
 }
@@ -793,7 +890,7 @@ function paint() {
     cctx.setTransform(1, 0, 0, 1, 0, 0); cctx.clearRect(0, 0, cache.width, cache.height);
     cctx.save(); cctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     cctx.shadowColor = 'rgba(0,0,0,.2)'; cctx.shadowBlur = 16; cctx.shadowOffsetY = 3;
-    cctx.fillStyle = BOARDS[doc.board].fill; cctx.fillRect(cam.x, cam.y, W * cam.s, H * cam.s);
+    cctx.fillStyle = BOARDS[BRD].fill; cctx.fillRect(cam.x, cam.y, W * cam.s, H * cam.s);
     cctx.restore();
     cctx.save(); worldTx(cctx); cctx.beginPath(); cctx.rect(0, 0, W, H); cctx.clip(); render(cctx, pg(), true); cctx.restore();
     dirty = false;
@@ -822,7 +919,14 @@ function paint() {
 }
 
 /* ---------- historial ---------- */
-const snapJSON = page => JSON.stringify(page.objs);
+const snapJSON = page => JSON.stringify({ o: page.objs, f: page.fmt, W: page.W, H: page.H, pt: page.pt, bg: page.bg, b: page.board });
+function restoreSnap(page, str) {
+  const d = JSON.parse(str);
+  if (Array.isArray(d)) { page.objs = d; return; }
+  page.objs = d.o; page.fmt = d.f; page.W = d.W; page.H = d.H; page.bg = d.bg; page.board = d.b;
+  if (d.pt) page.pt = d.pt; else delete page.pt;
+  if (page === pg()) { const ch = W !== page.W || H !== page.H; applyPage(page); if (ch) fitView('page'); }
+}
 function pushUndo(page, before) {
   page.undo.push(before); if (page.undo.length > 100) page.undo.shift();
   page.redo = [];
@@ -835,12 +939,12 @@ function undo() {
   if (pend.strokes.length) { pend.strokes.pop(); if (pend.strokes.length) scheduleSmart(); requestPaint(); return; }
   cancelEditor(); cancelCrop();
   const p = pg(); if (!p.undo.length) return;
-  p.redo.push(snapJSON(p)); p.objs = JSON.parse(p.undo.pop()); sel = -1; hideFloat(); changed();
+  p.redo.push(snapJSON(p)); restoreSnap(p, p.undo.pop()); sel = -1; hideFloat(); changed();
 }
 function redo() {
   cancelEditor(); cancelCrop();
   const p = pg(); if (!p.redo.length) return;
-  p.undo.push(snapJSON(p)); p.objs = JSON.parse(p.redo.pop()); sel = -1; hideFloat(); changed();
+  p.undo.push(snapJSON(p)); restoreSnap(p, p.redo.pop()); sel = -1; hideFloat(); changed();
 }
 
 /* ---------- herramientas ---------- */
@@ -995,8 +1099,8 @@ function updateGesture(sp) {
 function abortStroke() {
   if (drawId === null) return;
   drawId = null; cur = null;
-  if (erasing) { pg().objs = JSON.parse(erasing.before); erasing = null; invalidate(); }
-  if (drag) { pg().objs = JSON.parse(drag.before); drag = null; invalidate(); }
+  if (erasing) { restoreSnap(pg(), erasing.before); erasing = null; invalidate(); }
+  if (drag) { restoreSnap(pg(), drag.before); drag = null; invalidate(); }
   cropRect = null; eraserPos = null; requestPaint();
 }
 
@@ -1411,14 +1515,38 @@ function laserFrame() {
 function goPage(i) {
   if (i < 0 || i >= doc.pages.length) return;
   commitEditor(); cancelCrop(); runSmart();
-  doc.cur = i; sel = -1; hideFloat(); changed();
+  const prev = pg(); doc.cur = i; sel = -1; hideFloat();
+  const ch = prev.W !== pg().W || prev.H !== pg().H;
+  applyPage(pg()); if (ch) fitView(cam.fit || 'page');
+  changed();
 }
+function addPageAfter(p) { commitEditor(); doc.pages.splice(doc.cur + 1, 0, p); goPage(doc.cur + 1); }
 $('page-prev').onclick = () => goPage(doc.cur - 1);
 $('page-next').onclick = () => goPage(doc.cur + 1);
-$('page-add').onclick = () => { commitEditor(); doc.pages.splice(doc.cur + 1, 0, newPage(pg().bg)); goPage(doc.cur + 1); };
+$('page-add').onclick = () => {
+  if (prefs.askNewPage) { openPageSet('new'); return; }
+  addPageAfter(newPage(pg()));
+  toast(`Hoja nueva: ${pageLabel(pg())}, ${BGS[pg().bg].toLowerCase()}, ${BOARD_NAMES[pg().board].toLowerCase()}. Puedes cambiarlo en «${$('page-fmt').textContent.replace(' ▾', '')} ▾».`, 3500);
+};
+$('page-fmt').onclick = () => openPageSet('edit');
+$('page-set').onclick = () => { closeMenus(); openPageSet('edit'); };
+$('page-new-custom').onclick = () => { closeMenus(); openPageSet('new'); };
+/* ir a una hoja por número */
+$('page-label').onclick = () => {
+  if (doc.pages.length < 2) return;
+  const j = $('page-jump'); j.max = doc.pages.length; j.value = doc.cur + 1;
+  $('page-label').hidden = true; j.hidden = false; j.focus(); j.select();
+};
+function endJump(go) {
+  const j = $('page-jump'); if (j.hidden) return;
+  const n = parseInt(j.value, 10); j.hidden = true; $('page-label').hidden = false;
+  if (go && n >= 1 && n <= doc.pages.length) goPage(n - 1);
+}
+$('page-jump').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); endJump(true); } else if (e.key === 'Escape') endJump(false); e.stopPropagation(); });
+$('page-jump').addEventListener('blur', () => endJump(true));
 $('page-dup').onclick = () => {
   closeMenus(); commitEditor();
-  const p = newPage(pg().bg); p.objs = clone(pg().objs);
+  const p = newPage(pg()); p.objs = clone(pg().objs); if (pg().bgImg) p.bgImg = pg().bgImg;
   doc.pages.splice(doc.cur + 1, 0, p); goPage(doc.cur + 1); toast('Hoja duplicada.');
 };
 $('page-del').onclick = async () => {
@@ -1426,7 +1554,7 @@ $('page-del').onclick = async () => {
   if (doc.pages.length === 1) { toast('Es la única hoja. Usa «Limpiar esta hoja» si quieres dejarla en blanco.'); return; }
   if (!(await confirmBox(`¿Eliminar la hoja ${doc.cur + 1}? Esto no se puede deshacer.`, 'Eliminar hoja'))) return;
   cancelEditor(); pend = { strokes: [], page: doc.cur };
-  doc.pages.splice(doc.cur, 1); doc.cur = Math.min(doc.cur, doc.pages.length - 1); sel = -1; hideFloat(); changed();
+  doc.pages.splice(doc.cur, 1); doc.cur = Math.min(doc.cur, doc.pages.length - 1); sel = -1; hideFloat(); applyPage(pg()); fitView(cam.fit || 'page'); changed();
 };
 $('clear').onclick = () => {
   closeMenus(); commitEditor();
@@ -1436,10 +1564,10 @@ $('undo').onclick = undo; $('redo').onclick = redo;
 
 function updateUI() {
   const p = pg(), n = doc.pages.length;
-  $('page-label').textContent = `Hoja ${doc.cur + 1} de ${n}`;
+  $('page-label').textContent = `Hoja ${doc.cur + 1} de ${n}`; applyPage(p);
   $('page-prev').disabled = doc.cur === 0; $('page-next').disabled = doc.cur === n - 1;
   $('undo').disabled = !p.undo.length && !pend.strokes.length; $('redo').disabled = !p.redo.length;
-  $('bg').value = p.bg; $('board-color').value = doc.board; $('font').value = prefs.font; $('device').value = prefs.device;
+  $('bg').value = p.bg; $('board-color').value = p.board; $('font').value = prefs.font; $('device').value = prefs.device;
   $('finger-wrap').hidden = !DEVICES[prefs.device].pen; $('finger-draw').checked = !!prefs.fingerDraw;
   document.body.classList.toggle('touch', touchUI());
   const hm = hlMode(), so = selObj();
@@ -1510,8 +1638,8 @@ function setColor(c) {
 }
 $('color-custom').oninput = e => setColor(e.target.value);
 $('width').oninput = e => { width = +e.target.value; $('width-val').textContent = width; };
-$('bg').onchange = e => { pg().bg = e.target.value; changed(); };
-$('board-color').onchange = e => { doc.board = e.target.value; if (ed) ta.style.color = resolve(ed.c); changed(); };
+$('bg').onchange = e => { const v = e.target.value; mutate(() => { pg().bg = v; }); };
+$('board-color').onchange = e => { const v = e.target.value; mutate(() => { pg().board = v; }); applyPage(pg()); if (ed) ta.style.color = resolve(ed.c); invalidate(); updateUI(); };
 $('font').onchange = e => {
   prefs.font = e.target.value; savePrefs();
   document.fonts && document.fonts.load(`40px ${fontCss(prefs.font)}`).then(invalidate).catch(() => {});
@@ -1577,23 +1705,35 @@ async function downloadBlob(blob, name) {
 }
 function fileBase() { const d = new Date(); return `apuntes-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 function ensureImages(page) {
-  return Promise.all(page.objs.filter(o => o.t === 'img').map(o => new Promise(res => {
-    const im = getImg(o.id); if (!im || (im.complete && im.naturalWidth)) res();
+  const ids = page.objs.filter(o => o.t === 'img').map(o => o.id); if (page.bgImg) ids.push(page.bgImg);
+  return Promise.all(ids.map(id => new Promise(res => {
+    const im = getImg(id); if (!im || (im.complete && im.naturalWidth)) res();
     else { im.addEventListener('load', res, { once: true }); im.addEventListener('error', res, { once: true }); }
   })));
 }
 async function fontsReady() { try { await Promise.all(Object.keys(FONTS).filter(k => doc.pages.some(p => p.objs.some(o => o.f === k))).map(k => document.fonts.load(`40px ${fontCss(k)}`))); } catch (e) {} }
 async function renderPageCanvas(page, scale) {
   await ensureImages(page);
-  const c = document.createElement('canvas'); c.width = Math.round(W * scale); c.height = Math.round(H * scale);
-  const x = c.getContext('2d'); x.setTransform(scale, 0, 0, scale, 0, 0); render(x, page, false);
+  const c = document.createElement('canvas'); c.width = Math.round(page.W * scale); c.height = Math.round(page.H * scale);
+  const x = c.getContext('2d'); x.setTransform(scale, 0, 0, scale, 0, 0);
+  withPage(page, () => render(x, page, false));
   return c;
+}
+function ptOf(p) {
+  if (p.pt) return p.pt;
+  if (p.fmt === 'a4p') return [595.28, 841.89];
+  if (p.fmt === 'a4l') return [841.89, 595.28];
+  return [p.W * .75, p.H * .75];
 }
 function loadScript(src) {
   return new Promise((res, rej) => {
-    if (document.querySelector(`script[src="${src}"]`) && window.jspdf) { res(); return; }
-    const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+    const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => { s.remove(); rej(new Error(src)); }; document.head.appendChild(s);
   });
+}
+async function loadFirst(urls, ready) {
+  if (ready()) return urls[0];
+  for (const u of urls) { try { await loadScript(Array.isArray(u) ? u[0] : u); if (ready()) return u; } catch (e) {} }
+  throw new Error('no se pudo cargar');
 }
 let exporting = false;
 async function exportPDF() {
@@ -1601,14 +1741,17 @@ async function exportPDF() {
   try {
     commitEditor(); await finishSmart(); await fontsReady();
     toast('Preparando el PDF…', 60000);
-    try { await loadScript(JSPDF_URL); } catch (e) { toast('No se pudo cargar el creador de PDF. Revisa tu conexión a internet.'); return; }
+    try { await loadFirst(JSPDF_URLS, () => !!window.jspdf); } catch (e) { toast('No se pudo cargar el creador de PDF. Revisa tu conexión a internet.'); return; }
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: W > H ? 'landscape' : 'portrait', unit: 'pt', format: doc.format === 'wide' ? [W * .75, H * .75] : 'a4', compress: true });
-    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+    const orient = a => a[0] > a[1] ? 'landscape' : 'portrait';
+    const first = ptOf(doc.pages[0]);
+    const pdf = new jsPDF({ orientation: orient(first), unit: 'pt', format: first, compress: true });
     for (let i = 0; i < doc.pages.length; i++) {
       toast(`Creando el PDF: hoja ${i + 1} de ${doc.pages.length}…`, 60000);
-      const c = await renderPageCanvas(doc.pages[i], 2.2);
-      if (i) pdf.addPage();
+      const page = doc.pages[i], sz = ptOf(page);
+      const c = await renderPageCanvas(page, clamp(2200 / Math.max(page.W, page.H), 1.4, 2.4));
+      if (i) pdf.addPage(sz, orient(sz));
+      const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
       pdf.addImage(c.toDataURL('image/jpeg', .9), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
       await new Promise(r => setTimeout(r, 0));
     }
@@ -1624,7 +1767,7 @@ $('save-png').onclick = async () => {
 };
 $('save-file').onclick = async () => {
   closeMenus(); commitEditor(); await finishSmart();
-  const data = JSON.stringify(Object.assign({ app: 'pizarra-apuntes' }, serialize()));
+  const data = JSON.stringify(Object.assign({ app: 'pizarra-apuntes' }, serialize(true)));
   downloadBlob(new Blob([data], { type: 'application/json' }), fileBase() + '.json');
 };
 $('open-file-btn').onclick = () => { closeMenus(); $('open-file').click(); };
@@ -1635,10 +1778,10 @@ $('open-file').onchange = async e => {
   try { d = JSON.parse(await f.text()); } catch (err) { d = null; }
   if (!validDoc(d)) { toast('Ese archivo no es un archivo de apuntes de esta pizarra.'); return; }
   if (hasContent() && !(await confirmBox('Abrir este archivo reemplaza lo que tienes ahora en la pizarra. ¿Continuar?', 'Abrir archivo'))) return;
-  commitEditor(); loadDoc(d); cam.fit = 'page'; fitView('page'); changed(); setTool(tool);
+  commitEditor(); await forgetImages(); loadDoc(d); cam.fit = 'page'; fitView('page'); changed(); setTool(tool);
   toast(`Abrí tus apuntes: ${doc.pages.length} hoja${doc.pages.length > 1 ? 's' : ''}.`);
 };
-const hasContent = () => doc && doc.pages.some(p => p.objs.length);
+const hasContent = () => doc && doc.pages.some(p => p.objs.length || p.bgImg);
 
 /* ---------- diálogo de confirmación ---------- */
 function confirmBox(msg, yes) {
@@ -1712,11 +1855,10 @@ function drawPreview() {
   const c = $('preview'); c.style.width = cw + 'px'; c.style.height = ch + 'px'; c.width = Math.round(cw * pr); c.height = Math.round(ch * pr);
   const x = c.getContext('2d');
   // usar temporalmente el formato y papel elegidos
-  const saved = { W, H, U, OX, OY, board: doc.board };
-  W = F.W; H = F.H; U = F.U; OX = Math.round(W / 2 / U) * U; OY = Math.round(H / 2 / U) * U; doc.board = choice.board;
-  try {
+  const page = { fmt: choice.format, W: F.W, H: F.H, board: choice.board, bg: choice.bg, objs: [] };
+  withPage(page, () => {
     x.setTransform(sc * pr, 0, 0, sc * pr, 0, 0);
-    const page = { bg: choice.bg, objs: sampleObjs(choice.bg, choice.font) };
+    page.objs = sampleObjs(choice.bg, choice.font);
     render(x, page, false);
     // detalle ampliado de la zona escrita
     const z = $('preview-zoom'), zw = Math.max(160, z.parentElement.clientWidth - 28), zh = Math.round(zw * .42);
@@ -1725,7 +1867,7 @@ function drawPreview() {
     const zx = z.getContext('2d');
     zx.setTransform(zs * pr, 0, 0, zs * pr, -reg.x * zs * pr, -reg.y * zs * pr);
     render(zx, page, false);
-  } finally { W = saved.W; H = saved.H; U = saved.U; OX = saved.OX; OY = saved.OY; doc.board = saved.board; }
+  });
   $('preview-cap').textContent = `${F.label} · ${BGS[choice.bg]} · ${BOARD_NAMES[choice.board]} · letra ${fontLabel(choice.font)} · ${DEVICES[choice.device].label}`;
 }
 function previewRegion(bg) {
@@ -1779,7 +1921,7 @@ function openSetup() {
   Object.assign(choice, { format: prefs.format, device: prefs.device, font: prefs.font, bg: prefs.bg, board: prefs.board || 'white' });
   const has = hasContent();
   $('setup-continue').hidden = !has;
-  if (has) $('setup-continue').textContent = `Seguir con mis apuntes (${doc.pages.length} hoja${doc.pages.length > 1 ? 's' : ''}, ${FORMATS[doc.format].label})`;
+  if (has) $('setup-continue').textContent = `Seguir con mis apuntes (${doc.pages.length} hoja${doc.pages.length > 1 ? 's' : ''})`;
   $('setup-warn').hidden = true; $('setup-start').textContent = 'Empezar cuaderno nuevo'; startArmed = false;
   $('setup').hidden = false; markSetup();
   setTimeout(() => (has ? $('setup-continue') : $('setup-start')).focus(), 0);
@@ -1796,7 +1938,8 @@ $('setup-start').onclick = () => {
     return;
   }
   savePrefsFromChoice();
-  loadDoc(newDoc(prefs)); width = doc.format === 'wide' ? 4 : 3; $('width').value = width; $('width-val').textContent = width;
+  forgetImages();
+  loadDoc(newDoc(prefs)); width = pg().fmt === 'wide' ? 4 : 3; $('width').value = width; $('width-val').textContent = width;
   closeSetup(); fitView('page'); changed();
 };
 $('setup-continue').onclick = () => {
@@ -1806,11 +1949,212 @@ $('setup-continue').onclick = () => {
 function closeSetup() {
   $('setup').hidden = true;
   document.fonts && document.fonts.load(`40px ${fontCss(prefs.font)}`).then(invalidate).catch(() => {});
-  if (doc.format === 'wide' && window.innerWidth >= 1100) toggleSide(true); else toggleSide(false);
+  if (pg().fmt === 'wide' && window.innerWidth >= 1100) toggleSide(true); else toggleSide(false);
   setTool(DEVICES[prefs.device].pen ? 'pen' : tool);
   resize();
 }
 $('new-doc').onclick = () => { closeMenus(); commitEditor(); runSmart(); openSetup(); };
+
+/* ---------- formato de cada hoja ---------- */
+const ps = { mode: 'edit', fmt: 'a4p', bg: 'lines', board: 'white' };
+function psPills(box, entries, key) {
+  box.innerHTML = '';
+  entries.forEach(([v, html]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.setAttribute('role', 'radio');
+    b.dataset.v = v; b.id = `ps-${key}-${v}`; b.innerHTML = html;
+    b.onclick = () => { ps[key] = v; psMark(); };
+    box.appendChild(b);
+  });
+}
+function psMark() {
+  [['ps-format', 'fmt'], ['ps-bg', 'bg'], ['ps-board', 'board']].forEach(([id, k]) => $(id).querySelectorAll('.opt').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === ps[k]))));
+  const p = pg(), note = $('ps-format-note');
+  let msg = '';
+  if (ps.mode === 'edit' && ps.fmt !== p.fmt) {
+    if (p.bgImg) msg = 'Esta hoja viene de un PDF: su tamaño no se cambia para no deformar la página.';
+    else if (p.objs.length) msg = 'Si lo que escribiste no entra en el nuevo formato, lo achico para que quepa completo (puedes deshacerlo).';
+  }
+  note.textContent = msg; note.hidden = !msg;
+}
+function openPageSet(mode) {
+  commitEditor(); runSmart();
+  const p = pg();
+  Object.assign(ps, { mode, fmt: p.fmt, bg: p.bg, board: p.board });
+  const fmts = Object.entries(FORMATS).map(([k, f]) => [k, `<span class="paper"><span style="aspect-ratio:${f.ar}"></span></span><b>${f.label}</b>`]);
+  if (p.fmt === 'custom') fmts.push(['custom', `<span class="paper"><span style="aspect-ratio:${p.W}/${p.H}"></span></span><b>Tamaño del PDF</b>`]);
+  psPills($('ps-format'), fmts, 'fmt');
+  psPills($('ps-bg'), Object.entries(BGS), 'bg');
+  psPills($('ps-board'), Object.entries(BOARD_NAMES).map(([k, v]) => [k, `<span style="display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #9aa6b4;background:${BOARDS[k].fill}"></span>${v}`]), 'board');
+  $('ps-title').textContent = mode === 'new' ? 'Nueva hoja' : `Formato de la hoja ${doc.cur + 1}`;
+  $('ps-sub').textContent = mode === 'new' ? 'Elige cómo será la hoja que vas a agregar después de esta.' : 'Cada hoja puede tener su propio formato, fondo y papel.';
+  $('ps-ok').textContent = mode === 'new' ? 'Agregar hoja' : 'Aplicar';
+  $('ps-all-wrap').hidden = mode === 'new' || doc.pages.length < 2; $('ps-all').checked = false;
+  $('ps-ask').checked = !!prefs.askNewPage;
+  psMark(); $('pageset').hidden = false; $('ps-ok').focus();
+}
+function scaleAll(o, f) {
+  const m = v => r1(v * f);
+  if (o.t === 'pen') o.pts = o.pts.map(q => { const n = q.slice(); n[0] = m(q[0]); n[1] = m(q[1]); return n; });
+  else if (o.t === 'text') { o.x = m(o.x); o.y = m(o.y); o.size = Math.max(8, o.size * f); if (o.bb) o.bb = o.bb.map(v => v * f); if (o.ink) o.ink.forEach(s => scaleAll(s, f)); }
+  else if (o.t === 'img') { o.x = m(o.x); o.y = m(o.y); o.w *= f; o.h *= f; }
+  else { o.x1 = m(o.x1); o.y1 = m(o.y1); o.x2 = m(o.x2); o.y2 = m(o.y2); }
+}
+function setPageFormat(page, fmt) {
+  if (fmt === page.fmt || !FORMATS[fmt] || page.bgImg) return false;
+  const d = dimsOf(fmt);
+  let mx = 0, my = 0;
+  withPage(page, () => page.objs.forEach(o => { const b = bbox(o); mx = Math.max(mx, b[2]); my = Math.max(my, b[3]); }));
+  const f = Math.min(1, mx ? (d.W - 8) / mx : 1, my ? (d.H - 8) / my : 1);
+  if (f < 1) page.objs.forEach(o => scaleAll(o, f));
+  page.fmt = fmt; page.W = d.W; page.H = d.H; delete page.pt;
+  return f < 1;
+}
+$('ps-cancel').onclick = () => { $('pageset').hidden = true; };
+$('ps-ask').onchange = e => { prefs.askNewPage = e.target.checked; savePrefs(); };
+$('ps-ok').onclick = () => {
+  $('pageset').hidden = true;
+  if (ps.mode === 'new') {
+    const base = ps.fmt === 'custom' ? pg() : { fmt: ps.fmt };
+    addPageAfter(newPage(Object.assign({}, base, { bg: ps.bg, board: ps.board })));
+    fitView('page'); return;
+  }
+  const targets = $('ps-all').checked ? doc.pages : [pg()];
+  let shrunk = 0, skipped = 0;
+  targets.forEach(page => mutatePage(page, () => {
+    if (ps.fmt !== page.fmt) { if (page.bgImg) skipped++; else if (setPageFormat(page, ps.fmt)) shrunk++; }
+    page.bg = ps.bg; page.board = ps.board;
+  }));
+  applyPage(pg()); fitView('page'); changed();
+  const notes = [];
+  if (shrunk) notes.push(`achiqué el contenido de ${shrunk} hoja${shrunk > 1 ? 's' : ''} para que entre`);
+  if (skipped) notes.push(`${skipped} hoja${skipped > 1 ? 's' : ''} de PDF mantuvieron su tamaño`);
+  toast(notes.length ? 'Listo: ' + notes.join('; ') + '. Usa Deshacer si no te gusta.' : 'Listo.');
+};
+
+/* ---------- importar PDF e imágenes como hojas ---------- */
+let pdfjsReady = null;
+function loadPdfJs() {
+  if (!pdfjsReady) pdfjsReady = (async () => {
+    for (const [lib, worker] of PDFJS_URLS) {
+      try { if (!window.pdfjsLib) await loadScript(lib); if (window.pdfjsLib) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = worker; return window.pdfjsLib; } } catch (e) {}
+    }
+    throw new Error('pdfjs');
+  })().catch(e => { pdfjsReady = null; throw e; });
+  return pdfjsReady;
+}
+const imp = { pdf: null, name: '', pos: 'after', newDoc: false, busy: false };
+function pickImport(newDocMode) { imp.newDoc = !!newDocMode; $('import-file').click(); }
+$('import-btn').onclick = () => { closeMenus(); pickImport(false); };
+$('import-btn2').onclick = () => { closeMenus(); pickImport(false); };
+$('setup-pdf').onclick = () => pickImport(true);
+$('import-file').onchange = async e => {
+  const files = [...e.target.files]; e.target.value = '';
+  if (!files.length) return;
+  const pdfFile = files.find(f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name));
+  if (pdfFile) { await preparePdf(pdfFile); return; }
+  const imgs = files.filter(f => /^image\//.test(f.type));
+  if (!imgs.length) { toast('Elige un PDF o imágenes (JPG, PNG). Si tienes un Word o PowerPoint, guárdalo antes como PDF.'); return; }
+  if (imp.newDoc && !(await replaceDocOk())) return;
+  await importImages(imgs);
+};
+async function replaceDocOk() {
+  if (!hasContent()) return true;
+  return confirmBox('Esto empieza un cuaderno nuevo con el PDF y reemplaza los apuntes que tienes ahora. Si quieres conservarlos, cancela y expórtalos antes a PDF.', 'Empezar con el PDF');
+}
+async function preparePdf(file) {
+  toast('Abriendo el PDF…', 20000);
+  let lib;
+  try { lib = await loadPdfJs(); } catch (e) { toast('No se pudo cargar el lector de PDF. Revisa tu conexión a internet.'); return; }
+  try { imp.pdf = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise; }
+  catch (e) { toast(e && e.name === 'PasswordException' ? 'Ese PDF tiene contraseña. Quítasela y vuelve a intentarlo.' : 'No se pudo abrir ese PDF. ¿Está dañado?'); return; }
+  imp.name = file.name.replace(/\.pdf$/i, '');
+  const n = imp.pdf.numPages;
+  $('im-title').textContent = imp.newDoc ? 'Anotar sobre un PDF' : 'Importar PDF';
+  $('im-info').textContent = `«${imp.name}» tiene ${n} página${n > 1 ? 's' : ''}.` + (n > MAX_IMPORT ? ` Puedes importar hasta ${MAX_IMPORT} a la vez.` : '');
+  $('im-from').max = $('im-to').max = n; $('im-from').value = 1; $('im-to').value = Math.min(n, MAX_IMPORT);
+  $('im-pos-wrap').hidden = imp.newDoc; imp.pos = 'after'; markPos();
+  $('toast').classList.remove('show');
+  $('importer').hidden = false; $('im-ok').focus();
+}
+function markPos() { document.querySelectorAll('#im-pos-wrap .opt').forEach(b => b.setAttribute('aria-checked', String(b.dataset.pos === imp.pos))); }
+document.querySelectorAll('#im-pos-wrap .opt').forEach(b => { b.onclick = () => { imp.pos = b.dataset.pos; markPos(); }; });
+$('im-cancel').onclick = () => { $('importer').hidden = true; if (imp.pdf) imp.pdf.destroy(); imp.pdf = null; };
+$('im-ok').onclick = async () => {
+  const n = imp.pdf.numPages;
+  let a = clamp(parseInt($('im-from').value, 10) || 1, 1, n), b = clamp(parseInt($('im-to').value, 10) || a, 1, n);
+  if (b < a) [a, b] = [b, a];
+  if (b - a + 1 > MAX_IMPORT) { toast(`Son ${b - a + 1} páginas. Importa como máximo ${MAX_IMPORT} a la vez (por ejemplo, 1 a ${MAX_IMPORT}).`); return; }
+  if (imp.newDoc && !(await replaceDocOk())) return;
+  $('importer').hidden = true;
+  await importPdfRange(a, b);
+};
+function samePt(pt, ref) { return Math.abs(pt[0] - ref[0]) / ref[0] < .02 && Math.abs(pt[1] - ref[1]) / ref[1] < .02; }
+function pageFromSize(ptW, ptH, id) {
+  let fmt = 'custom', Wd = Math.round(ptW / PT_PER_UNIT), Hd = Math.round(ptH / PT_PER_UNIT);
+  if (samePt([ptW, ptH], [595.28, 841.89])) { fmt = 'a4p'; Wd = 840; Hd = 1188; }
+  else if (samePt([ptW, ptH], [841.89, 595.28])) { fmt = 'a4l'; Wd = 1188; Hd = 840; }
+  const k = Math.min(1, 2400 / Math.max(Wd, Hd)); Wd = Math.round(Wd * k); Hd = Math.round(Hd * k);
+  return { fmt, W: Wd, H: Hd, pt: [r1(ptW), r1(ptH)], bg: 'blank', board: 'white', bgImg: id, objs: [], undo: [], redo: [] };
+}
+function newImgId() { return 'i' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
+async function startImport() {
+  commitEditor(); await finishSmart();
+  if (imp.newDoc) {
+    savePrefsFromChoice(); await forgetImages();
+    loadDoc({ pages: [newPage({ fmt: 'a4p' })] });
+    $('setup').hidden = true;
+  }
+}
+async function finishImport(pages, label) {
+  if (!pages.length) { if (imp.newDoc) closeSetup(); return; }
+  const at = imp.newDoc ? 0 : imp.pos === 'end' ? doc.pages.length : doc.cur + 1;
+  if (imp.newDoc) doc.pages = pages; else doc.pages.splice(at, 0, ...pages);
+  doc.cur = at; applyPage(pg());
+  if (imp.newDoc) closeSetup();
+  fitView('page'); changed(); saveNow();
+  toast(`Listo: ${label}. Escribe, resalta o dibuja encima.`, 5000);
+}
+async function importPdfRange(a, b) {
+  imp.busy = true;
+  await startImport();
+  const pages = [], total = b - a + 1;
+  try {
+    for (let i = a; i <= b; i++) {
+      toast(`Importando página ${i - a + 1} de ${total}…`, 60000);
+      const page = await imp.pdf.getPage(i);
+      const vp1 = page.getViewport({ scale: 1 });
+      const s = clamp(2000 / Math.max(vp1.width, vp1.height), 1, 4);
+      const vp = page.getViewport({ scale: s });
+      const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+      const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+      await page.render({ canvasContext: x, viewport: vp }).promise;
+      const id = newImgId(); doc.images[id] = c.toDataURL('image/jpeg', .86);
+      pages.push(pageFromSize(vp1.width, vp1.height, id));
+      page.cleanup(); c.width = c.height = 0;
+      await new Promise(r => setTimeout(r, 0));
+    }
+  } catch (e) { toast(`Se detuvo en la página ${a + pages.length}. Importé ${pages.length}.`); }
+  finally { imp.busy = false; try { imp.pdf.destroy(); } catch (e) {} imp.pdf = null; }
+  await finishImport(pages, `${pages.length} página${pages.length > 1 ? 's' : ''} de «${imp.name}»`);
+}
+async function importImages(files) {
+  imp.pos = 'after';
+  await startImport();
+  const pages = [];
+  for (let i = 0; i < files.length; i++) {
+    toast(`Importando imagen ${i + 1} de ${files.length}…`, 60000);
+    const url = URL.createObjectURL(files[i]);
+    const im = await loadImage(url).catch(() => null); URL.revokeObjectURL(url);
+    if (!im || !im.naturalWidth) continue;
+    const m = Math.min(1, 2000 / Math.max(im.naturalWidth, im.naturalHeight));
+    const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth * m); c.height = Math.round(im.naturalHeight * m);
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+    const id = newImgId(); doc.images[id] = c.toDataURL('image/jpeg', .88);
+    const portrait = c.height >= c.width, base = portrait ? 595.28 : 841.89;
+    pages.push(pageFromSize(base, base * c.height / c.width, id));
+  }
+  await finishImport(pages, `${pages.length} imagen${pages.length > 1 ? 'es' : ''} como hoja${pages.length > 1 ? 's' : ''}`);
+}
 
 /* ---------- temporizador ---------- */
 const tm = { total: 300, left: 300, end: 0, run: false, int: 0, done: false, actx: null };
@@ -1887,6 +2231,7 @@ $('pick').onclick = () => {
 
 /* ---------- teclado ---------- */
 window.addEventListener('keydown', e => {
+  if (!$('pageset').hidden || !$('importer').hidden) { if (e.key === 'Escape') { $('pageset').hidden = true; if (!$('importer').hidden) $('im-cancel').click(); } return; }
   if (!$('setup').hidden || !$('confirm').hidden) { if (e.key === 'Escape' && !$('confirm').hidden) $('confirm-no').click(); else if (e.key === 'Escape' && !$('setup-continue').hidden) $('setup-continue').click(); return; }
   const t = e.target;
   if (t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || (t.tagName === 'INPUT' && t.type !== 'checkbox' && t.type !== 'range')) return;
@@ -1980,8 +2325,8 @@ async function init() {
   try { const d = JSON.parse(localStorage.getItem(NAMES_KEY) || 'null'); if (d) { $('names').value = d.text || ''; $('norepeat').checked = d.norepeat !== false; } } catch (e) {}
   let saved = null;
   try { saved = await store.get('doc'); } catch (e) {}
-  if (validDoc(saved)) loadDoc(saved); else loadDoc(newDoc(prefs));
-  width = doc.format === 'wide' ? 4 : 3; $('width').value = width; $('width-val').textContent = width;
+  if (validDoc(saved)) { loadDoc(saved); if (saved.images && Object.keys(saved.images).length) savedImgs.clear(); await loadStoredImages(); } else loadDoc(newDoc(prefs));
+  width = pg().fmt === 'wide' ? 4 : 3; $('width').value = width; $('width-val').textContent = width;
   new ResizeObserver(resize).observe($('stage'));
   window.addEventListener('resize', () => { resize(); if (!$('setup').hidden) renderPreview(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(invalidate);

@@ -2,10 +2,11 @@
 
 Pizarra y cuaderno digital para dar clases por Zoom y tomar apuntes en tablet.
 
-- Hoja A4 vertical, A4 horizontal o pantalla 16:9
+- Cada hoja con su propio formato (A4 vertical, A4 horizontal, 16:9), fondo y papel
+- Importar PDF (apuntes, libros) o imágenes como hojas para escribir encima
 - iPad + Apple Pencil, Android con lápiz, Windows con lápiz, mouse o dedo (con rechazo de palma)
 - Escritura inteligente: lo que escribes a mano se convierte en texto con 22 estilos de letra
-- Pegar imágenes con recorte automático del borde vacío
-- Exportar a PDF, guardar y abrir archivos de apuntes
+- Resaltador de colores, imágenes con recorte automático, exportar a PDF
+- Acceso con PIN
 
-Abre `index.html` en el navegador o publícalo con GitHub Pages.
+Librerías incluidas en `lib/`: [pdf.js](https://github.com/mozilla/pdf.js) (Apache 2.0) y [jsPDF](https://github.com/parallax/jsPDF) (MIT).

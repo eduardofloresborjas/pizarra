@@ -343,6 +343,13 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="ins-link">Enlace a otra hoja o cuaderno…</button>
           <button id="ins-template">Plantilla (matriz, FODA, mapa…)…</button>
           <hr>
+          <button id="ins-table">Tabla…</button>
+          <button id="ins-chart">Gráfico desde datos…</button>
+          <button id="ins-formula">Fórmula o ecuación…</button>
+          <button id="ins-axes">Ejes con escala…</button>
+          <button id="ins-ruler">Regla</button>
+          <button id="ins-prot">Transportador</button>
+          <hr>
           <button id="paste-clip" disabled>Pegar lo copiado con el lazo</button>
         </div>
       </div>
@@ -418,6 +425,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
     <label class="check" id="finger-wrap" title="Si lo activas, el dedo también dibuja y la hoja se mueve con dos dedos"><input type="checkbox" id="finger-draw"> Dibujar también con el dedo</label>
     <label class="check" title="Las líneas y figuras se pegan a la cuadrícula"><input type="checkbox" id="snap"> Ajustar a la cuadrícula</label>
     <div id="symbols" hidden aria-label="Símbolos"></div>
+    <div class="group" id="nodekinds" hidden aria-label="Figura del diagrama"></div>
   </div>
 
   <div class="main">
@@ -659,6 +667,16 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
 
 <div id="player" hidden role="region" aria-label="Audio de la clase"><button class="btn ic" id="pl-play" aria-label="Reproducir o pausar">⏸</button><input type="range" id="pl-seek" min="0" max="100" value="0" aria-label="Posición del audio"><span id="pl-time">00:00</span><button class="btn ic" id="pl-close" aria-label="Cerrar audio">✕</button></div>
 
+<div class="modal" id="formula" hidden role="dialog" aria-modal="true" aria-labelledby="fm-title">
+  <div class="sheet" style="width:min(640px,100%)">
+    <h1 id="fm-title" style="font-size:20px">Fórmula o ecuación</h1>
+    <div class="row" id="fm-pal" style="flex-wrap:wrap"></div>
+    <label class="field"><span class="lbl">Escríbela (formato LaTeX; usa los botones si no lo conoces)</span><textarea id="fm-tex" rows="3" style="border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--panel);font:15px var(--f-mono)"></textarea></label>
+    <div class="field"><span class="lbl">Así se verá</span><div id="fm-prev" style="min-height:70px;border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff;color:#1b2430;display:grid;place-items:center;overflow:auto"></div></div>
+    <div class="actions"><button class="btn" id="fm-cancel">Cancelar</button><button class="btn primary" id="fm-ok">Insertar</button></div>
+  </div>
+</div>
+
 <div class="modal" id="pageset" hidden role="dialog" aria-modal="true" aria-labelledby="ps-title">
   <div class="sheet" style="width:min(640px,100%)">
     <div>
@@ -751,7 +769,7 @@ const DEVICES = {
   mouse: { label: 'PC con mouse', pen: false, hint: 'El mouse escribe. Usa la rueda para moverte por la hoja y Ctrl + rueda para acercar.' },
   finger: { label: 'Con el dedo', pen: false, hint: 'Un dedo escribe. Con dos dedos mueves y acercas la hoja.' }
 };
-const BGS = { lines: 'Rayado', grid: 'Cuadrícula', dots: 'Puntos', cornell: 'Cornell (apuntes)', cartesian: 'Plano cartesiano', blank: 'Liso',
+const BGS = { lines: 'Rayado', grid: 'Cuadrícula', dots: 'Puntos', cornell: 'Cornell (apuntes)', cartesian: 'Plano cartesiano', mm: 'Papel milimetrado', blank: 'Liso',
   t_matriz: 'Matriz de consistencia', t_operac: 'Operacionalización de variables', t_foda: 'FODA', t_mapa: 'Mapa conceptual', t_crono: 'Cronograma', t_compara: 'Cuadro comparativo', t_arbol: 'Árbol de problemas', t_linea: 'Línea de tiempo', t_semana: 'Planificador semanal' };
 const TEMPLATES = Object.keys(BGS).filter(k => k.startsWith('t_'));
 const WIDE_TEMPLATES = ['t_matriz', 't_operac', 't_crono', 't_compara', 't_linea', 't_semana'];
@@ -781,6 +799,8 @@ const TOOLS = [
   { id: 'rect', key: 'R', label: 'Rectángulo', icon: '<rect x="4" y="6" width="16" height="12"/>' },
   { id: 'ellipse', key: 'O', label: 'Círculo o elipse', icon: '<ellipse cx="12" cy="12" rx="8" ry="6.5"/>' },
   { id: 'text', key: 'T', label: 'Escribir con teclado', icon: '<path d="M5 6h14M12 6v13"/>' },
+  { id: 'diagram', key: 'D', label: 'Diagramas de flujo: toca para poner una figura; arrastra desde sus puntos para unirlas', icon: '<rect x="3" y="3" width="8" height="6" rx="1"/><path d="M17 13l4 4-4 4-4-4z"/><path d="M7 9v4h6"/><path d="M13 13l2 2"/>' },
+  { id: 'compass', key: 'C', label: 'Compás: marca el centro y arrastra para el radio', icon: '<circle cx="12" cy="13" r="7"/><path d="M12 13l5-3"/><circle cx="12" cy="13" r="1.2" fill="currentColor"/>' },
   { id: 'laser', key: 'X', label: 'Puntero láser', icon: '<circle cx="12" cy="12" r="3" fill="currentColor"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>' }
 ];
 const SYMBOLS = '• ✓ ✗ → ← ↑ ↓ ⇒ ⇔ ★ ¿ ¡ « » ° % € π √ ² ³ ½ ± × ÷ ≠ ≤ ≥ ≈ ∞ ∑ ∫ Δ θ α β µ'.split(' ');
@@ -998,6 +1018,12 @@ function drawTemplate(c, bg) {
 }
 function drawBg(c, bg) {
   if (TEMPLATES.includes(bg)) { drawTemplate(c, bg); return; }
+  if (bg === 'mm') {
+    const rgbm = isDark() ? '255,255,255' : '214,90,30';
+    for (let k = 0; k * 4 <= W; k++) { c.strokeStyle = `rgba(${rgbm},${k % 10 === 0 ? .32 : k % 5 === 0 ? .18 : .08})`; c.lineWidth = k % 10 === 0 ? 1 : .6; c.beginPath(); c.moveTo(k * 4, 0); c.lineTo(k * 4, H); c.stroke(); }
+    for (let k = 0; k * 4 <= H; k++) { c.strokeStyle = `rgba(${rgbm},${k % 10 === 0 ? .32 : k % 5 === 0 ? .18 : .08})`; c.lineWidth = k % 10 === 0 ? 1 : .6; c.beginPath(); c.moveTo(0, k * 4); c.lineTo(W, k * 4); c.stroke(); }
+    return;
+  }
   if (bg === 'blank') return;
   const dark = isDark(), rgb = dark ? '255,255,255' : '30,60,110';
   const margin = dark ? 'rgba(255,130,130,.45)' : 'rgba(214,60,60,.5)';
@@ -1096,7 +1122,7 @@ function drawObj(c, o) {
   c.save();
   c.lineCap = 'round'; c.lineJoin = 'round';
   const col = resolve(o.c);
-  c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 1;
+  c.strokeStyle = col; c.fillStyle = col; c.lineWidth = STROKE_T.has(o.t) ? (o.w || 1) : 1;
   if (o.t === 'pen') {
     const p = o.pts;
     if (o.a) { c.globalAlpha = o.a; if (!isDark()) c.globalCompositeOperation = 'multiply'; }
@@ -1150,6 +1176,16 @@ function drawObj(c, o) {
       lines.slice(0, Math.max(1, Math.floor((o.h - 18) / (size * 1.25)))).forEach((l, i) => c.fillText(l, o.x + 11, o.y + 10 + i * size * 1.25));
       if (!o.text) { c.fillStyle = 'rgba(58,48,0,.45)'; c.fillText('Toca dos veces para escribir', o.x + 11, o.y + 10); }
     }
+  } else if (o.t === 'node') {
+    drawNode(c, o);
+  } else if (o.t === 'conn') {
+    drawConn(c, o);
+  } else if (o.t === 'table') {
+    drawTable(c, o);
+  } else if (o.t === 'chart') {
+    drawChart(c, o);
+  } else if (o.t === 'axes') {
+    drawAxes(c, o);
   } else if (o.t === 'link') {
     const size = o.size || 18; setFont(c, size, o.f); c.textBaseline = 'top'; c.fillStyle = resolve(o.c || 'blue');
     const t = '↗ ' + o.text, w = c.measureText(t).width;
@@ -1163,7 +1199,12 @@ function drawObj(c, o) {
   }
   c.restore();
 }
+let RENDER_PAGE = null;
 function render(c, page, live) {
+  const prevRP = RENDER_PAGE; RENDER_PAGE = page;
+  try { renderInner(c, page, live); } finally { RENDER_PAGE = prevRP; }
+}
+function renderInner(c, page, live) {
   c.fillStyle = BOARDS[BRD].fill; c.fillRect(0, 0, W, H);
   if (page.bgImg) {
     const im = getImg(page.bgImg);
@@ -1189,6 +1230,9 @@ function bbox(o) {
   if (o.t === 'pen') return ptsBox([o]);
   if (o.t === 'text') return textBox(o);
   if (o.t === 'img') return [o.x, o.y, o.x + o.w, o.y + o.h];
+  if (o.t === 'node' || o.t === 'chart' || o.t === 'axes') return [o.x, o.y, o.x + o.w, o.y + o.h];
+  if (o.t === 'table') return [o.x, o.y, o.x + o.cw.reduce((a, b) => a + b, 0), o.y + o.rh.reduce((a, b) => a + b, 0)];
+  if (o.t === 'conn') { const e = connEnds(o); return e ? [Math.min(e[0], e[2]), Math.min(e[1], e[3]), Math.max(e[0], e[2]), Math.max(e[1], e[3])] : [0, 0, 0, 0]; }
   if (o.t === 'note') return o.closed ? [o.x, o.y, o.x + 36, o.y + 36] : [o.x, o.y, o.x + o.w, o.y + o.h];
   if (o.t === 'link') { setFont(mctx, o.size || 18, o.f); return [o.x, o.y, o.x + mctx.measureText('↗ ' + o.text).width, o.y + (o.size || 18) * 1.25]; }
   return [Math.min(o.x1, o.x2), Math.min(o.y1, o.y2), Math.max(o.x1, o.x2), Math.max(o.y1, o.y2)];
@@ -1200,7 +1244,7 @@ function segDist(px, py, ax, ay, bx, by) {
   return Math.hypot(px - ax - t * dx, py - ay - t * dy);
 }
 function hit(o, x, y, r, inside) {
-  const tol = r + (o.w || 0) / 2;
+  const tol = r + strokeW(o) / 2;
   if (o.t === 'pen') {
     const p = o.pts;
     if (p.length === 1) return Math.hypot(x - p[0][0], y - p[0][1]) <= tol;
@@ -1208,6 +1252,8 @@ function hit(o, x, y, r, inside) {
     return false;
   }
   if (o.t === 'line' || o.t === 'arrow') return segDist(x, y, o.x1, o.y1, o.x2, o.y2) <= tol;
+  if (o.t === 'conn') { const e = connEnds(o); return !!e && segDist(x, y, e[0], e[1], e[2], e[3]) <= r + 6; }
+  if (o.t === 'node' || o.t === 'table' || o.t === 'chart' || o.t === 'axes') { const [a, b, c2, d] = bbox(o); return x >= a - r && x <= c2 + r && y >= b - r && y <= d + r; }
   const [a, b, c, d] = bbox(o);
   const inBox = x >= a - r && x <= c + r && y >= b - r && y <= d + r;
   if (o.t === 'text' || o.t === 'img' || o.t === 'note' || o.t === 'link' || inside) return inBox;
@@ -1216,7 +1262,9 @@ function hit(o, x, y, r, inside) {
   return Math.abs(Math.hypot((x - (a + c) / 2) / rx, (y - (b + d) / 2) / ry) - 1) * Math.min(rx, ry) <= tol;
 }
 const handleSize = () => (touchUI() ? 13 : 7) / cam.s;
-function selMargin(o) { return 6 / cam.s + (o.t === 'img' || o.t === 'text' ? 0 : (o.w || 0) / 2); }
+const STROKE_T = new Set(['pen', 'line', 'arrow', 'rect', 'ellipse']);
+const strokeW = o => STROKE_T.has(o.t) ? (o.w || 0) : 0;
+function selMargin(o) { return 6 / cam.s + strokeW(o) / 2; }
 function drawSel(c, o) {
   const [a, b, x2, y2] = bbox(o), m = selMargin(o), hs = handleSize();
   c.save();
@@ -1306,6 +1354,7 @@ function paint() {
     }
   }
   drawLassoOverlay(ctx);
+  drawToolOverlay(ctx);
   if (pg().tags && pg().tags.length) {
     ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.font = '600 11px "IBM Plex Sans",sans-serif'; ctx.textBaseline = 'middle';
     let x = cam.x + W * cam.s - 6; const y = cam.y + 14;
@@ -1358,13 +1407,14 @@ function setTool(t) {
   document.querySelectorAll('.tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === t)));
   updateCursor();
   $('symbols').hidden = t !== 'text';
+  $('nodekinds').hidden = t !== 'diagram';
   updateUI();
   if (t === 'laser') startLaser(); else stopLaser();
   setStatus(t === 'hl' ? 'Resaltador: al terminar, mantén el lápiz quieto medio segundo y la línea se endereza.' : t === 'smart' ? 'Escritura inteligente: escribe y espera un segundo. Se convierte en letra ' + fontLabel(prefs.font) + '. Necesita internet.' : '');
   requestPaint();
 }
 function updateCursor() {
-  cv.style.cursor = spaceDown || tool === 'hand' ? 'grab' : tool === 'lasso' ? 'crosshair' : tool === 'select' ? (cropping ? 'crosshair' : 'default') : tool === 'text' ? 'text' : tool === 'laser' ? 'none' : tool === 'eraser' ? 'cell' : 'crosshair';
+  cv.style.cursor = spaceDown || tool === 'hand' ? 'grab' : tool === 'lasso' || tool === 'diagram' || tool === 'compass' ? 'crosshair' : tool === 'select' ? (cropping ? 'crosshair' : 'default') : tool === 'text' ? 'text' : tool === 'laser' ? 'none' : tool === 'eraser' ? 'cell' : 'crosshair';
 }
 function screenPt(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
 const toWorld = p => ({ x: (p.x - cam.x) / cam.s, y: (p.y - cam.y) / cam.s });
@@ -1445,7 +1495,8 @@ function straighten() {
 
 function moveObj(o, src, dx, dy) {
   if (o.t === 'pen') o.pts = src.pts.map(p => { const q = p.slice(); q[0] = r1(p[0] + dx); q[1] = r1(p[1] + dy); return q; });
-  else if (o.t === 'text' || o.t === 'img' || o.t === 'note' || o.t === 'link') { o.x = src.x + dx; o.y = src.y + dy; if (o.bb && src.bb) o.bb = [src.bb[0] + dx, src.bb[1] + dy, src.bb[2] + dx, src.bb[3] + dy]; }
+  else if (o.t === 'conn') { /* sigue a sus figuras */ }
+  else if (['text', 'img', 'note', 'link', 'node', 'table', 'chart', 'axes'].includes(o.t)) { o.x = src.x + dx; o.y = src.y + dy; if (o.bb && src.bb) o.bb = [src.bb[0] + dx, src.bb[1] + dy, src.bb[2] + dx, src.bb[3] + dy]; }
   else { o.x1 = src.x1 + dx; o.y1 = src.y1 + dy; o.x2 = src.x2 + dx; o.y2 = src.y2 + dy; }
   if (o.ink && src.ink) o.ink = src.ink.map(s => { const n = clone(s); moveObj(n, s, dx, dy); return n; });
 }
@@ -1453,6 +1504,9 @@ function scaleObj(o, src, box, dx, dy) {
   const bw = box[2] - box[0], bh = box[3] - box[1];
   const fx_ = bw > 1 ? Math.max(.05, (bw + dx) / bw) : 1, fy_ = bh > 1 ? Math.max(.05, (bh + dy) / bh) : 1;
   if (o.t === 'note') { if (!o.closed) { o.w = Math.max(90, src.w * fx_); o.h = Math.max(60, src.h * fy_); } return; }
+  if (o.t === 'node' || o.t === 'chart' || o.t === 'axes') { o.w = Math.max(40, src.w * fx_); o.h = Math.max(30, src.h * fy_); return; }
+  if (o.t === 'table') { o.cw = src.cw.map(w => Math.max(24, w * fx_)); o.rh = src.rh.map(h => Math.max(18, h * fy_)); o.size = clamp((src.size || 16) * Math.min(fx_, fy_), 8, 60); return; }
+  if (o.t === 'conn') return;
   if (o.t === 'link') { o.size = clamp((src.size || 18) * (bw > 1 ? fx_ : fy_), 8, 200); return; }
   if (o.t === 'img' || o.t === 'text') {
     const f = bw > 1 ? fx_ : fy_;
@@ -1467,7 +1521,7 @@ function scaleObj(o, src, box, dx, dy) {
 function eraseAt(p) {
   const objs = pg().objs, r = eraseRadius();
   for (let i = objs.length - 1; i >= 0; i--) {
-    if (objs[i].t === 'img' || objs[i].t === 'note' || objs[i].t === 'link') continue;
+    if (['img', 'note', 'link', 'node', 'table', 'chart', 'axes'].includes(objs[i].t)) continue;
     if (hit(objs[i], p.x, p.y, r, false)) { objs.splice(i, 1); erasing.any = true; }
   }
   if (pend.page === doc.cur) for (let i = pend.strokes.length - 1; i >= 0; i--) if (hit(pend.strokes[i], p.x, p.y, r, false)) pend.strokes.splice(i, 1);
@@ -1534,6 +1588,11 @@ cv.addEventListener('dblclick', e => {
   if (o && o.t === 'text') { drag = null; openEditor(null, o); }
   if (o && o.t === 'note') { drag = null; editNote(o); }
   if (o && o.t === 'link') { drag = null; followLink(o); }
+  if (o && o.t === 'node') { drag = null; editNodeText(o); }
+  if (o && o.t === 'chart') { drag = null; editChart(o); }
+  if (o && o.t === 'axes') { drag = null; editAxes(o); }
+  if (o && o.t === 'img' && o.tex) { drag = null; openFormula(o); }
+  if (o && o.t === 'table') { drag = null; const p = toWorld(screenPt(e)); editCell(o, p); }
 });
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
@@ -1566,6 +1625,7 @@ function abortStroke() {
 
 function begin(p, e, t) {
   at = t;
+  if (t !== 'hand' && geoBegin(p)) { at = 'geo'; return; }
   const hadEditor = !!ed;
   commitEditor();
   if (t === 'pen' || t === 'hl' || t === 'smart') {
@@ -1578,12 +1638,15 @@ function begin(p, e, t) {
     if (pr) cur.pr = 1;
     if (t === 'hl') { cur.a = .45; cur.hl = 1; cur.c = 'hl:' + hlColor; holdAnchor = screenPt(e); clearTimeout(holdT); holdT = setTimeout(straighten, 500); }
     if (t === 'pen' && prefs.shapes !== false) { cur.snap = 1; holdAnchor = screenPt(e); clearTimeout(holdT); holdT = setTimeout(shapeSnap, 550); }
+    const gs = geoSnapStart(p); if (gs) { cur.geoSnap = gs; delete cur.snap; delete cur.hl; delete cur.pr; clearTimeout(holdT); cur.pts = [cur.pts[0].slice(0, 2)]; }
     if (t === 'smart') curTs = [e.timeStamp];
   } else if (['line', 'arrow', 'rect', 'ellipse'].includes(t)) {
     const s = snapPt(p);
     cur = { t, x1: s.x, y1: s.y, x2: s.x, y2: s.y, c: color, w: width };
   } else if (t === 'eraser') {
     erasing = { before: snapJSON(pg()), any: false }; eraserPos = p; eraseAt(p);
+  } else if (t === 'diagram') { diagBegin(p);
+  } else if (t === 'compass') { compass = { cx: p.x, cy: p.y, r: 0 };
   } else if (t === 'text') {
     if (!hadEditor) { e.preventDefault(); openEditor(p, null); }
   } else if (t === 'select') {
@@ -1603,6 +1666,7 @@ function begin(p, e, t) {
 }
 function move(p, e) {
   if (cur && cur.snapped) return;
+  if (cur && cur.geoSnap) { cur.pts = geoSnapLine(cur.geoSnap, p); requestPaint(); return; }
   if (cur && cur.snap) {
     const sp = screenPt(e);
     if (!holdAnchor || Math.hypot(sp.x - holdAnchor.x, sp.y - holdAnchor.y) > 4) { holdAnchor = sp; clearTimeout(holdT); holdT = setTimeout(shapeSnap, 550); }
@@ -1636,6 +1700,9 @@ function move(p, e) {
   } else if (erasing) { eraserPos = p; eraseAt(p); }
   else if (cropRect) { cropRect.x2 = p.x; cropRect.y2 = p.y; requestPaint(); }
   else if (at === 'lasso') lassoMove(p);
+  else if (at === 'diagram') diagMove(p);
+  else if (at === 'geo') geoMove(p);
+  else if (at === 'compass' && compass) { compass.r = Math.hypot(p.x - compass.cx, p.y - compass.cy); requestPaint(); }
   else if (drag) {
     const o = pg().objs[sel]; if (!o) return;
     const dx = p.x - drag.start.x, dy = p.y - drag.start.y;
@@ -1649,7 +1716,7 @@ function end(cancelled) {
   clearTimeout(holdT); holdAnchor = null;
   if (cur) {
     if (cur.hl) { delete cur.hl; delete cur.straight; }
-    delete cur.snap; delete cur.snapped;
+    delete cur.snap; delete cur.snapped; delete cur.geoSnap;
     const o = cur; cur = null;
     if (cancelled) { curTs = null; requestPaint(); return; }
     if (at === 'smart') { o.ts = curTs; curTs = null; pend.strokes.push(o); pend.page = doc.cur; scheduleSmart(); requestPaint(); return; }
@@ -1659,6 +1726,9 @@ function end(cancelled) {
   if (erasing) { if (erasing.any) pushUndo(pg(), erasing.before); erasing = null; if (touchUI()) eraserPos = null; requestPaint(); }
   if (cropRect) { applyCrop(); return; }
   if (at === 'lasso') { lassoEnd(cancelled); return; }
+  if (at === 'diagram') { diagEnd(cancelled); return; }
+  if (at === 'geo') { geo.drag = null; requestPaint(); return; }
+  if (at === 'compass') { const k = compass; compass = null; if (k && !cancelled && k.r > 4 / cam.s) { const o = { t: 'ellipse', x1: r1(k.cx - k.r), y1: r1(k.cy - k.r), x2: r1(k.cx + k.r), y2: r1(k.cy + k.r), c: color, w: width }; stampAudio(o); mutate(() => pg().objs.push(o)); } requestPaint(); return; }
   if (drag) { if (drag.moved) pushUndo(pg(), drag.before); drag = null; }
   if (at === 'select') { if (pg().objs[sel]) showSelFloat(); updateUI(); requestPaint(); }
   if (at === 'laser' && touchUI()) laser.on = false;
@@ -1841,6 +1911,12 @@ function showFloat(kind, o) {
         Object.entries(NOTE_COLORS).forEach(([k, col]) => { const b = fbtn('', () => { mutate(() => { o.col = k; }); showSelFloat(); }); b.style.cssText += `;width:30px;padding:0;border-radius:50%;background:${col}`; b.setAttribute('aria-label', 'Color de nota'); });
         fbtn(o.closed ? 'Mostrar' : 'Ocultar', () => { mutate(() => { o.closed = !o.closed; }); showSelFloat(); });
       }
+      if (o.t === 'node') fbtn('Escribir', () => editNodeText(o));
+      if (o.t === 'conn') { fbtn('Texto (Sí / No…)', async () => { const t = await askText('Texto de la flecha', 'Texto', o.label || ''); if (t !== null) { mutate(() => { o.label = t || ''; }); showSelFloat(); } }); fbtn(o.dash ? 'Línea continua' : 'Línea punteada', () => { mutate(() => { o.dash = !o.dash; }); showSelFloat(); }); }
+      if (o.t === 'table') { fbtn('+ Fila', () => tableEdit(o, 'row+')); fbtn('+ Columna', () => tableEdit(o, 'col+')); fbtn('− Fila', () => tableEdit(o, 'row-')); fbtn('− Columna', () => tableEdit(o, 'col-')); fnote('Toca dos veces una celda para escribir'); }
+      if (o.t === 'chart') fbtn('Editar datos', () => editChart(o));
+      if (o.t === 'axes') fbtn('Cambiar escala', () => editAxes(o));
+      if (o.t === 'img' && o.tex) fbtn('Editar fórmula', () => openFormula(o));
       if (o.t === 'link') { fbtn('Abrir enlace', () => followLink(o), 'primary'); fbtn('Cambiar texto', async () => { const t = await askText('Texto del enlace', 'Texto', o.text); if (t) { mutate(() => { o.text = t; }); showSelFloat(); } }); }
       if (o.t === 'img') {
         fbtn('Quitar bordes', () => autoTrimObj(o), '', 'Recorta el borde blanco o vacío alrededor de la imagen');
@@ -1872,7 +1948,8 @@ function showSelFloat() { const o = pg().objs[sel]; if (o) showFloat('sel', o); 
 function deleteSel() { if (!pg().objs[sel]) return; mutate(() => { pg().objs.splice(sel, 1); }); sel = -1; hideFloat(); }
 function duplicateSel() {
   const o = pg().objs[sel]; if (!o) return;
-  const n = clone(o), d = 20; moveObj(n, o, d, d);
+  if (o.t === 'conn') return;
+  const n = clone(o), d = 20; moveObj(n, o, d, d); if (n.nid) n.nid = uid('d');
   mutate(() => pg().objs.push(n)); sel = pg().objs.length - 1; showSelFloat();
 }
 
@@ -2527,7 +2604,9 @@ function scaleAll(o, f) {
   if (o.t === 'pen') o.pts = o.pts.map(q => { const n = q.slice(); n[0] = m(q[0]); n[1] = m(q[1]); return n; });
   else if (o.t === 'text') { o.x = m(o.x); o.y = m(o.y); o.size = Math.max(8, o.size * f); if (o.bb) o.bb = o.bb.map(v => v * f); if (o.ink) o.ink.forEach(s => scaleAll(s, f)); }
   else if (o.t === 'img') { o.x = m(o.x); o.y = m(o.y); o.w *= f; o.h *= f; }
-  else if (o.t === 'note') { o.x = m(o.x); o.y = m(o.y); o.w *= f; o.h *= f; }
+  else if (o.t === 'note' || o.t === 'node' || o.t === 'chart' || o.t === 'axes') { o.x = m(o.x); o.y = m(o.y); o.w *= f; o.h *= f; }
+  else if (o.t === 'table') { o.x = m(o.x); o.y = m(o.y); o.cw = o.cw.map(w => w * f); o.rh = o.rh.map(h => h * f); o.size = (o.size || 16) * f; }
+  else if (o.t === 'conn') { }
   else if (o.t === 'link') { o.x = m(o.x); o.y = m(o.y); o.size = Math.max(8, (o.size || 18) * f); }
   else { o.x1 = m(o.x1); o.y1 = m(o.y1); o.x2 = m(o.x2); o.y2 = m(o.y2); }
 }
@@ -2912,7 +2991,7 @@ $('pick').onclick = () => {
 
 /* ---------- teclado ---------- */
 window.addEventListener('keydown', e => {
-  if (!$('library').hidden || !$('ask').hidden || !$('course-modal').hidden || !$('news').hidden || !$('report').hidden || !$('checklist').hidden || !$('refm').hidden || !$('study').hidden) { if (e.key === 'Escape') { if (!$('ask').hidden) $('ask-no').click(); else if (!$('course-modal').hidden) $('cm-cancel').click(); } return; }
+  if (!$('library').hidden || !$('formula').hidden || !$('ask').hidden || !$('course-modal').hidden || !$('news').hidden || !$('report').hidden || !$('checklist').hidden || !$('refm').hidden || !$('study').hidden) { if (e.key === 'Escape') { if (!$('ask').hidden) $('ask-no').click(); else if (!$('course-modal').hidden) $('cm-cancel').click(); } return; }
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && msel && msel.length && !/INPUT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); copyMsel(); return; }
   if ((e.key === 'Delete' || e.key === 'Backspace') && msel && msel.length && !/INPUT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); deleteMsel(); return; }
   if (!$('pageset').hidden || !$('importer').hidden) { if (e.key === 'Escape') { $('pageset').hidden = true; if (!$('importer').hidden) $('im-cancel').click(); } return; }
@@ -3496,7 +3575,7 @@ function samplePts(o) {
 }
 function mselBox() {
   let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
-  for (const o of msel) { const q = bbox(o), m = o.t === 'img' || o.t === 'text' ? 0 : (o.w || 0) / 2; a = Math.min(a, q[0] - m); b = Math.min(b, q[1] - m); c = Math.max(c, q[2] + m); d = Math.max(d, q[3] + m); }
+  for (const o of msel) { const q = bbox(o), m = strokeW(o) / 2; a = Math.min(a, q[0] - m); b = Math.min(b, q[1] - m); c = Math.max(c, q[2] + m); d = Math.max(d, q[3] + m); }
   return [a, b, c, d];
 }
 function onMselHandle(p) { if (!msel) return false; const [, , c, d] = mselBox(), m = 8 / cam.s; return Math.hypot(p.x - (c + m), p.y - (d + m)) <= handleSize() * 1.5; }
@@ -3511,7 +3590,9 @@ function scaleAbout(o, src, ox, oy, f) {
   if (o.t === 'pen') o.pts = src.pts.map(q => { const n = q.slice(); n[0] = sx(q[0]); n[1] = sy(q[1]); return n; });
   else if (o.t === 'text') { o.x = sx(src.x); o.y = sy(src.y); o.size = clamp(src.size * f, 6, 400); if (src.bb) o.bb = [sx(src.bb[0]), sy(src.bb[1]), sx(src.bb[2]), sy(src.bb[3])]; if (src.ink) o.ink = src.ink.map(s => { const n = clone(s); scaleAbout(n, s, ox, oy, f); return n; }); }
   else if (o.t === 'img') { o.x = sx(src.x); o.y = sy(src.y); o.w = Math.max(8, src.w * f); o.h = Math.max(8, src.h * f); }
-  else if (o.t === 'note') { o.x = sx(src.x); o.y = sy(src.y); o.w = Math.max(60, src.w * f); o.h = Math.max(40, src.h * f); }
+  else if (o.t === 'note' || o.t === 'node' || o.t === 'chart' || o.t === 'axes') { o.x = sx(src.x); o.y = sy(src.y); o.w = Math.max(30, src.w * f); o.h = Math.max(20, src.h * f); }
+  else if (o.t === 'table') { o.x = sx(src.x); o.y = sy(src.y); o.cw = src.cw.map(w => Math.max(20, w * f)); o.rh = src.rh.map(h => Math.max(14, h * f)); o.size = clamp((src.size || 16) * f, 6, 80); }
+  else if (o.t === 'conn') { }
   else if (o.t === 'link') { o.x = sx(src.x); o.y = sy(src.y); o.size = clamp((src.size || 18) * f, 6, 200); }
   else { o.x1 = sx(src.x1); o.y1 = sy(src.y1); o.x2 = sx(src.x2); o.y2 = sy(src.y2); }
 }
@@ -3552,7 +3633,7 @@ function buildMultiFloat() {
   const n = msel.length, pens = msel.filter(o => o.t === 'pen' && !o.a);
   fnote(`${n} elemento${n > 1 ? 's' : ''} · arrástralos para moverlos`);
   fbtn('Copiar', copyMsel);
-  fbtn('Duplicar', () => { const copies = msel.map(clone); copies.forEach((o, i) => moveObj(o, msel[i], 24, 24)); mutate(() => pg().objs.push(...copies)); msel = copies; showFloat('multi', { t: 'multi' }); requestPaint(); });
+  fbtn('Duplicar', () => { const copies = remapNodes(msel.map(clone)); copies.forEach(o => moveObj(o, clone(o), 24, 24)); mutate(() => pg().objs.push(...copies)); msel = copies; showFloat('multi', { t: 'multi' }); requestPaint(); });
   fbtn('Cambiar color', () => {
     const f = $('float'); f.innerHTML = ''; fnote('Elige el color');
     const hasHl = msel.some(o => o.a), cols = hasHl && msel.every(o => o.a) ? Object.keys(HL).map(k => 'hl:' + k) : Object.keys(COLOR_NAMES);
@@ -3583,6 +3664,7 @@ async function pasteClip() {
     }
   }
   const offset = 20;
+  const objs2 = remapNodes(objs); objs.length = 0; objs.push(...objs2);
   objs.forEach(o => moveObj(o, clone(o), offset, offset));
   mutate(() => pg().objs.push(...objs));
   setTool('lasso'); msel = objs; showFloat('multi', { t: 'multi' }); requestPaint();
@@ -3924,8 +4006,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20f';
+const APP_VERSION = '2026-11-20g';
 const CHANGELOG = [
+  { v: '2026-11-20g', t: '20 de noviembre · noche (2)', items: ['Diagramas de flujo (herramienta D): proceso, decisión, inicio/fin, entrada/salida, documento y conector, con flechas que siguen a las figuras.', 'Tablas editables, gráficos de barras, líneas y torta desde datos, fórmulas con aspecto de libro y ejes con la escala que elijas.', 'Regla con medida en cm, transportador con ángulos y compás (herramienta C).', 'Fondo de papel milimetrado.'] },
   { v: '2026-11-20f', t: '20 de noviembre · noche', items: ['🗑 Papelera: lo que eliminas (cursos, cuadernos y hojas) se guarda 30 días.', 'Copias de seguridad semanales automáticas en Drive (últimas 8) y copia completa en archivo.', '📅 Calendario: tus sesiones por fecha con el color de cada curso, y entregas con aviso de las próximas.', 'En cada curso, las sesiones se agrupan por mes.'] },
   { v: '2026-11-20e', t: '20 de noviembre · tarde (3)', items: ['Referencias en APA 7 de tus lecturas («⋯ → Datos de la lectura») y vista 📚 Mi bibliografía para copiarla completa a Word.', 'Tarjetas de repaso con repetición espaciada (🧠 Repaso): créalas con el lazo, a mano o desde líneas «término: definición».', 'Grabar el audio de la clase: toca lo que escribiste y escucha lo que se decía en ese momento.'] },
   { v: '2026-11-20d', t: '20 de noviembre · tarde (2)', items: ['Notas adhesivas de 4 colores y enlaces a otras hojas o cuadernos (Insertar ▾).', '9 plantillas: matriz de consistencia, operacionalización, FODA, mapa conceptual, cronograma, cuadro comparativo, árbol de problemas, línea de tiempo y planificador semanal.', 'Etiquetas por hoja (Examen, Duda, Cita para tesis…) y vista 🏷 Etiquetas en la biblioteca.', 'Búsqueda dentro de tus apuntes y del texto de los PDF importados.', 'Resumen de lo resaltado: junta todo lo resaltado en un cuaderno nuevo, con enlaces a cada hoja.'] },
@@ -4619,6 +4702,388 @@ async function restoreFullBackup(file) {
     toast('Copia restaurada.'); renderLibrary();
   } finally { setProgress(''); }
 }
+
+
+/* ======================= DIAGRAMAS DE FLUJO ======================= */
+const NODE_KINDS = { rect: 'Proceso', term: 'Inicio / Fin', diamond: 'Decisión', para: 'Entrada / Salida', doc: 'Documento', circle: 'Conector', round: 'Idea (mapa)' };
+const NODE_SIZE = { rect: [170, 72], term: [160, 60], diamond: [170, 110], para: [180, 70], doc: [170, 80], circle: [64, 64], round: [170, 72] };
+let nodeKind = 'rect', diag = null, compass = null;
+(function buildNodeKinds() {
+  const box = $('nodekinds'); box.innerHTML = '<span class="lbl">Figura</span>';
+  Object.entries(NODE_KINDS).forEach(([k, v]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.dataset.kind = k; b.title = v; b.setAttribute('aria-pressed', String(k === nodeKind));
+    b.innerHTML = `<svg viewBox="0 0 30 20" style="width:30px;height:20px">${{ rect: '<rect x="3" y="4" width="24" height="12"/>', term: '<rect x="3" y="4" width="24" height="12" rx="6"/>', diamond: '<path d="M15 2l12 8-12 8-12-8z"/>', para: '<path d="M8 4h19l-5 12H3z"/>', doc: '<path d="M3 3h24v11c-6 4-12-3-24 2z"/>', circle: '<circle cx="15" cy="10" r="7"/>', round: '<rect x="3" y="4" width="24" height="12" rx="3"/>' }[k]}</svg><span class="hide-s" style="font-size:12px">${v}</span>`;
+    b.onclick = () => { nodeKind = k; box.querySelectorAll('[data-kind]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); };
+    box.appendChild(b);
+  });
+})();
+const pageNodes = page => (page || RENDER_PAGE || pg()).objs.filter(o => o.t === 'node');
+function nodeById(nid, page) { return pageNodes(page).find(n => n.nid === nid); }
+function edgePoint(n, tx, ty) {
+  const cx = n.x + n.w / 2, cy = n.y + n.h / 2, dx = tx - cx, dy = ty - cy, hw = n.w / 2, hh = n.h / 2;
+  if (!dx && !dy) return [cx, cy];
+  let t;
+  if (n.kind === 'diamond') t = 1 / (Math.abs(dx) / hw + Math.abs(dy) / hh);
+  else if (n.kind === 'circle' || n.kind === 'term') t = n.kind === 'circle' ? 1 / Math.hypot(dx / hw, dy / hh) : Math.min(hw / Math.abs(dx || 1e-9), hh / Math.abs(dy || 1e-9));
+  else t = Math.min(hw / Math.abs(dx || 1e-9), hh / Math.abs(dy || 1e-9));
+  return [cx + dx * t, cy + dy * t];
+}
+function connEnds(o, page) {
+  const a = nodeById(o.a, page), b = nodeById(o.b, page); if (!a || !b) return null;
+  const p1 = edgePoint(a, b.x + b.w / 2, b.y + b.h / 2), p2 = edgePoint(b, a.x + a.w / 2, a.y + a.h / 2);
+  return [p1[0], p1[1], p2[0], p2[1]];
+}
+function nodePath(c, n) {
+  const { x, y, w, h } = n; c.beginPath();
+  if (n.kind === 'diamond') { c.moveTo(x + w / 2, y); c.lineTo(x + w, y + h / 2); c.lineTo(x + w / 2, y + h); c.lineTo(x, y + h / 2); c.closePath(); }
+  else if (n.kind === 'circle') c.ellipse(x + w / 2, y + h / 2, w / 2, h / 2, 0, 0, 7);
+  else if (n.kind === 'term') { const r = h / 2; c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2); c.lineTo(x + r, y + h); c.arc(x + r, y + r, r, Math.PI / 2, Math.PI * 1.5); c.closePath(); }
+  else if (n.kind === 'para') { const k = h * .35; c.moveTo(x + k, y); c.lineTo(x + w, y); c.lineTo(x + w - k, y + h); c.lineTo(x, y + h); c.closePath(); }
+  else if (n.kind === 'doc') { c.moveTo(x, y); c.lineTo(x + w, y); c.lineTo(x + w, y + h * .82); c.bezierCurveTo(x + w * .7, y + h * 1.08, x + w * .35, y + h * .62, x, y + h * .9); c.closePath(); }
+  else if (n.kind === 'round') { const r = 12; c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+  else c.rect(x, y, w, h);
+}
+function drawNode(c, n) {
+  const col = resolve(n.c || 'ink');
+  nodePath(c, n); c.globalAlpha = .1; c.fillStyle = col; c.fill(); c.globalAlpha = 1;
+  if (!isDark()) { c.fillStyle = 'rgba(255,255,255,.75)'; c.fill(); c.globalAlpha = .1; c.fillStyle = col; c.fill(); c.globalAlpha = 1; }
+  c.lineWidth = n.w2 || 2; c.strokeStyle = col; c.stroke();
+  if (n.text) {
+    const size = n.size || 16, inner = n.kind === 'diamond' ? n.w * .62 : n.kind === 'para' ? n.w * .75 : n.w - 16;
+    const lines = wrapLines(n.text, size, n.f, inner); setFont(c, size, n.f); c.fillStyle = resolve('ink'); c.textAlign = 'center'; c.textBaseline = 'middle';
+    const lh = size * 1.2, y0 = n.y + n.h / 2 - (lines.length - 1) * lh / 2;
+    lines.forEach((l, i) => c.fillText(l, n.x + n.w / 2, y0 + i * lh)); c.textAlign = 'left';
+  }
+}
+function drawConn(c, o) {
+  const e = connEnds(o); if (!e) return;
+  const col = resolve(o.c || 'ink'); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+  if (o.dash) c.setLineDash([8, 6]);
+  c.beginPath(); c.moveTo(e[0], e[1]); c.lineTo(e[2], e[3]); c.stroke(); c.setLineDash([]);
+  const a = Math.atan2(e[3] - e[1], e[2] - e[0]), hl = 12;
+  c.beginPath(); c.moveTo(e[2], e[3]); c.lineTo(e[2] - hl * Math.cos(a - .4), e[3] - hl * Math.sin(a - .4)); c.lineTo(e[2] - hl * Math.cos(a + .4), e[3] - hl * Math.sin(a + .4)); c.closePath(); c.fill();
+  if (o.label) { setFont(c, 14, o.f); const mx = (e[0] + e[2]) / 2, my = (e[1] + e[3]) / 2, w = c.measureText(o.label).width + 10; c.fillStyle = BOARDS[BRD].fill; c.fillRect(mx - w / 2, my - 10, w, 20); c.fillStyle = col; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(o.label, mx, my); c.textAlign = 'left'; }
+}
+function nodeAt(p) { const ns = pageNodes(pg()); for (let i = ns.length - 1; i >= 0; i--) { const n = ns[i]; if (p.x >= n.x - 4 && p.x <= n.x + n.w + 4 && p.y >= n.y - 4 && p.y <= n.y + n.h + 4) return n; } return null; }
+function nodeHandles(n) { return [[n.x + n.w / 2, n.y], [n.x + n.w, n.y + n.h / 2], [n.x + n.w / 2, n.y + n.h], [n.x, n.y + n.h / 2]]; }
+function onNodeHandle(p) { const r = (touchUI() ? 16 : 10) / cam.s; for (const n of pageNodes(pg()).slice().reverse()) if (nodeHandles(n).some(h => Math.hypot(p.x - h[0], p.y - h[1]) <= r)) return n; return null; }
+function diagBegin(p) {
+  const hn = onNodeHandle(p);
+  if (hn) { diag = { mode: 'link', from: hn, p }; return; }
+  const n = nodeAt(p);
+  if (n) { diag = { mode: 'move', node: n, start: p, src: clone(n), before: snapJSON(pg()), moved: false }; return; }
+  diag = { mode: 'new', p };
+}
+function diagMove(p) {
+  if (!diag) return;
+  if (diag.mode === 'link') { diag.p = p; requestPaint(); }
+  if (diag.mode === 'move') { const dx = p.x - diag.start.x, dy = p.y - diag.start.y; if (!diag.moved && Math.hypot(dx, dy) < 3 / cam.s) return; diag.moved = true; diag.node.x = diag.src.x + dx; diag.node.y = diag.src.y + dy; invalidate(); }
+}
+async function diagEnd(cancelled) {
+  const d = diag; diag = null; if (!d || cancelled) { requestPaint(); return; }
+  if (d.mode === 'move') { if (d.moved) pushUndo(pg(), d.before); requestPaint(); return; }
+  if (d.mode === 'link') {
+    const to = nodeAt(d.p);
+    if (to && to !== d.from) { const o = { t: 'conn', a: d.from.nid, b: to.nid, c: color === 'ink' ? 'ink' : color, w: 2 }; mutate(() => pg().objs.push(o)); }
+    else if (!to && Math.hypot(d.p.x - (d.from.x + d.from.w / 2), d.p.y - (d.from.y + d.from.h / 2)) > 60) {
+      const [w, h] = NODE_SIZE[nodeKind], n = { t: 'node', nid: uid('d'), kind: nodeKind, x: r1(d.p.x - w / 2), y: r1(d.p.y - h / 2), w, h, text: '', c: color, f: prefs.font, size: 16 };
+      mutate(() => { pg().objs.push(n); pg().objs.push({ t: 'conn', a: d.from.nid, b: n.nid, c: 'ink', w: 2 }); });
+      await editNodeText(n);
+    }
+    requestPaint(); return;
+  }
+  const [w, h] = NODE_SIZE[nodeKind], n = { t: 'node', nid: uid('d'), kind: nodeKind, x: r1(d.p.x - w / 2), y: r1(d.p.y - h / 2), w, h, text: '', c: color, f: prefs.font, size: 16 };
+  stampAudio(n); mutate(() => pg().objs.push(n)); requestPaint();
+  await editNodeText(n);
+}
+async function editNodeText(n) {
+  const t = await askArea(NODE_KINDS[n.kind] || 'Figura', 'Texto dentro de la figura', n.text || '');
+  if (t === null) return;
+  mutate(() => { n.text = t; });
+  const lines = wrapLines(t, n.size || 16, n.f, n.w - 16).length, need = lines * (n.size || 16) * 1.2 + 24;
+  if (need > n.h && n.kind !== 'circle') mutate(() => { n.h = need; });
+}
+function remapNodes(objs) {
+  const map = {}; objs.forEach(o => { if (o.t === 'node') { const nn = uid('d'); map[o.nid] = nn; o.nid = nn; } });
+  return objs.filter(o => o.t !== 'conn' || (map[o.a] && map[o.b])).map(o => { if (o.t === 'conn') { o.a = map[o.a]; o.b = map[o.b]; } return o; });
+}
+function drawToolOverlay(c) {
+  if (tool === 'diagram') {
+    c.save();
+    for (const n of pageNodes(pg())) nodeHandles(n).forEach(h => { c.beginPath(); c.arc(h[0], h[1], 5 / cam.s, 0, 7); c.fillStyle = '#fff'; c.fill(); c.lineWidth = 1.5 / cam.s; c.strokeStyle = '#0b8f98'; c.stroke(); });
+    if (diag && diag.mode === 'link') { const f = diag.from; c.strokeStyle = '#0b8f98'; c.lineWidth = 2 / cam.s; c.setLineDash([6 / cam.s, 4 / cam.s]); c.beginPath(); c.moveTo(f.x + f.w / 2, f.y + f.h / 2); c.lineTo(diag.p.x, diag.p.y); c.stroke(); }
+    c.restore();
+  }
+  if (compass && compass.r > 0) {
+    c.save(); c.strokeStyle = resolve(color); c.lineWidth = width; c.beginPath(); c.arc(compass.cx, compass.cy, compass.r, 0, 7); c.stroke();
+    c.setLineDash([5 / cam.s, 4 / cam.s]); c.lineWidth = 1 / cam.s; c.strokeStyle = '#8894a3'; c.beginPath(); c.moveTo(compass.cx, compass.cy); c.lineTo(compass.cx + compass.r, compass.cy); c.stroke();
+    c.fillStyle = '#1b2430'; c.beginPath(); c.arc(compass.cx, compass.cy, 3 / cam.s, 0, 7); c.fill();
+    measureLabel(c, compass.cx + compass.r / 2, compass.cy - 14 / cam.s, `r = ${(compass.r / 40).toFixed(1)} cm`);
+    c.restore();
+  }
+  drawGeoTools(c);
+}
+function measureLabel(c, x, y, t) {
+  c.save(); c.setTransform(dpr, 0, 0, dpr, 0, 0); const sx = cam.x + x * cam.s, sy = cam.y + y * cam.s;
+  c.font = '600 12px "IBM Plex Sans",sans-serif'; const w = c.measureText(t).width + 12;
+  c.fillStyle = 'rgba(27,36,48,.86)'; c.beginPath(); c.roundRect ? c.roundRect(sx - w / 2, sy - 11, w, 22, 6) : c.rect(sx - w / 2, sy - 11, w, 22); c.fill();
+  c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(t, sx, sy); c.restore();
+}
+
+/* ======================= TABLAS ======================= */
+function drawTable(c, o) {
+  const tw = o.cw.reduce((a, b) => a + b, 0), th = o.rh.reduce((a, b) => a + b, 0), col = resolve(o.c || 'ink'), size = o.size || 16;
+  c.fillStyle = isDark() ? 'rgba(255,255,255,.08)' : 'rgba(11,110,117,.09)'; c.fillRect(o.x, o.y, tw, o.rh[0]);
+  c.strokeStyle = col; c.globalAlpha = .55; c.lineWidth = 1.2; c.strokeRect(o.x, o.y, tw, th);
+  let x = o.x; o.cw.slice(0, -1).forEach(w => { x += w; c.beginPath(); c.moveTo(x, o.y); c.lineTo(x, o.y + th); c.stroke(); });
+  let y = o.y; o.rh.slice(0, -1).forEach(h => { y += h; c.beginPath(); c.moveTo(o.x, y); c.lineTo(o.x + tw, y); c.stroke(); });
+  c.globalAlpha = 1; c.fillStyle = resolve('ink'); c.textBaseline = 'top';
+  y = o.y;
+  o.rh.forEach((h, r) => {
+    x = o.x;
+    o.cw.forEach((w, k) => {
+      const t = (o.cells[r] || [])[k]; if (t) { setFont(c, size, o.f); if (r === 0) c.font = `600 ${size}px ${fontCss(o.f)}`; wrapLines(t, size, o.f, w - 12).slice(0, Math.max(1, Math.floor((h - 8) / (size * 1.2)))).forEach((l, i) => c.fillText(l, x + 6, y + 5 + i * size * 1.2)); }
+      x += w;
+    });
+    y += h;
+  });
+}
+$('ins-table').onclick = async () => {
+  closeMenus(); if (!curNb) return;
+  const v = await askText('Insertar tabla', 'Filas × columnas (ej. 4 x 3)', '4 x 3'); if (!v) return;
+  const m2 = v.match(/(\d+)\s*[x×*,]\s*(\d+)/i); const rows = clamp(m2 ? +m2[1] : 4, 1, 40), cols = clamp(m2 ? +m2[2] : 3, 1, 12);
+  const totalW = Math.min(W * .85, cols * 160), cw = Array(cols).fill(r1(totalW / cols)), rh = Array(rows).fill(40);
+  const pos = placeAtView(totalW, rows * 40);
+  const o = { t: 'table', x: pos.x, y: pos.y, cw, rh, cells: Array.from({ length: rows }, () => Array(cols).fill('')), size: 16, f: prefs.font, c: 'ink' };
+  mutate(() => pg().objs.push(o)); setTool('select'); sel = pg().objs.indexOf(o); showSelFloat();
+  toast('Tabla insertada. Toca dos veces una celda para escribir, o escribe encima con el lápiz.', 4000);
+};
+async function editCell(o, p) {
+  let x = o.x, k = -1, y = o.y, r = -1;
+  for (let i = 0; i < o.cw.length; i++) { if (p.x >= x && p.x <= x + o.cw[i]) { k = i; break; } x += o.cw[i]; }
+  for (let i = 0; i < o.rh.length; i++) { if (p.y >= y && p.y <= y + o.rh[i]) { r = i; break; } y += o.rh[i]; }
+  if (k < 0 || r < 0) return;
+  const t = await askArea(`Celda fila ${r + 1}, columna ${k + 1}`, 'Texto', (o.cells[r] || [])[k] || ''); if (t === null) return;
+  mutate(() => { o.cells[r][k] = t; const need = wrapLines(t, o.size || 16, o.f, o.cw[k] - 12).length * (o.size || 16) * 1.2 + 12; if (need > o.rh[r]) o.rh[r] = need; });
+}
+function tableEdit(o, op) {
+  mutate(() => {
+    if (op === 'row+') { o.rh.push(o.rh[o.rh.length - 1] || 40); o.cells.push(Array(o.cw.length).fill('')); }
+    if (op === 'col+') { o.cw.push(o.cw[o.cw.length - 1] || 120); o.cells.forEach(r => r.push('')); }
+    if (op === 'row-' && o.rh.length > 1) { o.rh.pop(); o.cells.pop(); }
+    if (op === 'col-' && o.cw.length > 1) { o.cw.pop(); o.cells.forEach(r => r.pop()); }
+  });
+  showSelFloat();
+}
+
+/* ======================= GRÁFICOS DESDE DATOS ======================= */
+const CHART_COLORS = ['#1d5fd1', '#e8730c', '#12805c', '#d92d20', '#7a3fd1', '#0b6e75', '#b8860b', '#c2185b'];
+function parseData(txt) {
+  return txt.split('\n').map(l => l.trim()).filter(Boolean).map(l => { const parts = l.split(/\t|;|,(?=\s*-?\d)|:/).map(x => x.trim()).filter(Boolean); const v = parseFloat((parts[parts.length - 1] || '').replace(',', '.')); return [parts.length > 1 ? parts.slice(0, -1).join(' ') : '', v]; }).filter(d => isFinite(d[1]));
+}
+function niceStep(max) { const raw = max / 5, p10 = Math.pow(10, Math.floor(Math.log10(raw || 1))), n = raw / p10; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p10; }
+function drawChart(c, o) {
+  const ink = resolve('ink'), d = o.data || [], pad = 14, titleH = o.title ? 30 : 6;
+  c.fillStyle = ink; c.textBaseline = 'middle';
+  if (o.title) { c.font = `600 17px ${fontCss(o.f)}`; c.textAlign = 'center'; c.fillText(o.title, o.x + o.w / 2, o.y + 14); c.textAlign = 'left'; }
+  if (!d.length) return;
+  if (o.kind === 'pie') {
+    const tot = d.reduce((a, b) => a + Math.max(0, b[1]), 0) || 1, r = Math.min(o.w * .55, o.h - titleH - pad) / 2, cx = o.x + pad + r, cy = o.y + titleH + (o.h - titleH) / 2;
+    let a0 = -Math.PI / 2;
+    d.forEach((it, i) => { const a1 = a0 + Math.max(0, it[1]) / tot * Math.PI * 2; c.beginPath(); c.moveTo(cx, cy); c.arc(cx, cy, r, a0, a1); c.closePath(); c.fillStyle = CHART_COLORS[i % CHART_COLORS.length]; c.fill(); c.strokeStyle = BOARDS[BRD].fill; c.lineWidth = 2; c.stroke(); a0 = a1; });
+    c.font = `13px ${fontCss(o.f)}`;
+    d.forEach((it, i) => { const ly = o.y + titleH + 10 + i * 22; c.fillStyle = CHART_COLORS[i % CHART_COLORS.length]; c.fillRect(cx + r + 18, ly - 6, 12, 12); c.fillStyle = ink; c.fillText(`${it[0]} · ${it[1]} (${Math.round(it[1] / tot * 100)} %)`, cx + r + 36, ly); });
+    return;
+  }
+  const mx = Math.max(...d.map(x => x[1]), 0), mn = Math.min(0, ...d.map(x => x[1])), st = niceStep(mx - mn), top = Math.ceil(mx / st) * st, bot = Math.floor(mn / st) * st;
+  const left = o.x + 46, right = o.x + o.w - pad, y0 = o.y + titleH + 6, y1 = o.y + o.h - 30, sy = v => y1 - (v - bot) / ((top - bot) || 1) * (y1 - y0);
+  c.font = `12px ${fontCss(o.f)}`; c.textAlign = 'right';
+  for (let v = bot; v <= top + 1e-9; v += st) { const yy = sy(v); c.strokeStyle = ink; c.globalAlpha = .15; c.beginPath(); c.moveTo(left, yy); c.lineTo(right, yy); c.stroke(); c.globalAlpha = 1; c.fillStyle = ink; c.fillText(String(+v.toFixed(6)), left - 6, yy); }
+  c.textAlign = 'center'; c.globalAlpha = .7; c.strokeStyle = ink; c.lineWidth = 1.4; c.beginPath(); c.moveTo(left, y0); c.lineTo(left, y1); c.lineTo(right, y1); c.stroke(); c.globalAlpha = 1;
+  const bw = (right - left) / d.length;
+  if (o.kind === 'line') {
+    c.strokeStyle = CHART_COLORS[0]; c.lineWidth = 3; c.beginPath(); d.forEach((it, i) => { const xx = left + bw * (i + .5); i ? c.lineTo(xx, sy(it[1])) : c.moveTo(xx, sy(it[1])); }); c.stroke();
+    d.forEach((it, i) => { const xx = left + bw * (i + .5); c.fillStyle = CHART_COLORS[0]; c.beginPath(); c.arc(xx, sy(it[1]), 4.5, 0, 7); c.fill(); });
+  } else d.forEach((it, i) => { const xx = left + bw * i + bw * .18, yy = sy(Math.max(0, it[1])), hh = Math.abs(sy(it[1]) - sy(0)); c.fillStyle = CHART_COLORS[(o.multi ? i : 0) % CHART_COLORS.length]; c.fillRect(xx, yy, bw * .64, hh); });
+  c.fillStyle = ink; d.forEach((it, i) => c.fillText(String(it[0]).slice(0, 14), left + bw * (i + .5), y1 + 14)); c.textAlign = 'left';
+}
+async function chartDialog(o) {
+  const kind = await askSelect(o ? 'Editar gráfico' : 'Gráfico desde datos', 'Tipo de gráfico', [['bar', 'Barras'], ['line', 'Líneas'], ['pie', 'Torta (circular)']], o && o.kind); if (!kind) return null;
+  const dat = await askArea('Datos del gráfico', 'Una fila por dato: etiqueta y número (puedes pegar dos columnas de Excel)', o ? o.data.map(x => `${x[0]}, ${x[1]}`).join('\n') : '2023, 12\n2024, 18\n2025, 9\n2026, 15'); if (dat === null) return null;
+  const data = parseData(dat); if (!data.length) { toast('No encontré números. Escribe cada dato como «etiqueta, número».'); return null; }
+  const title = await askText('Título del gráfico', 'Título (opcional)', o ? o.title : ''); 
+  return { kind, data, title: title || '' };
+}
+$('ins-chart').onclick = async () => {
+  closeMenus(); if (!curNb) return;
+  const r = await chartDialog(null); if (!r) return;
+  const w = Math.min(W * .7, 520), h = Math.min(H * .45, 340), pos = placeAtView(w, h);
+  const o = Object.assign({ t: 'chart', x: pos.x, y: pos.y, w, h, f: prefs.font, multi: r.kind === 'bar' }, r);
+  mutate(() => pg().objs.push(o)); setTool('select'); sel = pg().objs.indexOf(o); showSelFloat();
+};
+async function editChart(o) { const r = await chartDialog(o); if (r) { mutate(() => Object.assign(o, r)); showSelFloat(); } }
+
+/* ======================= EJES CON ESCALA ======================= */
+function drawAxes(c, o) {
+  const ink = resolve(o.c || 'ink'), [x0, x1, xs] = o.xr, [y0, y1, ys] = o.yr, pad = 30;
+  const L = o.x + pad, R2 = o.x + o.w - 12, T = o.y + 12, B = o.y + o.h - pad;
+  const X = v => L + (v - x0) / ((x1 - x0) || 1) * (R2 - L), Y = v => B - (v - y0) / ((y1 - y0) || 1) * (B - T);
+  const ax = clamp(0, x0, x1), ay = clamp(0, y0, y1);
+  c.strokeStyle = ink; c.fillStyle = ink; c.lineWidth = 1; c.globalAlpha = .12;
+  for (let v = x0; v <= x1 + 1e-9; v += xs) { c.beginPath(); c.moveTo(X(v), T); c.lineTo(X(v), B); c.stroke(); }
+  for (let v = y0; v <= y1 + 1e-9; v += ys) { c.beginPath(); c.moveTo(L, Y(v)); c.lineTo(R2, Y(v)); c.stroke(); }
+  c.globalAlpha = 1; c.lineWidth = 2;
+  c.beginPath(); c.moveTo(L - 6, Y(ay)); c.lineTo(R2 + 6, Y(ay)); c.moveTo(X(ax), B + 6); c.lineTo(X(ax), T - 6); c.stroke();
+  c.beginPath(); c.moveTo(R2 + 10, Y(ay)); c.lineTo(R2, Y(ay) - 5); c.lineTo(R2, Y(ay) + 5); c.fill();
+  c.beginPath(); c.moveTo(X(ax), T - 10); c.lineTo(X(ax) - 5, T); c.lineTo(X(ax) + 5, T); c.fill();
+  c.font = '11px "IBM Plex Sans",sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top';
+  for (let v = x0; v <= x1 + 1e-9; v += xs) if (Math.abs(v - ax) > 1e-9) c.fillText(String(+v.toFixed(4)), X(v), Y(ay) + 5);
+  c.textAlign = 'right'; c.textBaseline = 'middle';
+  for (let v = y0; v <= y1 + 1e-9; v += ys) if (Math.abs(v - ay) > 1e-9) c.fillText(String(+v.toFixed(4)), X(ax) - 5, Y(v));
+  c.font = `italic 600 15px ${fontCss(o.f)}`; c.textAlign = 'left'; c.fillText(o.xl || 'x', R2 - 6, Y(ay) - 14); c.fillText(o.yl || 'y', X(ax) + 8, T);
+}
+async function axesDialog(o) {
+  const ps = t => { const v = (t || '').split(/[;,]/).map(x => parseFloat(x.replace(',', '.'))); return v.length >= 3 && v.every(isFinite) && v[1] > v[0] && v[2] > 0 ? v.slice(0, 3) : null; };
+  const xr = ps(await askText('Ejes con escala', 'Eje horizontal: mínimo, máximo, cada cuánto (ej. 0, 10, 1)', o ? o.xr.join(', ') : '0, 10, 1')); if (!xr) return null;
+  const yr = ps(await askText('Ejes con escala', 'Eje vertical: mínimo, máximo, cada cuánto (ej. 0, 100, 10)', o ? o.yr.join(', ') : '0, 100, 10')); if (!yr) return null;
+  const nm = await askText('Ejes con escala', 'Nombres de los ejes: horizontal, vertical (ej. Q, P)', o ? `${o.xl}, ${o.yl}` : 'Q, P');
+  const [xl, yl] = (nm || 'x, y').split(',').map(x => x.trim());
+  if ((xr[1] - xr[0]) / xr[2] > 200 || (yr[1] - yr[0]) / yr[2] > 200) { toast('Demasiadas divisiones: usa un paso más grande.'); return null; }
+  return { xr, yr, xl: xl || 'x', yl: yl || 'y' };
+}
+$('ins-axes').onclick = async () => {
+  closeMenus(); if (!curNb) return;
+  const r = await axesDialog(null); if (!r) { return; }
+  const w = Math.min(W * .75, 560), h = Math.min(H * .5, 420), pos = placeAtView(w, h);
+  const o = Object.assign({ t: 'axes', x: pos.x, y: pos.y, w, h, c: 'ink', f: prefs.font }, r);
+  mutate(() => pg().objs.push(o)); setTool('pen');
+  toast('Ejes insertados. Dibuja tu curva encima con el lápiz.', 3500);
+};
+async function editAxes(o) { const r = await axesDialog(o); if (r) { mutate(() => Object.assign(o, r)); showSelFloat(); } }
+
+/* ======================= FÓRMULAS ======================= */
+const MATHJAX_URL = 'https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js';
+let mjReady = null, fmTarget = null;
+function loadMathJax() {
+  if (!mjReady) { window.MathJax = { startup: { typeset: false }, svg: { fontCache: 'none' } }; mjReady = loadScript(MATHJAX_URL).then(() => window.MathJax.startup.promise).catch(e => { mjReady = null; throw e; }); }
+  return mjReady;
+}
+const FM_SNIPS = [['Fracción', '\\frac{a}{b}'], ['Raíz', '\\sqrt{x}'], ['Potencia', 'x^{2}'], ['Subíndice', 'x_{i}'], ['Sumatoria', '\\sum_{i=1}^{n} x_i'], ['Integral', '\\int_{a}^{b} f(x)\\,dx'], ['Media', '\\bar{x}'], ['α β σ μ', '\\alpha \\beta \\sigma \\mu'], ['≤ ≥ ≠ ±', '\\le \\ge \\neq \\pm'], ['× ÷ ≈', '\\times \\div \\approx'], ['Matriz', '\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}']];
+(function buildPal() { const pal = $('fm-pal'); FM_SNIPS.forEach(([l, t]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = l; b.onclick = () => { const ta2 = $('fm-tex'), a = ta2.selectionStart, z = ta2.selectionEnd; ta2.value = ta2.value.slice(0, a) + t + ta2.value.slice(z); ta2.focus(); ta2.selectionStart = ta2.selectionEnd = a + t.length; fmPreview(); }; pal.appendChild(b); }); })();
+let fmTimer = 0;
+function fmPreview() {
+  clearTimeout(fmTimer);
+  fmTimer = setTimeout(async () => {
+    try { await loadMathJax(); const n = MathJax.tex2svg($('fm-tex').value || '\;', { display: true }); $('fm-prev').innerHTML = ''; $('fm-prev').appendChild(n); }
+    catch (e) { $('fm-prev').textContent = 'No se pudo cargar el editor de fórmulas (necesita internet la primera vez).'; }
+  }, 250);
+}
+$('fm-tex').addEventListener('input', fmPreview);
+function openFormula(o) {
+  closeMenus(); if (!curNb) return;
+  fmTarget = o || null; $('fm-tex').value = o && o.tex ? o.tex : 'r = \\frac{\\sum (x_i-\\bar{x})(y_i-\\bar{y})}{\\sqrt{\\sum (x_i-\\bar{x})^2 \\sum (y_i-\\bar{y})^2}}';
+  $('fm-ok').textContent = o ? 'Guardar' : 'Insertar';
+  $('formula').hidden = false; fmPreview(); setTimeout(() => $('fm-tex').focus(), 0);
+}
+$('ins-formula').onclick = () => openFormula(null);
+$('fm-cancel').onclick = () => { $('formula').hidden = true; };
+$('fm-ok').onclick = async () => {
+  const tex = $('fm-tex').value.trim(); if (!tex) return;
+  try {
+    await loadMathJax();
+    const node = MathJax.tex2svg(tex, { display: true }), svg = node.querySelector('svg');
+    const ex = 9, wEx = parseFloat(svg.getAttribute('width')), hEx = parseFloat(svg.getAttribute('height'));
+    const wpx = Math.max(10, wEx * ex), hpx = Math.max(10, hEx * ex);
+    svg.setAttribute('width', wpx); svg.setAttribute('height', hpx); svg.setAttribute('color', resolve(color === 'ink' ? 'ink' : color));
+    svg.setAttribute('style', `color:${resolve(color === 'ink' ? 'ink' : color)}`);
+    const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+    const im = await loadImage(url), sc = 3, cc = document.createElement('canvas'); cc.width = Math.ceil(wpx * sc); cc.height = Math.ceil(hpx * sc);
+    cc.getContext('2d').drawImage(im, 0, 0, cc.width, cc.height);
+    const id = newImgId(); await putImage(id, cc.toDataURL('image/png'));
+    if (fmTarget && pg().objs.includes(fmTarget)) { const o = fmTarget; mutate(() => { o.id = id; o.tex = tex; o.h = o.w * hpx / wpx; o.crop = [0, 0, cc.width, cc.height]; }); }
+    else { const pos = placeAtView(wpx, hpx); const o = { t: 'img', id, x: pos.x, y: pos.y, w: wpx, h: hpx, crop: [0, 0, cc.width, cc.height], tex }; mutate(() => pg().objs.push(o)); setTool('select'); sel = pg().objs.indexOf(o); showSelFloat(); }
+    $('formula').hidden = true;
+  } catch (e) { toast('No se pudo crear la fórmula. Revisa que esté bien escrita.'); }
+};
+
+
+/* ======================= REGLA Y TRANSPORTADOR ======================= */
+const UNITS_CM = 40;
+const geo = { ruler: null, prot: null, drag: null };
+const gU = a => [Math.cos(a), Math.sin(a)], gV = a => [-Math.sin(a), Math.cos(a)];
+function toLocal(o, p) { const u = gU(o.a), v = gV(o.a), dx = p.x - o.x, dy = p.y - o.y; return [dx * u[0] + dy * u[1], dx * v[0] + dy * v[1]]; }
+function fromLocal(o, lu, lv) { const u = gU(o.a), v = gV(o.a); return [o.x + u[0] * lu + v[0] * lv, o.y + u[1] * lu + v[1] * lv]; }
+function geoBegin(p) {
+  const tol = (touchUI() ? 20 : 14) / cam.s;
+  if (geo.ruler) {
+    const r = geo.ruler, [lu, lv] = toLocal(r, p), k = fromLocal(r, r.len - 22, r.h / 2);
+    if (Math.hypot(p.x - k[0], p.y - k[1]) <= tol) { geo.drag = { o: r, mode: 'rot', pivot: fromLocal(r, 0, 0) }; return true; }
+    if (lu >= 0 && lu <= r.len && lv >= 4 / cam.s && lv <= r.h) { geo.drag = { o: r, mode: 'move', start: p, ox: r.x, oy: r.y }; return true; }
+  }
+  if (geo.prot) {
+    const o = geo.prot, [lu, lv] = toLocal(o, p), k = fromLocal(o, o.r + 26, 0);
+    if (Math.hypot(p.x - k[0], p.y - k[1]) <= tol) { geo.drag = { o, mode: 'rot', pivot: [o.x, o.y] }; return true; }
+    const d = Math.hypot(lu, lv);
+    if (lv <= 0 && d <= o.r && d > 28 / cam.s) { geo.drag = { o, mode: 'move', start: p, ox: o.x, oy: o.y }; return true; }
+  }
+  return false;
+}
+function geoMove(p) {
+  const d = geo.drag; if (!d) return;
+  if (d.mode === 'move') { d.o.x = d.ox + p.x - d.start.x; d.o.y = d.oy + p.y - d.start.y; }
+  else { let a = Math.atan2(p.y - d.pivot[1], p.x - d.pivot[0]); const deg = a * 180 / Math.PI, sn = Math.round(deg / 15) * 15; if (Math.abs(deg - sn) < 2) a = sn * Math.PI / 180; d.o.a = a; }
+  requestPaint();
+}
+function geoSnapStart(p) {
+  if (geo.ruler) { const r = geo.ruler, [lu, lv] = toLocal(r, p); if (lu >= -10 && lu <= r.len + 10 && lv > -26 / cam.s && lv < 4 / cam.s) return { k: 'ruler', u0: clamp(lu, 0, r.len) }; }
+  if (geo.prot) { const o = geo.prot; if (Math.hypot(p.x - o.x, p.y - o.y) < 26 / cam.s) return { k: 'prot' }; }
+  return null;
+}
+function geoSnapLine(g, p) {
+  if (g.k === 'ruler') { const r = geo.ruler, [lu] = toLocal(r, p), u1 = clamp(lu, 0, r.len), a = fromLocal(r, g.u0, 0), b = fromLocal(r, u1, 0); g.len = Math.abs(u1 - g.u0); g.at = b; return [[r1(a[0]), r1(a[1])], [r1(b[0]), r1(b[1])]]; }
+  const o = geo.prot, [lu, lv] = toLocal(o, p); let ang = Math.atan2(-lv, lu) * 180 / Math.PI; ang = Math.round(ang); const len = Math.hypot(lu, lv);
+  const rad = -ang * Math.PI / 180, e = fromLocal(o, Math.cos(rad) * len, Math.sin(rad) * len); g.ang = ((ang % 360) + 360) % 360; g.at = e;
+  return [[r1(o.x), r1(o.y)], [r1(e[0]), r1(e[1])]];
+}
+function drawGeoTools(c) {
+  const r = geo.ruler;
+  if (r) {
+    c.save(); c.translate(r.x, r.y); c.rotate(r.a);
+    c.fillStyle = 'rgba(11,143,152,.16)'; c.strokeStyle = 'rgba(11,110,117,.8)'; c.lineWidth = 1.2 / cam.s;
+    c.fillRect(0, 0, r.len, r.h); c.strokeRect(0, 0, r.len, r.h);
+    c.strokeStyle = 'rgba(11,80,85,.9)'; c.fillStyle = 'rgba(11,80,85,.95)'; c.font = `${11 / Math.max(.6, cam.s)}px "IBM Plex Sans",sans-serif`; c.textAlign = 'center'; c.textBaseline = 'top';
+    for (let mm = 0; mm * 4 <= r.len; mm++) { const x = mm * 4, L2 = mm % 10 === 0 ? 18 : mm % 5 === 0 ? 12 : 7; c.beginPath(); c.moveTo(x, 0); c.lineTo(x, L2); c.stroke(); if (mm % 10 === 0) c.fillText(String(mm / 10), x, 20); }
+    c.beginPath(); c.arc(r.len - 22, r.h / 2, 11, 0, 7); c.fillStyle = '#fff'; c.fill(); c.stroke(); c.fillStyle = 'rgba(11,80,85,.95)'; c.textBaseline = 'middle'; c.fillText('⟳', r.len - 22, r.h / 2 + 1);
+    c.restore();
+  }
+  const o = geo.prot;
+  if (o) {
+    c.save(); c.translate(o.x, o.y); c.rotate(o.a);
+    c.fillStyle = 'rgba(232,115,12,.12)'; c.strokeStyle = 'rgba(190,90,10,.85)'; c.lineWidth = 1.2 / cam.s;
+    c.beginPath(); c.moveTo(-o.r, 0); c.arc(0, 0, o.r, Math.PI, 0); c.closePath(); c.fill(); c.stroke();
+    c.font = `${10 / Math.max(.6, cam.s)}px "IBM Plex Sans",sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = 'rgba(150,70,10,.95)';
+    for (let d = 0; d <= 180; d++) { const a = -d * Math.PI / 180, L2 = d % 10 === 0 ? 16 : d % 5 === 0 ? 10 : 5; c.beginPath(); c.moveTo(Math.cos(a) * o.r, Math.sin(a) * o.r); c.lineTo(Math.cos(a) * (o.r - L2), Math.sin(a) * (o.r - L2)); c.stroke(); if (d % 10 === 0) c.fillText(String(d), Math.cos(a) * (o.r - 26), Math.sin(a) * (o.r - 26)); }
+    c.beginPath(); c.arc(0, 0, 4, 0, 7); c.fillStyle = 'rgba(150,70,10,.95)'; c.fill();
+    c.beginPath(); c.arc(o.r + 26, 0, 11, 0, 7); c.fillStyle = '#fff'; c.fill(); c.stroke(); c.fillStyle = 'rgba(150,70,10,.95)'; c.fillText('⟳', o.r + 26, 1);
+    c.restore();
+  }
+  if (cur && cur.geoSnap && cur.geoSnap.at) {
+    const g = cur.geoSnap;
+    measureLabel(c, g.at[0], g.at[1] - 22 / cam.s, g.k === 'ruler' ? `${(g.len / UNITS_CM).toFixed(1)} cm` : `${g.ang}°`);
+  }
+}
+$('ins-ruler').onclick = () => {
+  closeMenus(); if (!curNb) return;
+  if (geo.ruler) { geo.ruler = null; toast('Regla guardada.'); requestPaint(); return; }
+  const v = visibleRect(), len = Math.min(v.w * .8, 30 * UNITS_CM); geo.ruler = { x: v.x + (v.w - len) / 2, y: v.y + v.h * .45, a: 0, len, h: 64 };
+  toast('Regla: arrástrala para moverla y gírala desde ⟳. Dibuja pegado a su borde y la línea sale recta, con su medida.', 6000); requestPaint();
+};
+$('ins-prot').onclick = () => {
+  closeMenus(); if (!curNb) return;
+  if (geo.prot) { geo.prot = null; toast('Transportador guardado.'); requestPaint(); return; }
+  const v = visibleRect(); geo.prot = { x: v.x + v.w / 2, y: v.y + v.h * .6, a: 0, r: Math.min(190, v.w * .3) };
+  toast('Transportador: arrástralo para moverlo y gíralo desde ⟳. Dibuja desde su centro y verás el ángulo.', 6000); requestPaint();
+};
 
 init();
 

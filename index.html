@@ -128,6 +128,57 @@ body.touch .tool kbd{display:none}
 @keyframes pulse{to{opacity:.3}}
 #dict-live{color:var(--muted);font-size:14px;min-width:120px;max-width:420px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 #dict-lang{height:34px}
+body.ui-l{--ctl:40px;font-size:15.5px}body.ui-xl{--ctl:48px;font-size:17px}
+body.ui-l .tool{width:50px;height:50px}body.ui-xl .tool{width:58px;height:58px}
+body.ui-l .tool svg,body.ui-l .btn svg{width:21px;height:21px}body.ui-xl .tool svg,body.ui-xl .btn svg{width:24px;height:24px}
+body.ui-l .sw{width:32px;height:32px}body.ui-xl .sw{width:38px;height:38px}
+body.ui-l .pen-btn{width:48px;height:40px}body.ui-xl .pen-btn{width:56px;height:48px}
+body.ui-l #float .btn{height:40px}body.ui-xl #float .btn{height:48px}
+body.ui-l .menu button{padding:11px 14px}body.ui-xl .menu button{padding:14px 16px;font-size:17px}
+:root[data-theme="dark"] .sw,:root[data-theme="dark"] .pen-btn span,:root[data-theme="dark"] .pen-btn i{box-shadow:0 0 0 1.5px #8a96a5}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sw,:root:not([data-theme="light"]) .pen-btn span,:root:not([data-theme="light"]) .pen-btn i{box-shadow:0 0 0 1.5px #8a96a5}}
+.look-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.look-opts .opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
+.look-opts .opt[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.look-opts small{color:var(--muted);font-size:11px;text-align:center}
+.lk{width:46px;height:30px;border-radius:6px;border:1px solid var(--line)}
+.lk-light{background:linear-gradient(#fff 35%,#e9edf1 35%)}.lk-dark{background:linear-gradient(#1a2027 35%,#11151a 35%)}.lk-auto{background:linear-gradient(90deg,#fff 50%,#1a2027 50%)}
+.prog b.bad,.pill.bad{color:#b42318}.pill.ok{color:#12805c}
+.pbar{display:block;height:8px;border-radius:4px;background:var(--bg);margin-top:8px;overflow:hidden}.pbar i{display:block;height:100%;background:var(--accent)}
+.pcourse{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-bottom:8px;max-width:900px}
+.pcourse summary{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;flex-wrap:wrap}
+.pcourse summary .dot{width:10px;height:10px;border-radius:50%}
+.pcourse summary small{color:var(--muted);flex-basis:100%;padding-left:20px}
+.pcourse .cr{margin-left:auto;color:var(--muted);font-size:13px}
+.pcourse .cr input{width:52px}
+.pcourse .pill{font-weight:700;border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.pcourse input,.tstep input.tn,.gl-bar select,.gl-bar input,.mx th input{border:1px solid var(--line);border-radius:6px;padding:5px 7px;font:inherit;background:var(--bg);color:var(--text)}
+.ptable{border-collapse:collapse;margin:0 14px 8px;width:calc(100% - 28px)}
+.ptable th{text-align:left;font-size:12px;color:var(--muted);font-weight:500;padding:4px}
+.ptable td{padding:3px 4px}.ptable td:first-child input{width:100%}.ptable td input[type=number]{width:80px}
+.pcourse .row{padding:0 14px 12px;display:flex;gap:10px;align-items:center}
+.tsteps{display:flex;flex-direction:column;gap:8px;max-width:760px;margin-bottom:10px}
+.tstep{display:grid;grid-template-columns:minmax(150px,260px) 1fr 56px auto;gap:10px;align-items:center}
+.tstep input[type=range]{accent-color:#7c3aed}
+.mx-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.mx{border-collapse:collapse;min-width:1100px;width:100%}
+.mx th,.mx td{border:1px solid var(--line);vertical-align:top;padding:6px}
+.mx thead th{background:var(--accent);color:var(--accent-ink);font-weight:600;padding:9px;position:sticky;top:0}
+.mx tbody th{width:130px;background:var(--bg)}.mx tbody th input{width:100%;font-weight:600}
+.mx tbody th .btn{margin-top:6px;height:26px;min-width:26px;width:26px;opacity:.6}
+.mx textarea{width:100%;min-height:80px;border:none;resize:vertical;font:inherit;background:transparent;color:var(--text);padding:2px}
+.mx-links{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.mx-link{display:inline-flex;border:1px solid var(--accent);border-radius:999px;overflow:hidden;font-size:12px}
+.mx-link button{background:none;border:none;color:var(--accent);padding:2px 8px;cursor:pointer}.mx-link button+button{padding:2px 6px;border-left:1px solid var(--line);color:var(--muted)}
+.mx-link.gone{border-color:var(--line)}.mx-link.gone button{color:var(--muted)}
+.mx-add{background:none;border:1px dashed var(--line);border-radius:999px;color:var(--muted);font-size:12px;padding:2px 8px;cursor:pointer}
+.gl-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}.gl-bar input{flex:1;min-width:180px;max-width:360px}
+.gl-list{max-width:860px}
+.gl-letter{font:700 20px var(--f-display);color:var(--accent);margin:16px 0 6px;border-bottom:1px solid var(--line)}
+.gl-item{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-bottom:6px}
+.gl-item p{margin:4px 0 0;white-space:pre-wrap}
+.gl-c{font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:4px;margin-left:6px}.gl-c .dot{width:8px;height:8px;border-radius:50%}
+.gl-acts{display:flex;gap:4px;flex:none}
 body.presenting header.top,body.presenting .opts,body.presenting #rail,body.presenting #pages-panel,body.presenting #side,body.presenting #status{display:none!important}
 body.presenting .stage{background:#1d232b}
 #pres-bar{position:absolute;z-index:7;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:rgba(20,26,33,.86);color:#fff;border-radius:12px;padding:6px 8px;opacity:.35;transition:opacity .2s}
@@ -416,6 +467,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <div class="mh">Vista</div>
           <button id="fit-width">Ajustar al ancho de la pantalla</button>
           <button id="present-btn">▶ Modo presentación</button>
+          <button id="look-btn">🎨 Apariencia (modo oscuro, tamaño de botones)…</button>
           <button id="full">Pantalla completa</button>
           <button id="side-toggle" aria-controls="side">Panel de clase (Pomodoro, temporizador, alumno al azar)</button>
           <div class="mh">Ayuda</div>
@@ -626,6 +678,26 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
   <div class="lib-body">
     <nav class="lib-side" id="lib-side" aria-label="Ciclos y accesos"></nav>
     <main class="lib-main" id="lib-main"></main>
+  </div>
+</div>
+
+<div class="modal" id="look" hidden role="dialog" aria-modal="true" aria-labelledby="look-title">
+  <div class="sheet small">
+    <h1 id="look-title" style="font-size:19px">🎨 Apariencia</h1>
+    <div class="lbl">Colores de la aplicación</div>
+    <div class="look-opts" role="radiogroup" aria-label="Tema">
+      <button class="opt" role="radio" data-k="theme" data-v="auto"><span class="lk lk-auto"></span><b>Automático</b><small>Como tu dispositivo</small></button>
+      <button class="opt" role="radio" data-k="theme" data-v="light"><span class="lk lk-light"></span><b>Claro</b></button>
+      <button class="opt" role="radio" data-k="theme" data-v="dark"><span class="lk lk-dark"></span><b>Oscuro</b><small>Descansa la vista de noche</small></button>
+    </div>
+    <div class="lbl">Tamaño de botones y letras</div>
+    <div class="look-opts" role="radiogroup" aria-label="Tamaño">
+      <button class="opt" role="radio" data-k="uiSize" data-v="n"><b style="font-size:14px">Aa</b><small>Normal</small></button>
+      <button class="opt" role="radio" data-k="uiSize" data-v="l"><b style="font-size:17px">Aa</b><small>Grande</small></button>
+      <button class="opt" role="radio" data-k="uiSize" data-v="xl"><b style="font-size:20px">Aa</b><small>Muy grande</small></button>
+    </div>
+    <p class="hint" style="margin:0">El papel de tus hojas no cambia: eso se elige en «Papel» (blanco, crema o pizarra). Así tus PDF salen igual.</p>
+    <div class="actions"><button class="btn primary" id="look-ok">Listo</button></div>
   </div>
 </div>
 
@@ -1991,7 +2063,7 @@ function showFloat(kind, o) {
       if (o.t === 'chart') fbtn('Editar datos', () => editChart(o));
       if (o.t === 'axes') fbtn('Cambiar escala', () => editAxes(o));
       if (o.t === 'img' && o.tex) fbtn('Editar fórmula', () => openFormula(o));
-      if ((o.t === 'text' || o.t === 'note' || o.t === 'node') && o.text) fbtn('Traducir', () => translateObjs([o]), '', 'Traduce este texto y lo pone debajo');
+      if ((o.t === 'text' || o.t === 'note' || o.t === 'node') && o.text) { fbtn('Traducir', () => translateObjs([o]), '', 'Traduce este texto y lo pone debajo'); fbtn('Al glosario', () => glossFromObjs([o]), '', 'Guarda este término en el glosario del curso'); }
       if (o.t === 'img' && !o.tex) fbtn('Leer texto', () => ocrObj(o), '', 'Reconoce el texto de la foto para editarlo o copiarlo');
       if (o.t === 'link') { fbtn('Abrir enlace', () => followLink(o), 'primary'); fbtn('Cambiar texto', async () => { const t = await askText('Texto del enlace', 'Texto', o.text); if (t) { mutate(() => { o.text = t; }); showSelFloat(); } }); }
       if (o.t === 'img') {
@@ -3297,11 +3369,15 @@ function renderLibrary() {
   side.appendChild(sideItem('🏷 Etiquetas', v === 'tags', () => setView('tags')));
   side.appendChild(sideItem('🧠 Repaso', v === 'cards', () => setView('cards')));
   side.appendChild(sideItem('📚 Mi bibliografía', v === 'biblio', () => setView('biblio'), liveNbs().filter(n => n.ref && n.ref.title).length));
+  side.appendChild(sideItem('📊 Avance y notas', v === 'prog', () => setView('prog')));
+  side.appendChild(sideItem('📖 Glosario', v === 'gloss', () => setView('gloss'), (lib.gloss || []).filter(g => !g.trashed).length || null));
   side.appendChild(sideItem('⏱ Horas de estudio', v === 'study', () => setView('study')));
   side.appendChild(sideItem('🎓 Tesis', v === 'tesis', () => setView('tesis'), liveNbs().filter(n => n.kind === 'tesis').length));
+  side.appendChild(sideItem('🧩 Matriz de consistencia', v === 'matriz', () => setView('matriz')));
   h('Respaldo');
   side.appendChild(sideItem('🗑 Papelera', v === 'trash', () => setView('trash'), lib.nbs.filter(n => n.trashed).length + lib.cursos.filter(c => c.trashed).length || null));
   side.appendChild(sideItem('☁ Google Drive', v === 'drive', () => setView('drive')));
+  side.appendChild(sideItem('🎨 Apariencia', false, lookOpen));
   const main = $('lib-main'); main.innerHTML = '';
   const q = $('lib-search').value.trim().toLowerCase();
   if (q) return renderSearch(main, q);
@@ -3313,6 +3389,9 @@ function renderLibrary() {
   if (v === 'trash') return renderTrash(main);
   if (v === 'cal') return renderCal(main);
   if (v === 'study') return renderStudy(main);
+  if (v === 'prog') return renderProgress(main);
+  if (v === 'matriz') return renderMatrix(main);
+  if (v === 'gloss') return renderGloss(main);
   if (v === 'tags') return renderTags(main);
   if (v === 'cards') return renderCards(main);
   if (v === 'biblio') return renderBiblio(main);
@@ -3729,7 +3808,7 @@ function buildMultiFloat() {
     fbtn('‹', () => showFloat('multi', { t: 'multi' }));
     placeFloat();
   });
-  if (msel.some(o => (o.t === 'text' || o.t === 'note' || o.t === 'node') && o.text)) fbtn('Traducir', () => translateObjs(msel.slice()));
+  if (msel.some(o => (o.t === 'text' || o.t === 'note' || o.t === 'node') && o.text)) { fbtn('Traducir', () => translateObjs(msel.slice())); fbtn('Al glosario', () => glossFromObjs(msel.slice()), '', 'Primera línea = término, el resto = definición (o «término: definición»)'); }
   if (pens.length) fbtn('Convertir a texto', convertMselToText, '', 'Pasa lo escrito a mano a letra limpia');
   fbtn('Crear tarjeta', cardFromSelection, '', 'Usa lo seleccionado como respuesta de una tarjeta de repaso');
   fbtn('Eliminar', deleteMsel, 'danger');
@@ -3866,6 +3945,8 @@ function mergeLib(local, remote) {
   const out = Object.assign({}, local);
   out.ciclos = mergeArr(local.ciclos, remote.ciclos); out.cursos = mergeArr(local.cursos, remote.cursos); out.nbs = mergeArr(local.nbs, remote.nbs); out.tasks = mergeArr(local.tasks, remote.tasks);
   out.deleted = del;
+  out.gloss = mergeArr(local.gloss, remote.gloss);
+  ['progress', 'matrix'].forEach(k => { if (remote[k] && (!local[k] || (remote[k].mod || 0) > (local[k].mod || 0))) out[k] = remote[k]; });
   out.study = JSON.parse(JSON.stringify(local.study || {}));
   Object.entries(remote.study || {}).forEach(([cid, days]) => { const o = out.study[cid] = out.study[cid] || {}; Object.entries(days).forEach(([d, m]) => { o[d] = Math.max(o[d] || 0, m); }); });
   if ((remote.nameMod || 0) > (local.nameMod || 0)) { out.name = remote.name; out.nameMod = remote.nameMod; }
@@ -4097,8 +4178,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20i';
+const APP_VERSION = '2026-11-20j';
 const CHANGELOG = [
+  { v: '2026-11-20j', t: '20 de noviembre · noche (5)', items: ['📊 Avance y notas: créditos, notas por evaluación con su peso, promedio ponderado, cuánto necesitas para aprobar y avance de la tesis.', '🧩 Matriz de consistencia con enlaces a las hojas de tus apuntes, y opción de pasarla a una hoja como tabla.', '📖 Glosario por curso: agrega términos desde una hoja («Al glosario») y conviértelos en tarjetas de repaso.', '🎨 Apariencia: modo oscuro y botones más grandes («⋯ → Apariencia»).'] },
   { v: '2026-11-20i', t: '20 de noviembre · noche (4)', items: ['🔗 Compartir por enlace («⋯ → Compartir por enlace»): crea un PDF de solo lectura en tu Drive. Puedes actualizarlo o dejar de compartir cuando quieras.', '▶ Modo presentación: pantalla completa sin botones, puntero láser, lápiz y resaltador para anotar, y ← → para pasar de hoja.', '🍅 Pomodoro en el panel de clase (25 min de enfoque y 5 de descanso, ajustables).', '⏱ Horas de estudio por curso y por día: se cuentan solas mientras trabajas en un cuaderno y las ves en la biblioteca.'] },
   { v: '2026-11-20h', t: '20 de noviembre · noche (3)', items: ['🎤 Dictado por voz («Insertar → Dictar por voz»): lo que dices aparece como texto. Di «punto», «coma» o «punto y aparte».', 'Leer texto de fotos: toca una imagen → «Leer texto», o «⋯ → Leer el texto de esta hoja». Usa Google Drive si está conectado.', 'Traducir: selecciona un texto → «Traducir» y la traducción aparece debajo, en azul.', 'Exportar como Word (.docx) o PowerPoint (.pptx), cada hoja con su orientación.'] },
   { v: '2026-11-20g', t: '20 de noviembre · noche (2)', items: ['Diagramas de flujo (herramienta D): proceso, decisión, inicio/fin, entrada/salida, documento y conector, con flechas que siguen a las figuras.', 'Tablas editables, gráficos de barras, líneas y torta desde datos, fórmulas con aspecto de libro y ejes con la escala que elijas.', 'Regla con medida en cm, transportador con ángulos y compás (herramienta C).', 'Fondo de papel milimetrado.'] },
@@ -5586,6 +5668,220 @@ function renderStudy(main) {
   list.innerHTML = rows.length ? rows.map(([c, w, all]) => `<div class="st-row"><span class="st-name"><span class="dot" style="background:${c.color}"></span>${escH(c.name)}</span><span class="st-bar"><i style="width:${(w / maxW * 100).toFixed(1)}%;background:${c.color}"></i></span><span class="st-val">${w ? hm(w) : '—'}<small>${all ? 'total ' + hm(all) : ''}</small></span></div>`).join('') : '<p class="sub">Aún no hay cursos.</p>';
   box.appendChild(list); main.appendChild(box);
 }
+
+/* ---------- Fase H: avance y notas, matriz de tesis, glosario y apariencia ---------- */
+/* 27 · avance de la maestría */
+function prog() { lib.progress = lib.progress || { pass: 14, total: 48, thesis: [['Planteamiento del problema', 0], ['Marco teórico', 0], ['Metodología', 0], ['Resultados', 0], ['Discusión y conclusiones', 0], ['Sustentación', 0]].map(([n, v]) => ({ id: uid('h'), n, v })), mod: 0 }; return lib.progress; }
+function touchProg() { prog().mod = Date.now(); saveLibrary(); }
+function courseAvg(c) {
+  const g = (c.grades || []).filter(x => x.w > 0), done = g.filter(x => x.s !== '' && x.s != null && !isNaN(+x.s));
+  const wDone = done.reduce((a, x) => a + +x.w, 0), wAll = g.reduce((a, x) => a + +x.w, 0), sum = done.reduce((a, x) => a + x.w * x.s, 0);
+  const avg = wDone ? sum / wDone : null, pass = prog().pass, rest = Math.max(0, 100 - wDone);
+  const need = rest > 0 ? (pass * 100 - sum) / rest : null;
+  return { avg, wDone, wAll, final: wDone >= 99.5 ? sum / 100 : null, need, rest };
+}
+const nf = v => v == null ? '—' : (Math.round(v * 100) / 100).toFixed(2).replace(/\.?0+$/, '');
+function thesisPct() { const t = prog().thesis; return t.length ? Math.round(t.reduce((a, x) => a + (+x.v || 0), 0) / t.length) : 0; }
+function renderProgress(main) {
+  const P = prog(), cs = liveCursos();
+  const stats = cs.map(c => [c, courseAvg(c)]);
+  const withAvg = stats.filter(([c, a]) => a.avg != null), cr = c => +c.credits || 0;
+  const wsum = withAvg.reduce((a, [c]) => a + (cr(c) || 1), 0), gen = wsum ? withAvg.reduce((a, [c, s]) => a + s.avg * (cr(c) || 1), 0) / wsum : null;
+  const approved = stats.filter(([c, a]) => a.final != null && a.final >= P.pass).reduce((a, [c]) => a + cr(c), 0);
+  const inCourse = cs.reduce((a, c) => a + cr(c), 0);
+  headEl(main, '📊 Avance y notas', `Escala vigesimal (0 a 20). Nota mínima aprobatoria: ${P.pass}. Escribe el peso (%) y la nota de cada evaluación; el promedio y lo que te falta se calculan solos.`, [mkBtn('Ajustes', progSettings)]);
+  const box = document.createElement('div'); box.className = 'study prog';
+  box.innerHTML = `<div class="st-kpis"><div><b class="${gen != null && gen < P.pass ? 'bad' : ''}">${nf(gen)}</b><span>promedio ponderado general${wsum ? ' (por créditos)' : ''}</span></div><div><b>${approved} / ${P.total}</b><span>créditos aprobados · ${inCourse} en cursos registrados</span><span class="pbar"><i style="width:${Math.min(100, approved / Math.max(1, P.total) * 100)}%"></i></span></div><div><b>${thesisPct()} %</b><span>avance de la tesis</span><span class="pbar"><i style="width:${thesisPct()}%;background:#7c3aed"></i></span></div></div>`;
+  main.appendChild(box);
+  lib.ciclos.forEach(cy => {
+    const list = stats.filter(([c]) => c.cicloId === cy.id); if (!list.length) return;
+    const h = document.createElement('h3'); h.textContent = cy.name; box.appendChild(h);
+    list.forEach(([c, a]) => {
+      const d = document.createElement('details'); d.className = 'pcourse'; d.open = !!progOpen[c.id];
+      d.ontoggle = () => { progOpen[c.id] = d.open; };
+      const badge = a.avg == null ? '<span class="pill">sin notas</span>' : `<span class="pill ${a.avg >= P.pass ? 'ok' : 'bad'}">${nf(a.avg)}${a.final == null ? ' parcial' : ''}</span>`;
+      const needTxt = a.avg == null ? '' : a.final != null ? (a.final >= P.pass ? '✔ Aprobado' : '✖ Desaprobado') : a.need <= 0 ? '✔ Ya tienes asegurado el aprobado' : a.need > 20 ? `Aunque saques 20 en el ${nf(a.rest)} % que falta no llegarías a ${P.pass}` : `Necesitas ${nf(a.need)} en promedio en el ${nf(a.rest)} % que falta`;
+      d.innerHTML = `<summary><span class="dot" style="background:${c.color}"></span><b>${escH(c.name)}</b><span class="cr"><input type="number" min="0" max="30" step="1" value="${c.credits || ''}" placeholder="0" aria-label="Créditos de ${escH(c.name)}"> créditos</span>${badge}<small>${escH(needTxt)}</small></summary>
+        <table class="ptable"><thead><tr><th>Evaluación</th><th>Peso %</th><th>Nota</th><th></th></tr></thead><tbody></tbody></table>
+        <div class="row"><button class="btn" data-a="add">+ Evaluación</button><span class="hint">${a.wAll !== 100 ? `Los pesos suman ${nf(a.wAll)} %${a.wAll > 100 ? ' (más de 100)' : ''}.` : 'Los pesos suman 100 %.'}</span></div>`;
+      const crIn = d.querySelector('.cr input'); crIn.onclick = e => e.stopPropagation();
+      crIn.onchange = () => { c.credits = clamp(Math.round(+crIn.value) || 0, 0, 30); c.mod = Date.now(); saveLibrary(); renderLibrary(); };
+      const tb = d.querySelector('tbody');
+      (c.grades || []).forEach((g, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><input value="${escH(g.n)}" aria-label="Nombre"></td><td><input type="number" min="0" max="100" value="${g.w}" aria-label="Peso"></td><td><input type="number" min="0" max="20" step="0.1" value="${g.s == null ? '' : g.s}" placeholder="—" aria-label="Nota"></td><td><button class="btn ic" aria-label="Quitar">✕</button></td>`;
+        const [n, w, s] = tr.querySelectorAll('input');
+        const save = () => { g.n = n.value.trim() || 'Evaluación'; g.w = clamp(+w.value || 0, 0, 100); g.s = s.value === '' ? '' : clamp(+s.value, 0, 20); c.mod = Date.now(); saveLibrary(); renderLibrary(); };
+        n.onchange = w.onchange = s.onchange = save;
+        tr.querySelector('button').onclick = () => { c.grades.splice(i, 1); c.mod = Date.now(); saveLibrary(); renderLibrary(); };
+        tb.appendChild(tr);
+      });
+      d.querySelector('[data-a=add]').onclick = () => { c.grades = c.grades || []; const used = c.grades.reduce((x, g) => x + +g.w, 0); c.grades.push({ n: ['Participación', 'Trabajo', 'Parcial', 'Final'][c.grades.length] || 'Evaluación', w: Math.max(0, Math.min(25, 100 - used)), s: '' }); c.mod = Date.now(); progOpen[c.id] = true; saveLibrary(); renderLibrary(); };
+      box.appendChild(d);
+    });
+  });
+  if (!cs.length) { const p = document.createElement('p'); p.className = 'sub'; p.textContent = 'Agrega tus cursos para ver aquí tus notas.'; box.appendChild(p); }
+  const th = document.createElement('h3'); th.textContent = '🎓 Avance de la tesis'; box.appendChild(th);
+  const tl = document.createElement('div'); tl.className = 'tsteps';
+  P.thesis.forEach((t, i) => {
+    const r = document.createElement('div'); r.className = 'tstep';
+    r.innerHTML = `<input class="tn" value="${escH(t.n)}" aria-label="Etapa"><input type="range" min="0" max="100" step="5" value="${t.v}" aria-label="Avance de ${escH(t.n)}"><b>${t.v} %</b><button class="btn ic" aria-label="Quitar etapa">✕</button>`;
+    const [n, v] = r.querySelectorAll('input');
+    v.oninput = () => { r.querySelector('b').textContent = v.value + ' %'; };
+    v.onchange = () => { t.v = +v.value; touchProg(); renderLibrary(); };
+    n.onchange = () => { t.n = n.value.trim() || 'Etapa'; touchProg(); };
+    r.querySelector('button').onclick = () => { P.thesis.splice(i, 1); touchProg(); renderLibrary(); };
+    tl.appendChild(r);
+  });
+  box.appendChild(tl);
+  box.appendChild(mkBtn('+ Etapa', () => { P.thesis.push({ id: uid('h'), n: 'Nueva etapa', v: 0 }); touchProg(); renderLibrary(); }));
+}
+const progOpen = {};
+async function progSettings() {
+  const P = prog();
+  const p = await askText('Nota mínima aprobatoria', 'En escala de 0 a 20', String(P.pass), null, 'number'); if (p === null) return;
+  const t = await askText('Créditos de la maestría', 'Total de créditos que necesitas', String(P.total), null, 'number'); if (t === null) return;
+  P.pass = clamp(+p || 14, 0, 20); P.total = clamp(Math.round(+t) || 48, 1, 300); touchProg(); renderLibrary();
+}
+
+/* 28 · matriz de consistencia enlazada */
+const MX_COLS = ['Problemas', 'Objetivos', 'Hipótesis', 'Variables y dimensiones', 'Metodología'];
+function mx() { lib.matrix = lib.matrix || { mod: 0, rows: ['General', 'Específico 1', 'Específico 2'].map(l => ({ id: uid('m'), l, c: ['', '', '', '', ''], k: [[], [], [], [], []] })) }; return lib.matrix; }
+function touchMx() { mx().mod = Date.now(); saveLibrary(); }
+function renderMatrix(main) {
+  const M = mx();
+  headEl(main, '🧩 Matriz de consistencia', 'Escribe en cada celda y enlaza cada idea con la hoja de tus apuntes donde está su sustento (🔗). Toca un enlace para ir directo a esa hoja.', [mkBtn('Pasar a una hoja', mxToPage, '', 'Crea una hoja con la matriz como tabla en el cuaderno que elijas'), mkBtn('+ Fila', () => { M.rows.push({ id: uid('m'), l: `Específico ${M.rows.length}`, c: ['', '', '', '', ''], k: [[], [], [], [], []] }); touchMx(); renderLibrary(); }, 'primary')]);
+  const wrap = document.createElement('div'); wrap.className = 'mx-wrap';
+  const t = document.createElement('table'); t.className = 'mx';
+  t.innerHTML = `<thead><tr><th></th>${MX_COLS.map(c => `<th>${c}</th>`).join('')}</tr></thead>`;
+  const tb = document.createElement('tbody');
+  M.rows.forEach((r, ri) => {
+    const tr = document.createElement('tr');
+    const th = document.createElement('th'); th.innerHTML = `<input value="${escH(r.l)}" aria-label="Nombre de la fila"><button class="btn ic" title="Quitar fila" aria-label="Quitar fila">✕</button>`;
+    th.querySelector('input').onchange = e => { r.l = e.target.value.trim() || 'Fila'; touchMx(); };
+    th.querySelector('button').onclick = async () => { if (await confirmBox(`¿Quitar la fila «${r.l}»?`, 'Quitar')) { M.rows.splice(ri, 1); touchMx(); renderLibrary(); } };
+    tr.appendChild(th);
+    MX_COLS.forEach((_, ci) => {
+      const td = document.createElement('td');
+      const ta = document.createElement('textarea'); ta.value = r.c[ci] || ''; ta.rows = 4; ta.placeholder = '…';
+      ta.onchange = () => { r.c[ci] = ta.value; touchMx(); };
+      td.appendChild(ta);
+      const lk = document.createElement('div'); lk.className = 'mx-links';
+      (r.k[ci] = r.k[ci] || []).forEach((l, li) => {
+        const nb = lib.nbs.find(n => n.id === l.nb && !n.trashed);
+        const b = document.createElement('span'); b.className = 'mx-link' + (nb ? '' : ' gone');
+        b.innerHTML = `<button>${escH(nb ? `${nb.title} · hoja ${l.p + 1}` : 'cuaderno eliminado')}</button><button aria-label="Quitar enlace">✕</button>`;
+        const [go, rm] = b.querySelectorAll('button');
+        go.onclick = () => nb && followLink({ nb: nb.id, page: l.p });
+        rm.onclick = () => { r.k[ci].splice(li, 1); touchMx(); renderLibrary(); };
+        lk.appendChild(b);
+      });
+      const add = document.createElement('button'); add.className = 'mx-add'; add.textContent = '🔗 Enlazar hoja'; add.onclick = () => mxLink(r, ci);
+      lk.appendChild(add); td.appendChild(lk); tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t); main.appendChild(wrap);
+}
+async function pickNbPage(title) {
+  const list = liveNbs().slice().sort((a, b) => (b.opened || 0) - (a.opened || 0));
+  if (!list.length) { toast('Aún no tienes cuadernos.'); return null; }
+  const id = await askSelect(title, 'Cuaderno', list.map(n => [n.id, `${n.title} — ${(courseOf(n.cursoId) || {}).name || ''}`]), list[0].id); if (!id) return null;
+  const nb = list.find(n => n.id === id); let pages = 1;
+  try { const d = nb === curNb ? doc : await store.get('doc:' + nb.id); pages = (d && d.pages && d.pages.length) || 1; } catch (e) {}
+  let p = 0;
+  if (pages > 1) { const v = await askSelect(title, 'Hoja', [...Array(pages)].map((_, i) => [String(i), `Hoja ${i + 1}`]), '0'); if (v === null) return null; p = +v; }
+  return { nb: nb.id, p };
+}
+async function mxLink(r, ci) { const l = await pickNbPage('Enlazar con una hoja'); if (!l) return; r.k[ci].push(l); touchMx(); renderLibrary(); }
+async function mxToPage() {
+  const id = await askSelect('Pasar la matriz a una hoja', 'Cuaderno', liveNbs().map(n => [n.id, n.title]), (liveNbs().find(n => n.kind === 'tesis') || liveNbs()[0] || {}).id); if (!id) return;
+  const nb = lib.nbs.find(n => n.id === id); await openNotebook(nb);
+  const M = mx(), np = newPage(pg()); np.fmt = 'a4l'; np.pt = [841.89, 595.28]; np.W = Math.max(np.W, np.H); np.H = Math.round(np.W * 595.28 / 841.89); np.objs = [];
+  addPageAfter(np);
+  const size = 11, cw = [110, ...MX_COLS.map(() => (np.W - 80 - 110) / MX_COLS.length)];
+  const cells = [['', ...MX_COLS], ...M.rows.map(r => [r.l, ...r.c.map((t, i) => wrapLines(t || '', size, prefs.font, cw[i + 1] - 12).join('\n'))])];
+  const rh = cells.map(row => Math.max(30, ...row.map(t => String(t).split('\n').length * size * 1.35 + 14)));
+  mutate(() => pg().objs.push({ t: 'text', x: 40, y: 22, text: 'Matriz de consistencia', c: 'blue', size: 22, f: prefs.font }, { t: 'table', x: 40, y: 60, cw, rh, cells, size, f: prefs.font, c: 'ink' }));
+  requestPaint(); toast('Listo: la matriz está en una hoja nueva de este cuaderno.');
+}
+
+/* 29 · glosario por curso */
+const glossCourse = { v: '' };
+function renderGloss(main) {
+  const all = (lib.gloss || []).filter(g => !g.trashed), cs = liveCursos();
+  headEl(main, '📖 Glosario', 'Tus términos clave por curso. Agrégalos aquí o desde una hoja: selecciona un texto → «Al glosario».', [mkBtn('Pasar a tarjetas de repaso', glossToCards, '', 'Crea una tarjeta por término (sin repetir)'), mkBtn('+ Término', () => glossEdit(null), 'primary')]);
+  const bar = document.createElement('div'); bar.className = 'row gl-bar';
+  bar.innerHTML = `<select aria-label="Curso"><option value="">Todos los cursos</option>${cs.map(c => `<option value="${c.id}">${escH(c.name)}</option>`).join('')}</select><input type="search" placeholder="Buscar término…" aria-label="Buscar término">`;
+  const [sel, q] = bar.children; sel.value = glossCourse.v; q.value = glossCourse.q || '';
+  main.appendChild(bar);
+  const list = document.createElement('div'); list.className = 'gl-list'; main.appendChild(list);
+  const draw = () => {
+    glossCourse.v = sel.value; glossCourse.q = q.value;
+    const s = q.value.trim().toLowerCase();
+    const items = all.filter(g => (!sel.value || g.cursoId === sel.value) && (!s || (g.term + ' ' + g.def).toLowerCase().includes(s))).sort((a, b) => a.term.localeCompare(b.term, 'es', { sensitivity: 'base' }));
+    list.innerHTML = items.length ? '' : `<p class="sub">${all.length ? 'Nada coincide con tu búsqueda.' : 'Aún no hay términos. Pulsa «+ Término».'}</p>`;
+    let L = '';
+    items.forEach(g => {
+      const l = g.term.charAt(0).toLocaleUpperCase('es').normalize('NFD').replace(/[̀-ͯ]/g, '');
+      if (l !== L) { L = l; const h = document.createElement('div'); h.className = 'gl-letter'; h.textContent = l; list.appendChild(h); }
+      const c = courseOf(g.cursoId) || { name: '', color: '#8894a3' }, nb = g.nb && lib.nbs.find(n => n.id === g.nb && !n.trashed);
+      const it = document.createElement('div'); it.className = 'gl-item';
+      it.innerHTML = `<div><b>${escH(g.term)}</b> <span class="gl-c"><span class="dot" style="background:${c.color}"></span>${escH(c.name)}</span><p>${escH(g.def)}</p></div><div class="gl-acts"></div>`;
+      const acts = it.querySelector('.gl-acts');
+      if (nb) acts.appendChild(mkBtn('Ver en la hoja', () => followLink({ nb: nb.id, page: g.p || 0 })));
+      acts.appendChild(mkBtn('Editar', () => glossEdit(g)));
+      acts.appendChild(mkBtn('✕', async () => { if (await confirmBox(`¿Quitar «${g.term}» del glosario?`, 'Quitar')) { g.trashed = Date.now(); g.mod = Date.now(); saveLibrary(); renderLibrary(); } }, 'danger'));
+      list.appendChild(it);
+    });
+  };
+  sel.onchange = draw; q.oninput = draw; draw();
+}
+async function glossEdit(g, preset) {
+  const cs = liveCursos(); if (!cs.length) { toast('Primero crea un curso.'); return; }
+  const term = await askText(g ? 'Editar término' : 'Nuevo término', 'Término', g ? g.term : (preset && preset.term) || ''); if (!term) return;
+  const def = await askArea(term, 'Definición', g ? g.def : (preset && preset.def) || ''); if (def === null) return;
+  let cid = g ? g.cursoId : (preset && preset.cursoId) || glossCourse.v || (curNb && curNb.cursoId);
+  if (!cid || !g && !preset) { cid = await askSelect(term, 'Curso', cs.map(c => [c.id, c.name]), cid || cs[0].id); if (!cid) return; }
+  lib.gloss = lib.gloss || [];
+  if (g) Object.assign(g, { term: term.trim(), def: def.trim(), cursoId: cid, mod: Date.now() });
+  else {
+    const dup = lib.gloss.find(x => !x.trashed && x.cursoId === cid && x.term.toLowerCase() === term.trim().toLowerCase());
+    if (dup) { Object.assign(dup, { def: def.trim(), mod: Date.now() }); toast('Ese término ya estaba: actualicé su definición.'); }
+    else lib.gloss.push(Object.assign({ id: uid('g'), term: term.trim(), def: def.trim(), cursoId: cid, mod: Date.now() }, preset && preset.nb ? { nb: preset.nb, p: preset.p } : {}));
+  }
+  saveLibrary(); if (!$('library').hidden) renderLibrary(); else toast(`«${term.trim()}» está en tu glosario (biblioteca → 📖 Glosario).`);
+}
+function glossFromObjs(objs) {
+  const text = textOfObjs(objs).trim(); hideFloat(); if (!curNb) return;
+  const m = text.match(/^([^:\n]{1,80})[:\-–—]\s*([\s\S]+)$/), lines = text.split('\n');
+  const term = m ? m[1].trim() : lines[0].slice(0, 80), def = m ? m[2].replace(/\n/g, ' ').trim() : lines.slice(1).join(' ').trim();
+  glossEdit(null, { term, def, cursoId: curNb.cursoId, nb: curNb.id, p: doc.cur });
+}
+async function glossToCards() {
+  const items = (lib.gloss || []).filter(g => !g.trashed && (!glossCourse.v || g.cursoId === glossCourse.v));
+  const cards = await loadCards(), have = new Set(cards.map(c => (c.front || '').toLowerCase())); let n = 0;
+  items.forEach(g => { const f = `¿Qué es «${g.term}»?`; if (!have.has(f.toLowerCase()) && g.def) { cards.push({ id: uid('t'), course: g.cursoId, nb: g.nb, page: g.p, front: f, back: g.def, box: 0, due: Date.now(), created: Date.now(), mod: Date.now() }); n++; } });
+  await saveCards(cards); scheduleSync();
+  toast(n ? `${n} tarjeta${n > 1 ? 's' : ''} nueva${n > 1 ? 's' : ''} en 🧠 Repaso.` : 'Todos esos términos ya tenían tarjeta.');
+}
+
+/* 30 · apariencia: modo oscuro y tamaño de botones */
+function applyLook() {
+  const r = document.documentElement;
+  if (prefs.theme === 'dark' || prefs.theme === 'light') r.dataset.theme = prefs.theme; else delete r.dataset.theme;
+  document.body.classList.toggle('ui-l', prefs.uiSize === 'l'); document.body.classList.toggle('ui-xl', prefs.uiSize === 'xl');
+}
+function lookOpen() {
+  closeMenus();
+  const set = (k, v) => { prefs[k] = v; savePrefs(); applyLook(); mark(); setTimeout(() => { if (curNb && $('library').hidden) resize(); }, 50); };
+  const mark = () => document.querySelectorAll('#look [data-k]').forEach(b => b.setAttribute('aria-checked', String((prefs[b.dataset.k] || (b.dataset.k === 'theme' ? 'auto' : 'n')) === b.dataset.v)));
+  document.querySelectorAll('#look [data-k]').forEach(b => { b.onclick = () => set(b.dataset.k, b.dataset.v); });
+  mark(); $('look').hidden = false;
+}
+$('look-ok').onclick = () => { $('look').hidden = true; };
+$('look-btn').onclick = lookOpen;
+applyLook();
 
 init();
 

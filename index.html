@@ -196,6 +196,32 @@ body.splitting #split{display:flex}
 .streak>span{font-size:34px}.streak b{font-size:22px;display:block}.streak small{color:var(--muted)}
 .goal-row .st-val input{width:58px;border:1px solid var(--line);border-radius:6px;padding:2px 4px;background:var(--bg);color:var(--text)}
 #bio-btn{width:100%}
+.ct-sheet{width:min(1000px,100%);gap:10px;max-height:92vh}
+.ct-body{display:grid;grid-template-columns:minmax(220px,330px) 1fr;gap:16px;min-height:0;overflow:hidden}
+.ct-left{display:flex;flex-direction:column;gap:8px;min-height:0}
+.ct-left input,#ct-page,#ct-text{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--bg);color:var(--text)}
+#ct-list{overflow:auto;max-height:52vh;display:flex;flex-direction:column;gap:4px}
+.ct-src{display:flex;gap:8px;align-items:flex-start;text-align:left;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);padding:8px;cursor:pointer}
+.ct-src.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}.ct-src b{display:block;font-size:13px}.ct-src small{color:var(--muted);font-size:12px}.ct-ic{font-size:18px}
+.ct-right{overflow:auto;max-height:62vh;display:flex;flex-direction:column;gap:8px;padding-right:4px}
+.ct-ref{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.ct-full{font-size:14px;line-height:1.5;padding-left:28px;text-indent:-28px}
+#ct-vars{display:flex;flex-direction:column;gap:4px}
+.ct-var{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:6px 8px;cursor:pointer}
+.ct-var.on{border-color:var(--accent);background:var(--hover)}.ct-var span{display:flex;flex-direction:column}.ct-var small{color:var(--muted);font-size:11px}.ct-var b{font-weight:600;font-size:14px}
+#ct-text{resize:vertical;font-size:15px}
+.ct-tip{font-size:12px;color:#5b4300;background:#fff7e0;border:1px solid #f1d58a;border-radius:6px;padding:4px 8px;margin-top:3px}
+.ct-sv{display:flex;gap:6px;margin-top:4px}.ct-use{flex:1;text-align:left;border:1px dashed var(--accent);border-radius:8px;background:none;color:var(--text);padding:6px 8px;cursor:pointer}
+.tc-head,.tc-row{display:grid;grid-template-columns:36px 110px 1fr 80px 56px;gap:8px;align-items:center}
+.tc-head{font-size:12px;color:var(--muted)}#tc-list{max-height:52vh;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.tc-row input.tc-l,.tc-row input.tc-p,.tc-row select{border:1px solid var(--line);border-radius:6px;padding:6px;font:inherit;background:var(--bg);color:var(--text);min-width:0}
+.tc-row.on{background:var(--hover);border-radius:8px}.tc-row small{color:var(--muted);font-size:11px}
+.gd-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.gd-tree{font-size:14px;line-height:1.8;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);margin:6px 0}
+.gd-in{padding-left:18px}.gd-in2{padding-left:36px}.gd-in3{padding-left:54px}.gd-in4{padding-left:72px}.gd-tree mark{background:#fff1b8;border-radius:4px;padding:0 4px}.gd-tree small{color:var(--muted)}.gd-tree .muted{color:var(--muted)}
+.gd-ord{font-size:14px;line-height:1.7;border:1px solid var(--line);border-radius:10px;padding:10px 10px 10px 30px;background:var(--bg);margin:6px 0}.gd-ord li.sub{list-style:circle;margin-left:16px;color:var(--muted)}
+.sec-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.sec-row span{display:flex;flex-direction:column}.sec-row small{color:var(--muted);font-size:12px}.opt-tag{font-style:normal;font-size:11px;background:#e3f5ec;color:#12805c;border-radius:999px;padding:1px 7px}
 .look-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .look-opts .opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
 .look-opts .opt[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
@@ -489,7 +515,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="ins-dict">🎤 Dictar por voz</button>
           <button id="ins-ocr">Texto desde una foto (leer texto)…</button>
           <hr>
-          <button id="ins-cite">📖 Cita APA (de tu bibliografía)…</button>
+          <button id="ins-cite">📖 Cita APA…</button>
           <button id="ins-note">Nota adhesiva</button>
           <button id="ins-link">Enlace a otra hoja o cuaderno…</button>
           <button id="ins-template">Plantilla (matriz, FODA, mapa…)…</button>
@@ -524,8 +550,8 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="rec-btn">Grabar el audio de la clase</button>
           <button id="hl-summary">Resumen de lo resaltado</button>
           <button id="gl-auto-btn">✨ Crear glosario desde mis apuntes…</button>
-          <button id="toc-btn">📑 Índice del cuaderno (crear o actualizar)</button>
-          <button id="mind-btn">🧠 Mapa mental de lo resaltado</button>
+          <button id="toc-btn">📑 Índice del cuaderno (se actualiza solo)</button>
+          <button id="mind-btn">🧠 Mapa mental…</button>
           <button id="refs-btn">📚 Referencias APA de este cuaderno</button>
           <button id="layers-btn">🗂 Capas: mostrar u ocultar…</button>
           <button id="vrec-btn">⏺ Grabar video explicando…</button>
@@ -692,6 +718,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
     <input id="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="6" aria-label="PIN">
     <div class="keypad" id="keypad"></div>
     <button class="btn" id="bio-btn" hidden style="margin-top:4px">🫆 Entrar con huella o rostro</button>
+    <p class="hint" id="bio-hint" style="margin:0;font-size:12px">O escribe tu PIN.</p>
     <label class="check"><input type="checkbox" id="pin-remember" checked> Recordar este dispositivo</label>
     <div id="pin-msg" role="alert"></div>
   </div>
@@ -776,6 +803,45 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
     <div class="actions"><button class="btn" id="cp-cancel">Cancelar</button><button class="btn primary" id="cp-ok">Crear cuadro</button></div>
   </div>
 </div>
+<div class="modal" id="citem" hidden role="dialog" aria-modal="true" aria-labelledby="ct-title">
+  <div class="sheet ct-sheet">
+    <div class="row" style="justify-content:space-between;align-items:center"><h1 id="ct-title" style="font-size:20px;margin:0">📖 Citas APA 7</h1><button class="btn ic" id="ct-close" aria-label="Cerrar">✕</button></div>
+    <div class="ct-body">
+      <div class="ct-left">
+        <input id="ct-q" type="search" placeholder="Buscar libro, artículo o documento…" aria-label="Buscar fuente">
+        <div id="ct-list"></div>
+        <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn" id="ct-new">+ Fuente nueva</button><button class="btn" id="ct-upload">⬆ Subir PDF o documento</button></div>
+      </div>
+      <div class="ct-right" id="ct-detail"></div>
+    </div>
+    <div class="actions"><button class="btn primary" id="ct-insert">Poner en mi hoja</button></div>
+  </div>
+</div>
+<div class="modal" id="tocm" hidden role="dialog" aria-modal="true" aria-labelledby="tc-title">
+  <div class="sheet" style="width:min(780px,100%);gap:10px">
+    <h1 id="tc-title" style="font-size:20px;margin:0">📑 Editar el índice</h1>
+    <p class="hint" style="margin:0">Cambia cómo aparece cada título o su número. Lo que no cambies se sigue actualizando solo con tus hojas.</p>
+    <label class="row" style="gap:8px">Números: <select id="tc-num"><option value="hoja">Como en la pizarra (hoja 1, 2, 3…)</option><option value="after">Empezar en 1 después del índice</option></select></label>
+    <div class="tc-head"><span>Ver</span><span>Nivel</span><span>Cómo aparece</span><span>Página</span><span></span></div>
+    <div id="tc-list"></div>
+    <div class="actions"><button class="btn" id="tc-reset" style="margin-right:auto">Restablecer</button><button class="btn" id="tc-cancel">Cancelar</button><button class="btn primary" id="tc-save">Guardar</button></div>
+  </div>
+</div>
+<div class="modal" id="gdm" hidden role="dialog" aria-modal="true" aria-labelledby="gd-title">
+  <div class="sheet" style="width:min(760px,100%);gap:10px">
+    <h1 id="gd-title" style="font-size:20px;margin:0">Exportar a Google Docs: orden sugerido</h1>
+    <div class="gd-cols">
+      <div><div class="lbl">📁 Dónde quedará en tu Google Drive</div><div id="gd-tree"></div>
+        <label class="check"><input type="radio" name="gdo" value="ord" checked> Con este orden por ciclo y curso (recomendado)</label>
+        <label class="check"><input type="radio" name="gdo" value="flat"> Todo en la carpeta principal</label></div>
+      <div><div class="lbl">📄 Cómo quedará ordenado el documento</div><div id="gd-order"></div>
+        <label class="check"><input type="checkbox" id="gd-toc" checked> Índice al inicio</label>
+        <label class="check"><input type="checkbox" id="gd-refs" checked> Referencias APA al final</label></div>
+    </div>
+    <p class="hint" id="gd-note" style="margin:0"></p>
+    <div class="actions"><button class="btn" id="gd-cancel">Cancelar</button><button class="btn primary" id="gd-go">Crear en Google Docs</button></div>
+  </div>
+</div>
 <div class="modal" id="layers" hidden role="dialog" aria-modal="true" aria-labelledby="ly-title">
   <div class="sheet small" style="gap:10px">
     <h1 id="ly-title" style="font-size:19px">🗂 Capas de este cuaderno</h1>
@@ -810,8 +876,10 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
     </div>
     <p class="hint" style="margin:0">El papel de tus hojas no cambia: eso se elige en «Papel» (blanco, crema o pizarra). Así tus PDF salen igual.</p>
     <div class="lbl">🔒 Seguridad</div>
-    <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn" id="sec-bio">🫆 Activar huella o rostro</button><button class="btn" id="sec-now">Bloquear ahora</button></div>
-    <p class="hint" id="sec-bio-note" style="margin:0"></p>
+    <div class="sec-row"><span><b>🔢 PIN</b><small>Siempre funciona para entrar.</small></span><button class="btn" id="sec-pin">Cambiar PIN</button></div>
+    <div class="sec-row"><span><b>🫆 Huella o rostro</b> <em class="opt-tag">opcional</em><small id="sec-bio-note"></small></span><button class="btn" id="sec-bio">Activar</button></div>
+    <label class="check"><input type="checkbox" id="sec-ask"> Pedir el PIN (o huella/rostro) cada vez que abro la pizarra</label>
+    <div class="row" style="gap:8px"><button class="btn" id="sec-now">🔒 Bloquear ahora</button></div>
     <label class="row" style="gap:8px">Bloquear sola si no la uso por <select id="sec-lock"><option value="0">nunca</option><option value="5">5 minutos</option><option value="10">10 minutos</option><option value="30">30 minutos</option><option value="60">1 hora</option></select></label>
     <div class="actions"><button class="btn primary" id="look-ok">Listo</button></div>
   </div>
@@ -3313,7 +3381,7 @@ async function pinHash(pin) {
 }
 function unlock() {
   if (!PIN_HASH || PIN_HASH.startsWith('__')) return Promise.resolve();
-  try { if (localStorage.getItem(PIN_KEY) === PIN_HASH) return Promise.resolve(); } catch (e) {}
+  try { if (localStorage.getItem(PIN_KEY) === curPinHash()) return Promise.resolve(); } catch (e) {}
   return new Promise(resolve => {
     const lock = $('lock'), inp = $('pin-input'), dots = $('pin-dots'), msg = $('pin-msg');
     let fails = 0, waitUntil = 0, checking = false;
@@ -3324,11 +3392,11 @@ function unlock() {
       if (Date.now() < waitUntil) { msg.textContent = `Demasiados intentos. Espera ${Math.ceil((waitUntil - Date.now()) / 1000)} segundos.`; inp.value = ''; show(); return; }
       checking = true;
       let ok = false;
-      try { ok = (await pinHash(inp.value)) === PIN_HASH; }
+      try { ok = (await pinHash(inp.value)) === curPinHash(); }
       catch (e) { msg.textContent = 'Este navegador no puede comprobar el PIN. Abre la página desde su enlace https.'; checking = false; return; }
       checking = false;
       if (ok) {
-        try { if ($('pin-remember').checked) localStorage.setItem(PIN_KEY, PIN_HASH); } catch (e) {}
+        try { if ($('pin-remember').checked) localStorage.setItem(PIN_KEY, curPinHash()); } catch (e) {}
         lock.hidden = true; resolve(); return;
       }
       fails++; inp.value = ''; show();
@@ -4075,6 +4143,8 @@ function mergeLib(local, remote) {
   out.gloss = mergeArr(local.gloss, remote.gloss);
   out.cuadros = mergeArr(local.cuadros, remote.cuadros);
   out.cuNo = Object.assign({}, remote.cuNo || {}, local.cuNo || {});
+  out.sources = mergeArr(local.sources, remote.sources);
+  if ((remote.pinMod || 0) > (local.pinMod || 0)) { out.pinHash = remote.pinHash; out.pinMod = remote.pinMod; }
   ['progress', 'matrix'].forEach(k => { if (remote[k] && (!local[k] || (remote[k].mod || 0) > (local[k].mod || 0))) out[k] = remote[k]; });
   out.study = JSON.parse(JSON.stringify(local.study || {}));
   Object.entries(remote.study || {}).forEach(([cid, days]) => { const o = out.study[cid] = out.study[cid] || {}; Object.entries(days).forEach(([d, m]) => { o[d] = Math.max(o[d] || 0, m); }); });
@@ -4307,8 +4377,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20n';
+const APP_VERSION = '2026-11-20o';
 const CHANGELOG = [
+  { v: '2026-11-20o', t: '20 de noviembre · tarde (4)', items: ['📖 Citas APA 7: eliges un libro, artículo o documento (subido o escrito a mano) y ves 5 formas de citarlo. Puedes modificar la cita, guardar tu versión y reutilizarla, moverla, copiarla y pegarla.', '📑 Índice tipo documento que se actualiza solo, con puntos y número de página. Toca una línea para ir; manténla presionada para cambiar su texto o número.', '🧠 Mapa mental: ahora también «Lo más importante», armado por la pizarra a partir de títulos, definiciones y lo que más se repite.', '🔒 Seguridad como en un celular: el PIN siempre funciona; la huella o el rostro es opcional. Puedes cambiar el PIN y elegir si te lo pide cada vez.', '📁 Google Docs: antes de crear el documento te muestra un orden sugerido en Drive (ciclo → curso → apuntes) y del documento (índice, contenido y referencias).'] },
   { v: '2026-11-20n', t: '20 de noviembre · tarde (3)', items: ['Se quitó el modo examen, como pediste.'] },
   { v: '2026-11-20m', t: '20 de noviembre · tarde (2)', items: ['🔗 Mantén presionado un enlace (en la hoja, la matriz o un cuadro) para cambiar a qué hoja va, editar el texto o quitarlo.', '🔎 El buscador también encuentra términos del glosario y de tus cuadros de estudio.', '◫ Pantalla dividida: una lectura o PDF al lado; recorta un pedazo y pásalo a tu hoja.', '📖 Citas APA dentro de la hoja que llevan a la fuente, y lista de referencias del cuaderno.', '📑 Índice automático del cuaderno con enlaces a cada hoja. 🧠 Mapa mental de lo resaltado.', '🗂 Capas: oculta PDF, escritura, resaltador, texto o tus dudas (lo rojo), también al exportar.', '📜 Hoja continua que crece hacia abajo y se exporta en páginas A4 sin cortar líneas.', '⏺ Grabar video de la pizarra con tu voz (y cámara).', '📲 Entregas al calendario del celular (.ics) o a Google Calendar.', '🔥 Metas semanales por curso y racha de estudio.', '🫆 Entrar con huella o rostro y bloqueo automático.', 'Exportar a Google Docs como texto editable.'] },
   { v: '2026-11-20l', t: '20 de noviembre · tarde', items: ['🔗 Enlaces con @: al escribir «@» eliges una hoja (de este u otro cuaderno). El enlace se ve subrayado y al tocar el texto aparece «→ hoja N» para ir directo. También funciona en la matriz de consistencia.', '📋 Cuadros de estudio por curso: cuadro de aprendizaje (concepto, qué es, ejemplo, dónde está y si lo dominas) armado con los apuntes de la sesión, o cuadro comparativo. Con modo estudio, tarjetas de repaso y paso a una hoja.', 'Al volver a la biblioteca después de tomar apuntes, la pizarra te propone armar el cuadro de aprendizaje del día.'] },
@@ -6249,7 +6320,7 @@ async function buildEditableDocx(idxs) {
   z.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
   z.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
   z.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${rels.join('')}</Relationships>`);
-  z.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${DOCX_NS}><w:body>${docxP(docxRun(curNb ? curNb.title : fileBase(), { b: true, sz: 36 }), { after: 200 })}${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1418" w:right="1418" w:bottom="1418" w:left="1418" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr></w:body></w:document>`);
+  z.file('word/document.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${DOCX_NS}><w:body>${docxP(docxRun(curNb ? curNb.title : fileBase(), { b: true, sz: 36 }), { after: 200 })}${DOCX_EXTRA.pre}${body}${DOCX_EXTRA.post}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1418" w:right="1418" w:bottom="1418" w:left="1418" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr></w:body></w:document>`);
   return z.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 }
 exportDocx = async function () {
@@ -7383,6 +7454,382 @@ async function exportGdocs() {
   } catch (e) { toast('No se pudo crear el Google Docs: ' + (e.message === 'auth' ? 'vuelve a conectar Google Drive.' : e.message)); }
   finally { exporting = false; }
 }
+$('gdocs-btn').onclick = exportGdocs;
+
+/* ======================= RONDA: citas APA ampliadas, índice vivo, mapa automático, seguridad y orden en Drive ======================= */
+/* ---------- 33 · citas APA: fuentes, alternativas y versiones guardadas ---------- */
+function apaAuthors(r) {
+  const a = String((r && r.authors) || '').trim(); let names = []; let m;
+  const re = /([A-ZÁÉÍÓÚÑÜ][\p{L}'’\-]+(?:\s(?:de\s|del\s|de la\s)?[A-ZÁÉÍÓÚÑÜ][\p{L}'’\-]+)?),\s*(?:[A-ZÁÉÍÓÚÑ]\.\s*-?\s*)+/gu;
+  while ((m = re.exec(a))) names.push(m[1]);
+  if (!names.length && a) names = a.split(/\s*(?:;|&|\by\b|,)\s*/).filter(Boolean).map(s => s.split(/\s+/).slice(-1)[0]);
+  return names;
+}
+function apaAu(r) { const n = apaAuthors(r); return !n.length ? (r && r.title ? `«${r.title.split(/\s+/).slice(0, 4).join(' ')}…»` : 'Anónimo') : n.length === 1 ? n[0] : n.length === 2 ? `${n[0]} y ${n[1]}` : `${n[0]} et al.`; }
+function apaVariants(r, pgS) {
+  const au = apaAu(r), yr = (r && r.year) || 's.f.', p = pgS ? (/[-–]/.test(pgS) ? `pp. ${pgS}` : `p. ${pgS}`) : '';
+  return [
+    ['par', 'Parentética (al final de la idea)', `(${au}, ${yr}${p ? ', ' + p : ''})`],
+    ['nar', 'Narrativa (el autor dentro de tu oración)', `${au} (${yr}${p ? ', ' + p : ''})`],
+    ['seg', 'Para parafrasear', `Según ${au} (${yr}), `],
+    ['tex', 'Cita textual corta (menos de 40 palabras)', `«…» (${au}, ${yr}, ${p || 'p. ?'})`],
+    ['sin', 'Sin página (idea general de la obra)', `(${au}, ${yr})`]
+  ];
+}
+function apaTips(r, pgS, kind) {
+  const t = [], n = apaAuthors(r);
+  if (!r || !r.title) t.push('Falta el título de la fuente.');
+  if (!n.length) t.push('Faltan los autores: pulsa «Editar datos» y escribe «Apellido, N.» de cada autor.');
+  if (!r || !r.year) t.push('Falta el año: APA 7 usa «s.f.» (sin fecha) hasta que lo completes.');
+  if (n.length >= 3) t.push('APA 7: con 3 o más autores se usa «et al.» desde la primera cita.');
+  if (kind === 'tex' && !pgS) t.push('APA 7: las citas textuales llevan número de página (p. 45) o párrafo (párr. 3).');
+  if (n.length === 2) t.push('APA 7 en español: dos autores se unen con «y» en el texto; en la referencia final, con «&».');
+  return t;
+}
+function citeSources() {
+  const nbs = liveNbs().filter(n => (n.ref && n.ref.title) || n.kind === 'lectura' || n.pdf).map(n => ({ k: 'nb', id: n.id, o: n, label: n.title, ref: n.ref || { type: 'libro', title: n.title }, has: !!(n.ref && n.ref.title), file: true }));
+  const src = (lib.sources || []).filter(s => !s.trashed).map(s => ({ k: 'src', id: s.id, o: s, label: (s.ref && s.ref.title) || s.title, ref: s.ref || { type: 'libro', title: s.title }, has: !!(s.ref && s.ref.title), file: false }));
+  return [...nbs, ...src].sort((a, b) => a.label.localeCompare(b.label, 'es'));
+}
+const cite = { sel: null, kind: 'par', q: '', preset: null, obj: null };
+function citeOpen(preset) {
+  closeMenus(); hideFloat();
+  cite.preset = preset || null; cite.obj = preset && preset.obj || null;
+  if (preset && preset.src) cite.sel = preset.src; else if (!cite.sel) { const s = citeSources()[0]; cite.sel = s ? { k: s.k, id: s.id } : null; }
+  $('ct-q').value = cite.q = ''; $('citem').hidden = false; citeList(); citeDetail(preset && preset.text);
+  $('ct-insert').hidden = !curNb || !$('library').hidden;
+}
+function citeFind(s) { return s && citeSources().find(x => x.k === s.k && x.id === s.id); }
+function citeList() {
+  const box = $('ct-list'), q = normS(cite.q); box.innerHTML = '';
+  const all = citeSources().filter(s => !q || normS(s.label + ' ' + ((s.ref && s.ref.authors) || '')).includes(q));
+  if (!all.length) box.innerHTML = '<p class="hint" style="padding:8px">No hay fuentes todavía. Agrega una con «+ Fuente nueva» o sube un PDF o documento.</p>';
+  all.forEach(s => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'ct-src' + (cite.sel && cite.sel.k === s.k && cite.sel.id === s.id ? ' on' : '');
+    b.innerHTML = `<span class="ct-ic">${s.file ? '📄' : '📘'}</span><span><b>${escH(s.label)}</b><small>${s.has ? escH(apaVariants(s.ref)[4][2]) : '⚠ faltan datos APA'}${(s.o.cites || []).length ? ` · ${s.o.cites.length} versión${s.o.cites.length > 1 ? 'es' : ''} guardada${s.o.cites.length > 1 ? 's' : ''}` : ''}</small></span>`;
+    b.onclick = () => { cite.sel = { k: s.k, id: s.id }; cite.obj = null; citeList(); citeDetail(); };
+    box.appendChild(b);
+  });
+}
+function citeDetail(text) {
+  const s = citeFind(cite.sel), d = $('ct-detail');
+  if (!s) { d.innerHTML = '<p class="hint">Elige una fuente de la lista.</p>'; return; }
+  const pgS = $('ct-page') ? $('ct-page').value.trim() : '';
+  d.innerHTML = `<div class="ct-ref"><div class="lbl">Referencia completa (APA 7)</div><div class="ct-full">${apaHtml(s.ref) || escH(s.label)}</div><div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn" id="ct-edit">✏️ Editar datos</button><button class="btn" id="ct-copyref">Copiar referencia</button>${s.k === 'nb' ? '<button class="btn" id="ct-open">Abrir el documento</button>' : ''}</div></div>
+    <label class="lbl" for="ct-page">Página que citas (opcional)</label><input id="ct-page" value="${escH(pgS)}" placeholder="por ejemplo 176 o 45-47" style="max-width:220px">
+    <div class="lbl">Formas de citar (elige una)</div><div id="ct-vars"></div>
+    <div class="lbl">Tu cita (puedes modificarla)</div><textarea id="ct-text" rows="2"></textarea>
+    <div id="ct-tips"></div>
+    <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn" id="ct-save">💾 Guardar mi versión</button><button class="btn" id="ct-copy">Copiar</button></div>
+    <div id="ct-saved"></div>`;
+  const draw = keepText => {
+    const pg2 = $('ct-page').value.trim(), vars = apaVariants(s.ref, pg2), box = $('ct-vars'); box.innerHTML = '';
+    vars.forEach(([k, l, t]) => { const r = document.createElement('label'); r.className = 'ct-var' + (cite.kind === k ? ' on' : ''); r.innerHTML = `<input type="radio" name="ctv" ${cite.kind === k ? 'checked' : ''}><span><small>${l}</small><b>${escH(t)}</b></span>`; r.querySelector('input').onchange = () => { cite.kind = k; $('ct-text').value = t; draw(true); }; box.appendChild(r); });
+    if (!keepText) $('ct-text').value = (vars.find(v => v[0] === cite.kind) || vars[0])[2];
+    $('ct-tips').innerHTML = apaTips(s.ref, pg2, cite.kind).map(t => `<div class="ct-tip">💡 ${escH(t)}</div>`).join('');
+    const sv = s.o.cites || [], sb = $('ct-saved');
+    sb.innerHTML = sv.length ? '<div class="lbl">Tus versiones guardadas (tócala para usarla)</div>' : '';
+    sv.forEach((c, i) => { const r = document.createElement('div'); r.className = 'ct-sv'; r.innerHTML = `<button class="ct-use">${escH(c.text)}</button><button class="btn ic" aria-label="Quitar">✕</button>`; r.querySelector('.ct-use').onclick = () => { $('ct-text').value = c.text; }; r.lastChild.onclick = () => { sv.splice(i, 1); s.o.mod = Date.now(); saveLibrary(); draw(true); citeList(); }; sb.appendChild(r); });
+  };
+  draw(!!text); if (text) $('ct-text').value = text;
+  $('ct-page').oninput = () => draw(false);
+  $('ct-edit').onclick = () => { $('citem').hidden = true; citeReturn = true; openRef(s.o); };
+  $('ct-copyref').onclick = () => copyRich(apaHtml(s.ref), apaText(s.ref));
+  if ($('ct-open')) $('ct-open').onclick = () => { $('citem').hidden = true; followLink({ nb: s.id, page: Math.max(0, (parseInt($('ct-page').value, 10) || 1) - 1) }); };
+  $('ct-save').onclick = () => { const t = $('ct-text').value.trim(); if (!t) return; s.o.cites = s.o.cites || []; if (!s.o.cites.some(c => c.text === t)) s.o.cites.unshift({ id: uid('c'), text: t, at: Date.now() }); s.o.mod = Date.now(); saveLibrary(); draw(true); citeList(); toast('Versión guardada. La puedes volver a usar desde aquí cuando quieras.'); };
+  $('ct-copy').onclick = async () => toast((await copyText($('ct-text').value)) ? 'Cita copiada. Pégala en tu hoja (Ctrl+V) o en Word.' : 'No se pudo copiar.');
+}
+let citeReturn = false;
+const _refSave = $('ref-save').onclick;
+$('ref-save').onclick = () => { _refSave(); if (citeReturn) { citeReturn = false; $('citem').hidden = false; citeList(); citeDetail(); } };
+$('refm').addEventListener('click', e => { if (citeReturn && e.target && (e.target.id === 'ref-cancel' || e.target.closest('#ref-cancel'))) { citeReturn = false; $('citem').hidden = false; } }, true);
+$('ct-q').oninput = e => { cite.q = e.target.value; citeList(); };
+$('ct-close').onclick = () => { $('citem').hidden = true; };
+$('ct-new').onclick = () => { lib.sources = lib.sources || []; const s = { id: uid('s'), title: 'Fuente nueva', ref: { type: 'libro', title: '' }, mod: Date.now() }; lib.sources.push(s); saveLibrary(); cite.sel = { k: 'src', id: s.id }; $('citem').hidden = true; citeReturn = true; openRef(s); };
+$('ct-upload').onclick = () => { $('citem').hidden = true; if (!curNb && !lib.cursos.length) { toast('Primero crea un curso.'); return; } $('open-file').click(); toast('Al terminar de subir, vuelve a «Insertar → Cita APA»: el documento aparecerá en la lista con los datos que traiga. Complétalos con «Editar datos».', 8000); };
+$('ct-insert').onclick = () => {
+  const s = citeFind(cite.sel), t = $('ct-text').value.trim(); if (!s || !t || !curNb) return;
+  const pn = parseInt($('ct-page').value, 10) || 0, c = s.k === 'nb' ? { nb: s.id, p: Math.max(0, pn - 1) } : { src: s.id };
+  if (cite.obj && pg().objs.includes(cite.obj)) { const o = cite.obj; mutate(() => { o.text = t; o.cite = c; }); }
+  else { const v = visibleRect(), o = { t: 'text', x: r1(v.x + v.w * .3), y: r1(v.y + v.h * .4), text: t, c: 'blue', size: 18, f: prefs.font, cite: c }; if (tool !== 'select') setTool('select'); mutate(() => pg().objs.push(o)); sel = pg().objs.length - 1; showSelFloat(); }
+  $('citem').hidden = true; requestPaint(); toast('Cita en tu hoja. Puedes moverla, copiarla (Copiar/Cortar) y pegarla en otra hoja o cuaderno.', 5000);
+};
+insertCite = function () { if (!curNb) return; citeOpen(); };
+$('ins-cite').onclick = insertCite;
+/* al tocar una cita en la hoja: editarla o ir a la fuente */
+const _showFloat3 = showFloat;
+showFloat = function (kind, o) {
+  _showFloat3(kind, o);
+  if (kind !== 'sel' || !o || !o.cite) return;
+  const f = $('float');
+  if (o.cite.src) { const s = (lib.sources || []).find(x => x.id === o.cite.src); if (s) f.insertBefore(fbtn('Copiar referencia', async () => toast((await copyText(apaText(s.ref))) ? 'Referencia APA copiada.' : '')), f.firstChild); }
+  f.insertBefore(fbtn('✏️ Editar cita', () => citeOpen({ src: o.cite.nb ? { k: 'nb', id: o.cite.nb } : { k: 'src', id: o.cite.src }, text: o.text, obj: o }), '', 'Cambiar la forma de la cita o elegir otra fuente'), f.firstChild);
+  placeFloat();
+};
+/* referencias: incluye también las fuentes sin archivo */
+insertRefs = function () {
+  closeMenus(); if (!curNb) return;
+  const refs = new Map(); doc.pages.forEach(p => p.objs.forEach(o => { if (!o.cite) return; const r = o.cite.nb ? (lib.nbs.find(n => n.id === o.cite.nb) || {}).ref : ((lib.sources || []).find(s => s.id === o.cite.src) || {}).ref; if (r && r.title) refs.set(apaText(r), 1); }));
+  const list = [...refs.keys()].sort((a, b) => a.localeCompare(b, 'es'));
+  if (!list.length) { toast('Este cuaderno aún no tiene citas. Usa «Insertar → Cita APA».'); return; }
+  const np = newPage(pg()); np.objs = []; delete np.bgImg; delete np.ptext; delete np.ptw; delete np.toc; addPageAfter(np);
+  const lines = []; list.forEach(r => { wrapLines(r, 15, prefs.font, pg().W - 110).forEach((l, i) => lines.push((i ? '      ' : '') + l)); lines.push(''); });
+  mutate(() => pg().objs.push({ t: 'text', x: 48, y: 36, text: 'Referencias', c: 'blue', size: 24, f: prefs.font }, { t: 'text', x: 48, y: 84, text: lines.join('\n'), c: 'ink', size: 15, f: prefs.font }));
+  requestPaint(); toast(`Lista de referencias en APA 7 con ${list.length} fuente${list.length > 1 ? 's' : ''}, en una hoja nueva.`);
+};
+$('refs-btn').onclick = insertRefs;
+const _renderBiblio = renderBiblio;
+renderBiblio = function (main) {
+  _renderBiblio(main);
+  const extra = (lib.sources || []).filter(s => !s.trashed && s.ref && s.ref.title);
+  const hd = main.querySelector('.lib-head'); if (hd) hd.insertBefore(mkBtn('📖 Citas APA…', () => citeOpen(), 'primary', 'Ver la cita de cada fuente, sus alternativas y tus versiones guardadas'), hd.querySelector('.btn'));
+  if (extra.length) { const box = document.createElement('div'); box.className = 'drv'; box.style.maxWidth = '860px'; box.innerHTML = '<div class="lbl">Fuentes sin archivo</div>' + extra.map(s => `<p style="margin:0 0 10px;padding-left:36px;text-indent:-36px;line-height:1.6;cursor:pointer">${apaHtml(s.ref)}</p>`).join(''); box.querySelectorAll('p').forEach((p, i) => { p.onclick = () => openRef(extra[i]); }); main.appendChild(box); }
+};
+
+/* ---------- 34 · índice vivo, estilo documento ---------- */
+function tocHeads() {
+  const out = [];
+  doc.pages.forEach((p, i) => {
+    if (p.toc) return;
+    const texts = p.objs.filter(o => o.t === 'text' && o.text && !o.cite);
+    const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 18;
+    const heads = texts.filter(o => (o.size >= Math.max(22, med * 1.25) || (o.c === 'blue' && o.size >= med)) && o.text.trim().length <= 90).sort((a, b) => a.y - b.y);
+    if (!heads.length) return;
+    const top = Math.max(...heads.map(o => o.size));
+    heads.forEach(o => { if (!o.hid) o.hid = uid('h'); out.push({ o, hid: o.hid, i, t: o.text.replace(/\s*\n\s*/g, ' ').trim(), lvl: o.size >= top * .95 ? 0 : 1 }); });
+  });
+  return out;
+}
+function tocRows() {
+  const T = doc.toc || {}, E = T.edits || {}, tocIdx = doc.pages.findIndex(p => p.toc);
+  return tocHeads().map(h => {
+    const e = E[h.hid] || {}, num = T.num === 'after' && tocIdx >= 0 ? Math.max(1, h.i - tocIdx) : h.i + 1;
+    return { hid: h.hid, i: h.i, label: e.label || h.t, auto: h.t, page: e.page != null && e.page !== '' ? String(e.page) : String(num), lvl: e.lvl != null ? e.lvl : h.lvl, hide: !!e.hide };
+  }).filter(r => !r.hide);
+}
+const tocLayout = new WeakMap();
+function drawToc(c, o) {
+  const rows = tocRows(), x0 = o.x, w = o.w, s = o.size || 16, lh = s * 2;
+  c.save(); c.textBaseline = 'alphabetic'; c.fillStyle = '#1b2430';
+  setFont(c, s * 1.9, o.f); c.font = c.font.replace(/^(\d)/, '700 $1'); c.fillText('Índice', x0, o.y + s * 1.9);
+  let y = o.y + s * 1.9 + s * 2.2; const lay = [];
+  if (!rows.length) { setFont(c, s * .9, 'plex'); c.fillStyle = '#8894a3'; c.fillText('Escribe títulos (más grandes o en azul) en tus hojas: aparecerán aquí solos.', x0, y + s); y += lh * 2; }
+  rows.forEach(r => {
+    const ind = r.lvl ? s * 1.6 : 0; setFont(c, r.lvl ? s : s * 1.06, o.f); if (!r.lvl) c.font = c.font.replace(/^(\d)/, '600 $1');
+    c.fillStyle = '#1b2430'; let lab = r.label; const pw = c.measureText(r.page).width, maxL = w - ind - pw - s * 3;
+    while (c.measureText(lab).width > maxL && lab.length > 4) lab = lab.slice(0, -2); if (lab !== r.label) lab = lab.trimEnd() + '…';
+    const lw = c.measureText(lab).width; c.fillText(lab, x0 + ind, y); c.fillText(r.page, x0 + w - pw, y);
+    c.fillStyle = '#9aa6b4'; setFont(c, s * .9, 'plex'); const dw = c.measureText('.').width * 1.6; for (let dx = x0 + ind + lw + s * .5; dx < x0 + w - pw - s * .5; dx += dw) c.fillText('.', dx, y);
+    lay.push({ y0: y - s * 1.2, y1: y + s * .6, i: r.i, hid: r.hid }); y += r.lvl ? lh * .9 : lh;
+  });
+  tocLayout.set(o, lay); o.h = Math.max(120, y - o.y); c.restore();
+}
+const _drawObjT = drawObj;
+drawObj = function (c, o, ...r) { if (o.t === 'toc') { if (!hiddenL().includes('texto')) drawToc(c, o); return; } return _drawObjT(c, o, ...r); };
+const _bboxT = bbox;
+bbox = function (o) { if (o.t === 'toc') return [o.x, o.y, o.x + o.w, o.y + (o.h || 300)]; return _bboxT(o); };
+let tocHold = null;
+cv.addEventListener('pointerdown', e => {
+  if (!curNb || !pg().toc || (tool !== 'select' && tool !== 'hand')) return;
+  const p = toWorld(screenPt(e)), o = pg().objs.find(x => x.t === 'toc'); if (!o) return;
+  const row = (tocLayout.get(o) || []).find(r => p.y >= r.y0 && p.y <= r.y1 && p.x >= o.x && p.x <= o.x + o.w); if (!row) return;
+  e.stopImmediatePropagation(); e.preventDefault();
+  tocHold = { row, x: e.clientX, y: e.clientY, long: false, t: setTimeout(() => { tocHold.long = true; tocEdit(row.hid); }, 600) };
+}, true);
+cv.addEventListener('pointermove', e => { if (tocHold && Math.hypot(e.clientX - tocHold.x, e.clientY - tocHold.y) > 10) { clearTimeout(tocHold.t); tocHold = null; } }, true);
+cv.addEventListener('pointerup', e => { if (!tocHold) return; clearTimeout(tocHold.t); const h = tocHold; tocHold = null; if (!h.long) { e.stopImmediatePropagation(); goPage(h.row.i); toast(`Hoja ${h.row.i + 1}. Para volver al índice: hoja ${doc.pages.findIndex(p => p.toc) + 1}.`, 2500); } }, true);
+function tocEdit(focusHid) {
+  doc.toc = doc.toc || { num: 'hoja', edits: {} }; const T = doc.toc; T.edits = T.edits || {};
+  const heads = tocHeads(), list = $('tc-list'); list.innerHTML = '';
+  $('tc-num').value = T.num || 'hoja';
+  heads.forEach(h => {
+    const e = T.edits[h.hid] || {}, r = document.createElement('div'); r.className = 'tc-row' + (h.hid === focusHid ? ' on' : '');
+    r.innerHTML = `<input type="checkbox" ${e.hide ? '' : 'checked'} aria-label="Mostrar"><select aria-label="Nivel"><option value="0">Título</option><option value="1">Subtítulo</option></select><input class="tc-l" value="${escH(e.label || h.t)}" aria-label="Cómo aparece"><input class="tc-p" value="${escH(e.page != null ? e.page : '')}" placeholder="${T.num === 'after' ? '' : h.i + 1}" aria-label="Número de página"><small>hoja ${h.i + 1}</small>`;
+    r.querySelector('select').value = String(e.lvl != null ? e.lvl : h.lvl);
+    r.dataset.hid = h.hid; list.appendChild(r);
+  });
+  if (!heads.length) list.innerHTML = '<p class="hint">Aún no hay títulos. Escribe títulos más grandes o en azul en tus hojas.</p>';
+  $('tocm').hidden = false; const on = list.querySelector('.on input.tc-l'); if (on) setTimeout(() => on.focus(), 50);
+}
+$('tc-save').onclick = () => {
+  const T = doc.toc; T.num = $('tc-num').value; const heads = tocHeads();
+  $('tc-list').querySelectorAll('.tc-row').forEach(r => {
+    const h = heads.find(x => x.hid === r.dataset.hid); if (!h) return;
+    const [show, , lab, pgI] = [r.children[0], r.children[1], r.querySelector('.tc-l'), r.querySelector('.tc-p')];
+    const lvl = +r.querySelector('select').value, e = {};
+    if (!show.checked) e.hide = 1; if (lab.value.trim() && lab.value.trim() !== h.t) e.label = lab.value.trim(); if (pgI.value.trim()) e.page = pgI.value.trim(); if (lvl !== h.lvl) e.lvl = lvl;
+    if (Object.keys(e).length) T.edits[h.hid] = e; else delete T.edits[h.hid];
+  });
+  $('tocm').hidden = true; invalidate(); scheduleSave(); toast('Índice actualizado.');
+};
+$('tc-reset').onclick = () => { doc.toc = { num: 'hoja', edits: {} }; $('tocm').hidden = true; invalidate(); scheduleSave(); toast('Índice restablecido: muestra los títulos tal como están en tus hojas.'); };
+$('tc-cancel').onclick = () => { $('tocm').hidden = true; };
+buildToc = function () {
+  closeMenus(); if (!curNb) return; commitEditor();
+  let i = doc.pages.findIndex(p => p.toc);
+  if (i < 0) {
+    const np = newPage(doc.pages[0]); np.objs = []; delete np.bgImg; delete np.ptext; delete np.ptw; delete np.cont; np.toc = 1; np.tags = [];
+    if (np.W > np.H) { [np.W, np.H] = [np.H, np.W]; np.fmt = 'a4p'; np.pt = [595.28, 841.89]; }
+    shiftLinks(curNb.id, 0, 1); doc.pages.unshift(np); doc.cur++; i = 0;
+  }
+  const p = doc.pages[i];
+  if (!p.objs.some(o => o.t === 'toc')) mutatePage(p, () => { p.objs = [{ t: 'toc', x: 56, y: 48, w: p.W - 112, size: 16, f: prefs.font }]; });
+  goPage(i); invalidate();
+  toast('Índice listo. Se actualiza solo mientras escribes títulos. Toca una línea para ir a esa hoja; manténla presionada para cambiar su texto o número.', 8000);
+};
+$('toc-btn').onclick = buildToc;
+const _changedT = typeof changed === 'function' ? changed : null;
+
+/* ---------- 35 · mapa mental automático (lo más importante) ---------- */
+const ES_STOP = new Set('a al algo algunas algunos ante antes aquel aquella aquellas aquellos aqui así aun aunque bajo bien cada casi como con contra cual cuales cuando de del desde donde dos el ella ellas ellos en entre era eran es esa esas ese eso esos esta estas este esto estos fue fueron gran ha han hasta hay la las le les lo los mas más me mi mis mismo muy ni no nos o otra otras otro otros para pero poco por porque que qué quien se sea según ser si sí sin sino sobre son su sus también tan tanto te tiene tienen todo todos tras tu tus un una unas uno unos y ya cuando puede pueden hace hacer forma tipo tipos ejemplo caso parte cómo donde debe deben cada entre través mediante mientras otro sido siendo tener'.split(' '));
+function keyTerms(pages) {
+  const cnt = new Map(), disp = new Map(), perPage = [];
+  pages.forEach((p, i) => {
+    const set = new Map(), txt = pageText(p).replace(/@\S+/g, ' ');
+    txt.split(/[.!?;:\n()«»"“”]+/).forEach(sent => {
+      const w = sent.split(/[^\p{L}\-]+/u).filter(Boolean), lw = w.map(x => x.toLowerCase());
+      for (let k = 0; k < lw.length; k++) {
+        const a = lw[k]; if (a.length < 5 || ES_STOP.has(a)) continue;
+        const add = (key, show, wt) => { cnt.set(key, (cnt.get(key) || 0) + wt); if (!disp.has(key)) disp.set(key, show); set.set(key, (set.get(key) || 0) + wt); };
+        add(a, w[k], 1);
+        if (k + 1 < lw.length && lw[k + 1].length >= 4 && !ES_STOP.has(lw[k + 1])) add(a + ' ' + lw[k + 1], w[k] + ' ' + w[k + 1], 1.6);
+        if (k + 2 < lw.length && (lw[k + 1] === 'de' || lw[k + 1] === 'del') && lw[k + 2].length >= 4 && !ES_STOP.has(lw[k + 2])) add(`${a} ${lw[k + 1]} ${lw[k + 2]}`, `${w[k]} ${w[k + 1]} ${w[k + 2]}`, 2);
+      }
+    });
+    perPage[i] = set;
+  });
+  return { cnt, disp, perPage };
+}
+async function autoMindMap() {
+  const pages = doc.pages.filter(p => !p.toc), heads = tocHeads(), defs = await nbConcepts(curNb);
+  const { cnt, disp, perPage } = keyTerms(pages);
+  defs.forEach(d => { const k = d.term.toLowerCase(); cnt.set(k, (cnt.get(k) || 0) + 4 + (d.hl ? 3 : 0)); if (!disp.has(k)) disp.set(k, d.term); });
+  const rank = [...cnt.entries()].filter(([k, v]) => v >= 2 || defs.some(d => d.term.toLowerCase() === k)).sort((a, b) => b[1] - a[1]);
+  const used = new Set(), pick = (list, n) => { const out = []; for (const [k] of list) { if (out.length >= n) break; if ([...used].some(u => u.includes(k) || k.includes(u))) continue; used.add(k); out.push(glCap(disp.get(k) || k)); } return out; };
+  const main = heads.filter(h => h.lvl === 0);
+  let branches = [];
+  if (main.length >= 2) {
+    main.slice(0, 6).forEach(h => used.add(h.t.toLowerCase()));
+    branches = main.slice(0, 6).map(h => { const pi = doc.pages.filter(p => !p.toc).indexOf(doc.pages[h.i]), loc = perPage[pi] ? [...perPage[pi].entries()].map(([k, v]) => [k, v * (cnt.get(k) || 1)]).sort((a, b) => b[1] - a[1]) : []; return { t: h.t, kids: pick(loc, 3) }; });
+  } else {
+    branches = pick(rank, 6).map(t => ({ t, kids: [] }));
+    branches.forEach(b => { const k = b.t.toLowerCase(); const co = rank.filter(([x]) => x !== k && pages.some((p, i) => perPage[i].has(k) && perPage[i].has(x))); b.kids = pick(co, 2); });
+  }
+  return branches.filter(b => b.t);
+}
+function placeMap(branches, title, note) {
+  const np = newPage(pg()); np.fmt = 'a4l'; np.pt = [841.89, 595.28]; np.W = Math.max(np.W, np.H); np.H = Math.round(np.W * 595.28 / 841.89); np.objs = []; delete np.bgImg; delete np.ptext; delete np.ptw; delete np.toc; delete np.cont;
+  addPageAfter(np);
+  const W2 = np.W, H2 = np.H, cx = W2 / 2, cy = H2 / 2 + 10, n = branches.length, R1x = W2 * .27, R1y = H2 * .27;
+  const center = { t: 'node', nid: uid('d'), kind: 'round', x: r1(cx - 105), y: r1(cy - 38), w: 210, h: 76, text: title, c: 'blue', f: prefs.font, size: 18 };
+  const objs = [center];
+  if (note) objs.push({ t: 'text', x: 24, y: 14, text: note, c: 'ink', size: 12, f: 'plex' });
+  branches.forEach((b, k) => {
+    const a = -Math.PI / 2 + k * 2 * Math.PI / n, bx = cx + Math.cos(a) * R1x, by = cy + Math.sin(a) * R1y;
+    const nb = { t: 'node', nid: uid('d'), kind: 'rect', x: r1(clamp(bx - 80, 8, W2 - 168)), y: r1(clamp(by - 30, 40, H2 - 68)), w: 160, h: 60, text: b.t, c: 'ink', f: prefs.font, size: 15 };
+    objs.push(nb, { t: 'conn', a: center.nid, b: nb.nid, c: 'ink', w: 2 });
+    (b.kids || []).forEach((kt, j) => {
+      const m = b.kids.length, aa = a + (j - (m - 1) / 2) * .42, kx = cx + Math.cos(aa) * R1x * 1.62, ky = cy + Math.sin(aa) * R1y * 1.55;
+      const kn = { t: 'node', nid: uid('d'), kind: 'round', x: r1(clamp(kx - 62, 4, W2 - 128)), y: r1(clamp(ky - 20, 36, H2 - 44)), w: 124, h: 40, text: kt, c: 'green', f: prefs.font, size: 12 };
+      objs.push(kn, { t: 'conn', a: nb.nid, b: kn.nid, c: 'ink', w: 1.5 });
+    });
+  });
+  mutate(() => pg().objs.push(...objs)); requestPaint();
+}
+const _mindMap = mindMap;
+mindMap = async function () {
+  closeMenus(); if (!curNb) return;
+  const v = await askSelect('Mapa mental', '¿Cómo lo armo?', [['auto', '✨ Lo más importante (la pizarra analiza tus apuntes)'], ['hl', '🖍 Solo con lo que resalté']], 'auto'); if (!v) return;
+  if (v === 'hl') return _mindMap();
+  commitEditor(); await saveNow(); toast('Analizando tus apuntes…', 10000);
+  const br = await autoMindMap(); toast('', 1);
+  if (br.length < 2) { toast('Hay muy poco texto para encontrar lo más importante. Escribe más o convierte tu escritura a mano en texto.', 6000); return; }
+  placeMap(br, curNb.title.replace(/^Sesión \d+\s*[·:-]\s*/, ''), 'Mapa automático: títulos, definiciones y lo que más se repite en tus apuntes. Mueve, edita o borra lo que quieras.');
+  toast('Mapa listo: al centro el tema, luego los temas principales y en verde las ideas clave de cada uno.', 7000);
+};
+$('mind-btn').onclick = mindMap;
+
+/* ---------- 41 · seguridad como en un celular: PIN siempre, huella o rostro opcional ---------- */
+const PIN_CUSTOM = 'pizarra-pin-custom';
+function curPinHash() { try { return localStorage.getItem(PIN_CUSTOM) || PIN_HASH; } catch (e) { return PIN_HASH; } }
+async function changePin() {
+  const old = await askText('Cambiar PIN', 'Tu PIN actual', '', null, 'password'); if (old === null) return;
+  if ((await pinHash(old)) !== curPinHash()) { toast('El PIN actual no es correcto.'); return; }
+  const a = await askText('Cambiar PIN', 'PIN nuevo (6 números)', '', null, 'password'); if (a === null) return;
+  if (!/^\d{6}$/.test(a)) { toast('El PIN debe tener 6 números.'); return; }
+  const b2 = await askText('Cambiar PIN', 'Repite el PIN nuevo', '', null, 'password'); if (b2 !== a) { toast('No coinciden. Inténtalo otra vez.'); return; }
+  const h = await pinHash(a); try { localStorage.setItem(PIN_CUSTOM, h); localStorage.setItem(PIN_KEY, h); } catch (e) {}
+  lib.pinHash = h; lib.pinMod = Date.now(); saveLibrary(); toast('PIN cambiado. En tus otros dispositivos se actualiza cuando sincronicen con Google Drive.', 6000);
+}
+function pinSync() { try { if (lib && lib.pinHash && lib.pinHash !== localStorage.getItem(PIN_CUSTOM)) { localStorage.setItem(PIN_CUSTOM, lib.pinHash); if (localStorage.getItem(PIN_KEY)) localStorage.setItem(PIN_KEY, lib.pinHash); } } catch (e) {} }
+const _renderLibraryP = renderLibrary;
+renderLibrary = function (...a) { pinSync(); return _renderLibraryP(...a); };
+$('bio-btn').onclick = async () => { if (await bioLogin()) { try { localStorage.setItem(PIN_KEY, curPinHash()); sessionStorage.setItem('pizarra-bio-ok', '1'); } catch (e) {} location.reload(); } };
+window.addEventListener('pagehide', () => { if (prefs.askAlways) { try { localStorage.removeItem(PIN_KEY); } catch (e) {} } });
+setTimeout(() => { if (prefs.askAlways) { try { localStorage.removeItem(PIN_KEY); } catch (e) {} } }, 3000);
+secRender = async function () {
+  const has = (() => { try { return !!localStorage.getItem(BIO_KEY); } catch (e) { return false; } })(), av = await bioAvailable();
+  $('sec-bio').textContent = has ? '✔ Activado · desactivar' : 'Activar'; $('sec-bio').disabled = !av && !has;
+  $('sec-bio-note').textContent = av ? (has ? 'Al abrir puedes usar tu huella o rostro, o escribir el PIN.' : 'Opcional. Si no lo activas, entras solo con tu PIN.') : 'Este dispositivo o navegador no ofrece huella o rostro para páginas web. Sigues entrando con tu PIN.';
+  $('sec-lock').value = String(prefs.autoLock || 0); $('sec-ask').checked = !!prefs.askAlways;
+};
+$('sec-ask').onchange = e => { prefs.askAlways = e.target.checked; savePrefs(); toast(e.target.checked ? 'Te pedirá el PIN (o huella/rostro) cada vez que abras la pizarra.' : 'Este dispositivo recordará que ya entraste.'); };
+$('sec-pin').onclick = changePin;
+
+/* ---------- 42 · Google Docs con orden sugerido en Drive ---------- */
+let DOCX_EXTRA = { pre: '', post: '' };
+function gdTree(nb) {
+  const c = courseOf(nb.cursoId) || { name: 'Curso' }, cy = (lib.ciclos.find(x => x.id === c.cicloId) || { name: 'Ciclo' }).name;
+  const kindF = nb.kind === 'lectura' ? 'Lecturas' : nb.kind === 'tesis' ? 'Tesis' : nb.kind === 'trabajo' || nb.kind === 'tarea' ? 'Trabajos y entregas' : 'Apuntes de clase';
+  return { cy, c: c.name, f: kindF };
+}
+function gdPreview(nb, ordered) {
+  const t = gdTree(nb), name = `${nb.title} (apuntes)`;
+  const folders = ['Apuntes de clase', 'Lecturas', 'Trabajos y entregas', 'Cuadros de estudio'];
+  if (!ordered) return `<div class="gd-tree"><div>📁 <b>Pizarra de Apuntes</b></div><div class="gd-in">📄 <mark>${escH(name)}</mark> <small>Google Docs</small></div><div class="gd-in muted">📄 (todo lo demás, mezclado)</div></div>`;
+  return `<div class="gd-tree"><div>📁 <b>Pizarra de Apuntes</b></div><div class="gd-in">📁 <b>${escH(t.cy)}</b></div><div class="gd-in2">📁 <b>${escH(t.c)}</b></div>${folders.map(f => `<div class="gd-in3">📁 ${f}${f === t.f ? `</div><div class="gd-in4">📄 <mark>${escH(name)}</mark> <small>← aquí, como Google Docs</small>` : ''}</div>`).join('')}</div>`;
+}
+function gdDocOrder(nb, idxs) {
+  const heads = tocHeads().filter(h => idxs.includes(h.i)), cites = doc.pages.some(p => p.objs.some(o => o.cite));
+  return `<ol class="gd-ord"><li><b>${escH(nb.title)}</b> (título)</li><li>Índice con tus títulos${heads.length ? ` (${heads.length})` : ''}</li>${heads.slice(0, 6).map(h => `<li class="${h.lvl ? 'sub' : ''}">${escH(h.t)}</li>`).join('')}${heads.length > 6 ? '<li class="sub">…</li>' : ''}<li>Escritura a mano y dibujos de cada hoja, como imagen</li>${cites ? '<li>Referencias APA</li>' : ''}</ol>`;
+}
+async function moveTo(fileId, path) {
+  let parent = await ensureFolder(); const root = parent;
+  for (const name of path) parent = await ensureSub(parent, name);
+  if (parent !== root) await gfetch(`${GAPI}/files/${fileId}?addParents=${parent}&removeParents=${root}&fields=id`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  return parent;
+}
+exportGdocs = async function () {
+  closeMenus(); if (!curNb || exporting) return;
+  const idxs = await askPages('Exportar a Google Docs'); if (!idxs) return;
+  const nb = curNb;
+  $('gd-tree').innerHTML = gdPreview(nb, true); $('gd-order').innerHTML = gdDocOrder(nb, idxs);
+  document.querySelectorAll('input[name=gdo]').forEach(r => { r.checked = r.value === 'ord'; r.onchange = () => { $('gd-tree').innerHTML = gdPreview(nb, r.value === 'ord' && r.checked || (r.value !== 'ord' && !r.checked)); }; });
+  $('gd-note').textContent = clientId() ? '' : 'Para crear el Google Docs falta conectar Google Drive (biblioteca → ☁ Google Drive). Mientras tanto puedes descargar el mismo documento en Word: Google Docs lo abre igual.';
+  $('gd-go').textContent = clientId() ? 'Crear en Google Docs' : 'Descargar en Word (editable)';
+  $('gdm').hidden = false;
+  $('gd-cancel').onclick = () => { $('gdm').hidden = true; };
+  $('gd-go').onclick = async () => {
+    $('gdm').hidden = true; const ordered = document.querySelector('input[name=gdo][value=ord]').checked, withToc = $('gd-toc').checked, withRefs = $('gd-refs').checked;
+    exporting = true;
+    try {
+      const heads = tocHeads().filter(h => idxs.includes(h.i));
+      DOCX_EXTRA.pre = withToc && heads.length ? docxP(docxRun('Índice', { b: true, sz: 28 }), { after: 120 }) + heads.map(h => docxP(docxRun(`${h.lvl ? '      ' : ''}${h.t}  ·  hoja ${h.i + 1}`, { sz: h.lvl ? 20 : 22, b: !h.lvl }), { after: 40 })).join('') + '<w:p><w:r><w:br w:type="page"/></w:r></w:p>' : '';
+      const refs = new Set(); doc.pages.forEach(p => p.objs.forEach(o => { if (!o.cite) return; const r = o.cite.nb ? (lib.nbs.find(n => n.id === o.cite.nb) || {}).ref : ((lib.sources || []).find(s => s.id === o.cite.src) || {}).ref; if (r && r.title) refs.add(apaText(r)); }));
+      DOCX_EXTRA.post = withRefs && refs.size ? '<w:p><w:r><w:br w:type="page"/></w:r></w:p>' + docxP(docxRun('Referencias', { b: true, sz: 28 }), { after: 120 }) + [...refs].sort((a, b) => a.localeCompare(b, 'es')).map(r => docxP(docxRun(r), { after: 120 })).join('') : '';
+      const blob = await buildEditableDocx(idxs);
+      if (!clientId()) { await downloadBlob(blob, fileBase() + ' (editable).docx'); toast('Word editable descargado con el orden sugerido. Súbelo a tu Drive y ábrelo con Google Docs.', 7000); return; }
+      if (!navigator.onLine) { toast('Necesitas internet para Google Docs.'); return; }
+      if (!driveReady()) await driveConnect(true);
+      toast('Creando tu Google Docs…', 20000);
+      const f = await gupload(`${nb.title} (apuntes)`, blob, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', null, { gdoc: '1', nb: nb.id }, 'application/vnd.google-apps.document');
+      const t = gdTree(nb); if (ordered) await moveTo(f.id, [t.cy, t.c, t.f]);
+      toast('', 1);
+      if (await confirmBox(`Listo: tu Google Docs está en Drive${ordered ? ` → Pizarra de Apuntes → ${t.cy} → ${t.c} → ${t.f}` : ' → Pizarra de Apuntes'}. ¿Abrirlo ahora?`, 'Abrir Google Docs')) window.open(`https://docs.google.com/document/d/${f.id}/edit`, '_blank', 'noopener');
+    } catch (e) { toast('No se pudo: ' + (e.message === 'auth' ? 'vuelve a conectar Google Drive.' : e.message)); }
+    finally { exporting = false; DOCX_EXTRA = { pre: '', post: '' }; }
+  };
+};
 $('gdocs-btn').onclick = exportGdocs;
 
 init();

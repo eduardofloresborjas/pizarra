@@ -187,6 +187,18 @@ body.touch #float .btn{height:40px}
 .pg-ghost{position:fixed;z-index:80;pointer-events:none;width:120px;opacity:.85;transform:rotate(-2deg);box-shadow:0 10px 26px rgba(0,0,0,.3);border-radius:4px;background:#fff}
 @media (max-width:820px){#pages-panel{position:absolute;left:0;top:0;bottom:0;z-index:15;box-shadow:8px 0 24px rgba(0,0,0,.2)}}
 #progress{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:61;display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:8px 8px 8px 14px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:min(92vw,560px)}
+#drive-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-body);font-size:12px}
+#drive-chip.off{border-color:var(--line);color:var(--muted)}
+#drive-chip.err{border-color:var(--warn);color:var(--warn)}
+.drv{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;max-width:760px}
+.drv h3{margin:0;font-size:16px}
+.drv .st{display:flex;align-items:center;gap:10px;font-size:15px}
+.drv .dotst{width:12px;height:12px;border-radius:50%;background:#9aa6b4;flex:none}
+.drv .dotst.ok{background:#12805c}.drv .dotst.busy{background:#e8a400}.drv .dotst.err{background:var(--warn)}
+.drv ol{margin:0;padding-left:20px;line-height:1.6;color:var(--text)}
+.drv a.btn{text-decoration:none;color:inherit}
+.drv code{background:var(--hover);padding:1px 5px;border-radius:4px;font-family:var(--f-mono);font-size:12px}
+.drv .log{font-family:var(--f-mono);font-size:12px;color:var(--muted);white-space:pre-wrap;max-height:160px;overflow:auto;background:var(--bg);border-radius:8px;padding:8px 10px}
 #net-chip{display:inline-flex;align-items:center;border-color:var(--warn);color:var(--warn);font-family:var(--f-body);font-size:12px}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 14px;border-radius:6px;max-width:min(92vw,560px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
 #toast.show{opacity:1}
@@ -488,6 +500,7 @@ body.touch #float .btn{height:40px}
   <header class="lib-top">
     <h1><span id="lib-name">Mi maestría</span><button id="lib-rename" title="Cambiar el nombre" aria-label="Cambiar el nombre de la biblioteca">✎</button></h1>
     <input id="lib-search" type="search" placeholder="Buscar curso o sesión…" aria-label="Buscar curso o sesión">
+    <button class="chip" id="drive-chip" title="Estado de Google Drive">☁ Drive</button>
     <button class="btn" id="lib-open-file" title="Abrir un archivo de apuntes guardado (.json)">Abrir archivo</button>
     <button class="btn primary" id="lib-new-course">+ Nuevo curso</button>
   </header>
@@ -771,6 +784,7 @@ async function saveNow() {
     for (const id of Object.keys(doc.images)) if (savedImgs.has(id) && imgEls.has(id)) delete doc.images[id];
     if (!curNb) return;
     await store.set('doc:' + curNb.id, serialize(false)); saveWarned = false;
+    markLocal(curNb.id);
     touchNbMeta();
   }
   catch (e) { if (!saveWarned) { saveWarned = true; toast('No se pudo guardar en este navegador (quizá hay demasiadas imágenes). Guarda tus apuntes como archivo o PDF.'); } }
@@ -2482,6 +2496,13 @@ async function convHtml(text) {
 }
 async function convertFile(file) {
   const n = file.name.toLowerCase(), ext = (n.match(/\.([a-z0-9]+)$/) || [])[1] || '';
+  if (GDOCS[ext] && prefs.driveConvert !== false && driveReady()) {
+    try { return await driveConvert(file, ext); }
+    catch (e) { toast('No se pudo convertir con Google Drive; uso la conversión de la pizarra.', 4000); }
+  } else if (GDOCS[ext] && !driveReady() && !convNoticeShown) {
+    convNoticeShown = true;
+    setTimeout(() => toast('Para que Word, PowerPoint y Excel queden iguales al original, conecta Google Drive en la biblioteca (☁ Google Drive). Esta vez usé la conversión de la pizarra.', 9000), 5600);
+  }
   if (/^image\//.test(file.type) || ['heic', 'heif', 'jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext)) return imageFileToPage(file);
   if (ext === 'docx') return convDocx(await file.arrayBuffer());
   if (ext === 'pptx') return convPptx(await file.arrayBuffer());
@@ -2704,7 +2725,7 @@ async function loadLibrary() {
   try { lib = await store.get('library'); } catch (e) { lib = null; }
   if (!lib || !Array.isArray(lib.nbs)) {
     lib = { name: 'Mi maestría', ciclos: [], cursos: [], nbs: [], cur: { view: 'ciclo', ciclo: null } };
-    const c = { id: uid('y'), name: 'Ciclo I' }; lib.ciclos.push(c); lib.cur.ciclo = c.id;
+    const c = { id: uid('y'), name: 'Ciclo I', auto: true }; lib.ciclos.push(c); lib.cur.ciclo = c.id;
     let old = null; try { old = await store.get('doc'); } catch (e) {}
     if (validDoc(old) && old.pages.some(p => (p.objs && p.objs.length) || p.bgImg)) {
       const cu = { id: uid('k'), cicloId: c.id, name: 'Mis apuntes anteriores', teacher: '', time: '', color: COURSE_COLORS[0], fav: false };
@@ -2717,16 +2738,17 @@ async function loadLibrary() {
   }
   if (!lib.cur) lib.cur = { view: 'ciclo', ciclo: lib.ciclos[0] && lib.ciclos[0].id };
 }
-async function saveLibrary() { try { await store.set('library', lib); } catch (e) {} }
+async function saveLibrary() { try { await store.set('library', lib); } catch (e) {} scheduleSync(); }
+function tomb(id) { lib.deleted = lib.deleted || {}; lib.deleted[id] = Date.now(); }
 function createNb(cursoId, title, kind, date) {
-  const nb = { id: uid('n'), cursoId, title: title || 'Sin nombre', kind: KINDS[kind] ? kind : 'sesion', date: date || todayISO(), fav: false, created: Date.now(), updated: Date.now(), opened: Date.now(), pages: 1 };
+  const nb = { id: uid('n'), cursoId, title: title || 'Sin nombre', kind: KINDS[kind] ? kind : 'sesion', date: date || todayISO(), fav: false, created: Date.now(), updated: Date.now(), opened: Date.now(), pages: 1, mod: Date.now() };
   lib.nbs.push(nb); saveLibrary();
   return nb;
 }
 let metaTimer = 0;
 function touchNbMeta() {
   if (!curNb) return;
-  curNb.updated = Date.now(); curNb.pages = doc.pages.length;
+  curNb.updated = Date.now(); curNb.mod = Date.now(); curNb.pages = doc.pages.length;
   clearTimeout(metaTimer); metaTimer = setTimeout(makeNbThumb, 2500);
   saveLibrary();
 }
@@ -2761,13 +2783,14 @@ async function showLibrary() {
   await closeNotebook();
   document.title = 'Pizarra de Apuntes';
   $('library').hidden = false; $('lib-search').value = ''; $('toast').classList.remove('show'); setProgress('');
-  renderLibrary();
+  renderLibrary(); updateDriveChip();
+  if (prefs.driveOn && driveReady()) syncAll(false);
 }
 $('to-lib').onclick = () => showLibrary();
 $('nb-title').onclick = async () => {
   if (!curNb) return;
   const t = await askText('Nombre del cuaderno', 'Nombre', curNb.title);
-  if (t) { curNb.title = t; $('nb-title').textContent = t; saveLibrary(); }
+  if (t) { curNb.title = t; curNb.mod = Date.now(); $('nb-title').textContent = t; saveLibrary(); }
 };
 function setView(v, extra) { lib.cur.view = v; Object.assign(lib.cur, extra || {}); saveLibrary(); renderLibrary(); $('lib-main').scrollTop = 0; }
 function sideItem(label, active, onclick, count) {
@@ -2789,6 +2812,8 @@ function renderLibrary() {
   side.appendChild(sideItem('🕘 Recientes', v === 'recent', () => setView('recent')));
   side.appendChild(sideItem('📄 PDFs y lecturas', v === 'lecturas', () => setView('lecturas'), lib.nbs.filter(n => n.kind === 'lectura').length));
   side.appendChild(sideItem('🎓 Tesis', v === 'tesis', () => setView('tesis'), lib.nbs.filter(n => n.kind === 'tesis').length));
+  h('Respaldo');
+  side.appendChild(sideItem('☁ Google Drive', v === 'drive', () => setView('drive')));
   const main = $('lib-main'); main.innerHTML = '';
   const q = $('lib-search').value.trim().toLowerCase();
   if (q) return renderSearch(main, q);
@@ -2796,6 +2821,7 @@ function renderLibrary() {
   if (v === 'fav') return renderFav(main);
   if (v === 'recent') return renderNbList(main, 'Recientes', 'Lo último que abriste.', lib.nbs.filter(n => n.opened).sort((a, b) => b.opened - a.opened).slice(0, 30));
   if (v === 'lecturas') return renderNbList(main, 'PDFs y lecturas', 'Cuadernos creados a partir de PDF, Word, PowerPoint u otros archivos.', lib.nbs.filter(n => n.kind === 'lectura').sort((a, b) => b.updated - a.updated));
+  if (v === 'drive') return renderDrive(main);
   if (v === 'tesis') return renderNbList(main, 'Tesis', 'Avances, observaciones y todo lo de tu tesis.', lib.nbs.filter(n => n.kind === 'tesis').sort((a, b) => b.updated - a.updated), true);
   renderCiclo(main);
 }
@@ -2810,7 +2836,7 @@ function mkBtn(label, fn, cls, title) { const b = document.createElement('button
 function starBtn(obj, label) {
   const b = document.createElement('button'); b.type = 'button'; b.className = 'star'; b.textContent = obj.fav ? '★' : '☆';
   b.setAttribute('aria-pressed', String(!!obj.fav)); b.setAttribute('aria-label', (obj.fav ? 'Quitar de favoritos: ' : 'Agregar a favoritos: ') + label);
-  b.onclick = e => { e.stopPropagation(); obj.fav = !obj.fav; saveLibrary(); renderLibrary(); };
+  b.onclick = e => { e.stopPropagation(); obj.fav = !obj.fav; obj.mod = Date.now(); saveLibrary(); renderLibrary(); };
   return b;
 }
 function renderCiclo(main) {
@@ -2887,19 +2913,19 @@ function renderSearch(main, q) {
   const list = document.createElement('div'); list.className = 'nblist'; nbs.forEach(n => list.appendChild(nbRow(n, true))); main.appendChild(list);
 }
 $('lib-search').addEventListener('input', renderLibrary);
-$('lib-rename').onclick = async () => { const t = await askText('Nombre de tu biblioteca', 'Nombre', lib.name); if (t) { lib.name = t; saveLibrary(); renderLibrary(); } };
+$('lib-rename').onclick = async () => { const t = await askText('Nombre de tu biblioteca', 'Nombre', lib.name); if (t) { lib.name = t; lib.nameMod = Date.now(); saveLibrary(); renderLibrary(); } };
 $('lib-new-course').onclick = () => editCourse(null, lib.cur.ciclo || (lib.ciclos[0] && lib.ciclos[0].id));
 $('lib-open-file').onclick = () => { if (!lib.cursos.length) { toast('Primero crea un curso para guardar ahí el archivo.'); return; } $('open-file').click(); };
 async function addCiclo() {
   const t = await askText('Nuevo ciclo', 'Nombre del ciclo', `Ciclo ${['I', 'II', 'III', 'IV', 'V', 'VI'][lib.ciclos.length] || lib.ciclos.length + 1}`);
   if (!t) return;
-  const c = { id: uid('y'), name: t }; lib.ciclos.push(c); setView('ciclo', { ciclo: c.id });
+  const c = { id: uid('y'), name: t, mod: Date.now() }; lib.ciclos.push(c); setView('ciclo', { ciclo: c.id });
 }
 async function editCiclo(cy) {
   const empty = !lib.cursos.some(c => c.cicloId === cy.id);
   const r = await askText('Ciclo', 'Nombre del ciclo', cy.name, empty && lib.ciclos.length > 1 ? 'Eliminar ciclo' : null);
-  if (r === '__extra__') { lib.ciclos = lib.ciclos.filter(c => c !== cy); setView('ciclo', { ciclo: lib.ciclos[0].id }); return; }
-  if (r) { cy.name = r; saveLibrary(); renderLibrary(); }
+  if (r === '__extra__') { tomb(cy.id); lib.ciclos = lib.ciclos.filter(c => c !== cy); setView('ciclo', { ciclo: lib.ciclos[0].id }); return; }
+  if (r) { cy.name = r; cy.mod = Date.now(); saveLibrary(); renderLibrary(); }
 }
 let cmCourse = null, cmColor = COURSE_COLORS[0];
 function editCourse(c, cicloId) {
@@ -2921,16 +2947,17 @@ $('cm-save').onclick = () => {
   if (!name) { toast('Escribe el nombre del curso.'); $('cm-name').focus(); return; }
   if (!lib.ciclos.length) { const y = { id: uid('y'), name: 'Ciclo I' }; lib.ciclos.push(y); $('cm-cycle').innerHTML = `<option value="${y.id}"></option>`; }
   const data = { name, teacher: $('cm-teacher').value.trim(), time: $('cm-time').value.trim(), cicloId: $('cm-cycle').value || lib.ciclos[0].id, color: cmColor };
+  data.mod = Date.now();
   if (cmCourse) Object.assign(cmCourse, data); else lib.cursos.push(Object.assign({ id: uid('k'), fav: false }, data));
   $('course-modal').hidden = true; saveLibrary();
-  if (lib.cur.view === 'ciclo') lib.cur.ciclo = data.cicloId;
-  renderLibrary();
+  if (!cmCourse || lib.cur.view === 'ciclo') setView('ciclo', { ciclo: data.cicloId }); else renderLibrary();
 };
 $('cm-delete').onclick = async () => {
   const c = cmCourse; if (!c) return;
   const n = lib.nbs.filter(x => x.cursoId === c.id).length;
   if (!(await confirmBox(n ? `¿Eliminar «${c.name}» y sus ${n} cuaderno${n > 1 ? 's' : ''}? Esto no se puede deshacer.` : `¿Eliminar el curso «${c.name}»?`, 'Eliminar curso'))) return;
   for (const nb of lib.nbs.filter(x => x.cursoId === c.id)) await deleteNbData(nb);
+  lib.nbs.filter(x => x.cursoId === c.id).forEach(x => tomb(x.id)); tomb(c.id);
   lib.nbs = lib.nbs.filter(x => x.cursoId !== c.id); lib.cursos = lib.cursos.filter(x => x !== c);
   $('course-modal').hidden = true; saveLibrary(); setView('ciclo', { ciclo: c.cicloId });
 };
@@ -2951,13 +2978,14 @@ async function nbMenu(n) {
   else if (r === 'date') { const t = await askText('Fecha', 'Fecha (año-mes-día)', n.date || todayISO(), null, 'date'); if (t) n.date = t; }
   else if (r === 'dup') {
     let d = null; try { d = await store.get('doc:' + n.id); } catch (e) {}
-    const c = Object.assign({}, n, { id: uid('n'), title: n.title + ' (copia)', created: Date.now(), updated: Date.now(), opened: 0, fav: false, copiedFrom: n.id });
+    const c = Object.assign({}, n, { id: uid('n'), title: n.title + ' (copia)', created: Date.now(), updated: Date.now(), opened: 0, fav: false, copiedFrom: n.id, mod: Date.now() });
+    markLocal(c.id);
     if (d) await store.set('doc:' + c.id, d);
     lib.nbs.push(c);
   } else if (r === 'del') {
-    if (await confirmBox(`¿Eliminar «${n.title}»? Esto no se puede deshacer.`, 'Eliminar cuaderno')) { await deleteNbData(n); lib.nbs = lib.nbs.filter(x => x !== n); }
+    if (await confirmBox(`¿Eliminar «${n.title}»? Esto no se puede deshacer.`, 'Eliminar cuaderno')) { await deleteNbData(n); tomb(n.id); lib.nbs = lib.nbs.filter(x => x !== n); }
   }
-  if (r) { saveLibrary(); renderLibrary(); }
+  if (r) { if (lib.nbs.includes(n)) n.mod = Date.now(); saveLibrary(); renderLibrary(); }
 }
 /* ventanas pequeñas para escribir o elegir */
 function askBase(title, label, mode, value, extra, inputType) {
@@ -3228,6 +3256,262 @@ async function convertMselToText() {
   msel = msel.filter(o => !s.has(o)).concat(obj);
   showFloat('multi', { t: 'multi' }); requestPaint();
 }
+
+
+/* ======================= GOOGLE DRIVE ======================= */
+const GOOGLE_CLIENT_ID = '';
+const GIS_URL = 'https://accounts.google.com/gsi/client';
+const GAPI = 'https://www.googleapis.com/drive/v3', GUP = 'https://www.googleapis.com/upload/drive/v3';
+const FOLDER_NAME = 'Pizarra de Apuntes';
+const GDOCS = {
+  docx: 'application/vnd.google-apps.document', doc: 'application/vnd.google-apps.document', odt: 'application/vnd.google-apps.document', rtf: 'application/vnd.google-apps.document',
+  pptx: 'application/vnd.google-apps.presentation', ppt: 'application/vnd.google-apps.presentation', odp: 'application/vnd.google-apps.presentation',
+  xlsx: 'application/vnd.google-apps.spreadsheet', xls: 'application/vnd.google-apps.spreadsheet', ods: 'application/vnd.google-apps.spreadsheet'
+};
+let convNoticeShown = false;
+const DRIVE = { token: null, exp: 0, folder: null, busy: false, last: 0, err: '', log: [] };
+let syncMeta = null, tokenClient = null, syncTimer = 0;
+function clientId() { let v = GOOGLE_CLIENT_ID; try { v = v || localStorage.getItem('pizarra-gclient') || ''; } catch (e) {} return v.trim(); }
+function driveReady() { return !!DRIVE.token && Date.now() < DRIVE.exp; }
+function dlog(msg) { const d = new Date(); DRIVE.log.unshift(`${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} ${msg}`); DRIVE.log = DRIVE.log.slice(0, 40); if (!$('library').hidden && lib.cur.view === 'drive') renderLibrary(); updateDriveChip(); }
+async function loadSyncMeta() { if (!syncMeta) { try { syncMeta = await store.get('syncmeta'); } catch (e) {} if (!syncMeta || !syncMeta.docs) syncMeta = { docs: {} }; } return syncMeta; }
+function saveSyncMeta() { if (syncMeta) store.set('syncmeta', syncMeta).catch(() => {}); }
+function markLocal(id) { loadSyncMeta().then(m => { m.docs[id] = m.docs[id] || { local: 0, synced: 0 }; m.docs[id].local = Date.now(); saveSyncMeta(); scheduleSync(); }); }
+function scheduleSync(ms) { clearTimeout(syncTimer); if (prefs.driveOn && driveReady()) syncTimer = setTimeout(() => syncAll(false), ms || 20000); }
+function needGis() { return window.google && google.accounts && google.accounts.oauth2 ? Promise.resolve() : loadScript(GIS_URL); }
+async function driveConnect(silent) {
+  const cid = clientId();
+  if (!cid) throw new Error('Falta el Client ID');
+  await needGis();
+  return new Promise((res, rej) => {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: cid, scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: r => {
+        if (!r || r.error) { rej(new Error(r && r.error || 'sin permiso')); return; }
+        DRIVE.token = r.access_token; DRIVE.exp = Date.now() + Math.max(60, (+r.expires_in || 3600) - 120) * 1000; DRIVE.err = '';
+        prefs.driveOn = true; prefs.driveConsented = true; savePrefs(); updateDriveChip(); res();
+      },
+      error_callback: e => rej(new Error(e && e.type === 'popup_closed' ? 'Cerraste la ventana de Google' : 'Google no abrió la ventana de permiso (¿bloqueador de ventanas?)'))
+    });
+    tokenClient.requestAccessToken({ prompt: silent || prefs.driveConsented ? '' : 'consent' });
+  });
+}
+async function gfetch(url, opts) {
+  if (!driveReady()) throw new Error('auth');
+  const o = Object.assign({}, opts || {}); o.headers = Object.assign({ Authorization: 'Bearer ' + DRIVE.token }, o.headers || {});
+  const r = await fetch(url, o);
+  if (r.status === 401) { DRIVE.token = null; updateDriveChip(); throw new Error('auth'); }
+  if (!r.ok) { let t = ''; try { t = (await r.json()).error.message; } catch (e) {} throw new Error(`Drive ${r.status} ${t}`); }
+  return r;
+}
+async function ensureFolder() {
+  if (DRIVE.folder) return DRIVE.folder;
+  const q = encodeURIComponent(`name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+  const j = await (await gfetch(`${GAPI}/files?q=${q}&fields=files(id,name)&spaces=drive`)).json();
+  if (j.files && j.files.length) return (DRIVE.folder = j.files[0].id);
+  const c = await (await gfetch(`${GAPI}/files?fields=id`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' }) })).json();
+  return (DRIVE.folder = c.id);
+}
+async function listRemote() {
+  const folder = await ensureFolder(), map = new Map();
+  let pageToken = '';
+  do {
+    const q = encodeURIComponent(`'${folder}' in parents and trashed=false`);
+    const j = await (await gfetch(`${GAPI}/files?q=${q}&pageSize=1000&fields=nextPageToken,files(id,name,appProperties)${pageToken ? '&pageToken=' + pageToken : ''}`)).json();
+    (j.files || []).forEach(f => map.set(f.name, f));
+    pageToken = j.nextPageToken || '';
+  } while (pageToken);
+  return map;
+}
+async function gupload(name, data, mime, existing, props, convertTo) {
+  const folder = await ensureFolder(), bd = 'pz' + Math.random().toString(36).slice(2);
+  const meta = existing ? { appProperties: props || {} } : { name, parents: [folder], appProperties: props || {} };
+  if (convertTo) meta.mimeType = convertTo;
+  const body = new Blob([`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: ${mime}\r\n\r\n`, data, `\r\n--${bd}--`]);
+  const url = existing ? `${GUP}/files/${existing.id}?uploadType=multipart&fields=id,name,appProperties` : `${GUP}/files?uploadType=multipart&fields=id,name,appProperties`;
+  return (await gfetch(url, { method: existing ? 'PATCH' : 'POST', headers: { 'Content-Type': `multipart/related; boundary=${bd}` }, body })).json();
+}
+const gtext = async f => (await gfetch(`${GAPI}/files/${f.id}?alt=media`)).text();
+const gdelete = f => gfetch(`${GAPI}/files/${f.id}`, { method: 'DELETE' }).catch(() => {});
+function mergeLib(local, remote) {
+  const del = Object.assign({}, local.deleted || {});
+  Object.entries(remote.deleted || {}).forEach(([k, v]) => { del[k] = Math.max(del[k] || 0, v); });
+  const cut = Date.now() - 120 * 864e5; Object.keys(del).forEach(k => { if (del[k] < cut) delete del[k]; });
+  const mergeArr = (a, b) => {
+    const m = new Map();
+    (b || []).forEach(x => m.set(x.id, x));
+    (a || []).forEach(x => { const o = m.get(x.id); if (!o || (x.mod || 0) >= (o.mod || 0)) m.set(x.id, o ? Object.assign({}, x, { opened: Math.max(x.opened || 0, o.opened || 0), thumb: x.thumb || o.thumb }) : x); else m.set(x.id, Object.assign({}, o, { opened: Math.max(x.opened || 0, o.opened || 0), thumb: o.thumb || x.thumb })); });
+    return [...m.values()].filter(x => !(del[x.id] && del[x.id] >= (x.mod || 0)));
+  };
+  const out = Object.assign({}, local);
+  out.ciclos = mergeArr(local.ciclos, remote.ciclos); out.cursos = mergeArr(local.cursos, remote.cursos); out.nbs = mergeArr(local.nbs, remote.nbs);
+  out.deleted = del;
+  if ((remote.nameMod || 0) > (local.nameMod || 0)) { out.name = remote.name; out.nameMod = remote.nameMod; }
+  out.cur = local.cur;
+  out.ciclos = out.ciclos.filter(y => {
+    if (out.cursos.some(c => c.cicloId === y.id)) return true;
+    const twin = out.ciclos.find(o => o !== y && o.name.trim().toLowerCase() === y.name.trim().toLowerCase());
+    return !(y.auto || twin) || (twin && out.cursos.every(c => c.cicloId !== twin.id) && out.ciclos.indexOf(twin) > out.ciclos.indexOf(y));
+  });
+  if (!out.ciclos.length && out.cursos.length) out.ciclos = [{ id: out.cursos[0].cicloId, name: 'Ciclo I', mod: 1 }];
+  return out;
+}
+function docImgIds(d) {
+  if (d.imgIds) return d.imgIds;
+  const ids = new Set(); (d.pages || []).forEach(p => { if (p.bgImg) ids.add(p.bgImg); (p.objs || []).forEach(o => { if (o.t === 'img') ids.add(o.id); }); }); return [...ids];
+}
+async function syncAll(interactive) {
+  if (DRIVE.busy) return;
+  if (!navigator.onLine) { DRIVE.err = 'Sin internet: se sincronizará cuando vuelva la conexión.'; updateDriveChip(); return; }
+  if (!driveReady()) {
+    if (!interactive) { updateDriveChip(); return; }
+    try { await driveConnect(false); } catch (e) { DRIVE.err = e.message; dlog('No se pudo conectar: ' + e.message); return; }
+  }
+  DRIVE.busy = true; DRIVE.err = ''; updateDriveChip();
+  let up = 0, down = 0, imgsUp = 0, imgsDown = 0, conflicts = 0;
+  try {
+    if (curNb) await saveNow();
+    const meta = await loadSyncMeta();
+    const remote = await listRemote();
+    // 1) biblioteca
+    const rl = remote.get('library.json');
+    if (rl) { try { const r = JSON.parse(await gtext(rl)); const curId = curNb && curNb.id; lib = mergeLib(lib, r); if (curId) curNb = lib.nbs.find(n => n.id === curId) || curNb; } catch (e) {} }
+    // 2) cuadernos
+    for (const nb of lib.nbs) {
+      const f = remote.get(`nb-${nb.id}.json`), sm = meta.docs[nb.id] || (meta.docs[nb.id] = { local: 0, synced: 0 });
+      if (!sm.local && !sm.synced) { const has = await store.get('doc:' + nb.id).catch(() => null); if (has) sm.local = nb.updated || Date.now(); }
+      const rU = f ? +((f.appProperties || {}).updated || 0) : 0;
+      const localChanged = sm.local > sm.synced, remoteChanged = !!f && rU > sm.synced;
+      if (remoteChanged && localChanged) {
+        const txt = await gtext(f), copy = Object.assign({}, nb, { id: uid('n'), title: nb.title + ' (de otro dispositivo)', mod: Date.now(), created: Date.now(), fav: false });
+        const d = JSON.parse(txt); await store.set('doc:' + copy.id, d); imgsDown += await pullImages(d, remote);
+        lib.nbs.push(copy); meta.docs[copy.id] = { local: Date.now(), synced: 0 }; conflicts++;
+      }
+      if (remoteChanged && !localChanged) {
+        const d = JSON.parse(await gtext(f));
+        imgsDown += await pullImages(d, remote);
+        await store.set('doc:' + nb.id, d); sm.local = sm.synced = rU; down++;
+        if (curNb && curNb.id === nb.id) { loadDoc(d); savedImgs.clear(); await loadStoredImages(); fitView(cam.fit || 'page'); invalidate(); updateUI(); buildPagesPanel(true); }
+      } else if (localChanged) {
+        const d = curNb && curNb.id === nb.id ? serialize(false) : await store.get('doc:' + nb.id).catch(() => null);
+        if (d) {
+          imgsUp += await pushImages(d, remote);
+          const stamp = sm.local;
+          await gupload(`nb-${nb.id}.json`, JSON.stringify(d), 'application/json', remote.get(`nb-${nb.id}.json`), { updated: String(stamp) });
+          sm.synced = stamp; up++;
+        }
+      }
+    }
+    // 3) borrar en Drive lo eliminado aquí
+    for (const id of Object.keys(lib.deleted || {})) { const f = remote.get(`nb-${id}.json`); if (f) await gdelete(f); }
+    // 4) subir la biblioteca
+    const libCopy = Object.assign({}, lib); delete libCopy.cur;
+    await gupload('library.json', JSON.stringify(libCopy), 'application/json', remote.get('library.json'), { updated: String(Date.now()) });
+    await store.set('library', lib); saveSyncMeta();
+    DRIVE.last = Date.now(); prefs.driveLast = DRIVE.last; savePrefs();
+    dlog(`Sincronizado: ${up} subido${up !== 1 ? 's' : ''}, ${down} descargado${down !== 1 ? 's' : ''}${imgsUp + imgsDown ? `, ${imgsUp + imgsDown} imágenes` : ''}${conflicts ? `, ${conflicts} conflicto${conflicts > 1 ? 's' : ''} guardado${conflicts > 1 ? 's' : ''} como copia` : ''}.`);
+    if (!$('library').hidden) renderLibrary();
+    if (conflicts) toast(`Un cuaderno cambió aquí y en otro dispositivo a la vez. Guardé la otra versión como copia «(de otro dispositivo)».`, 7000);
+  } catch (e) {
+    DRIVE.err = e.message === 'auth' ? 'La conexión con Google venció. Toca «Sincronizar ahora» para reconectar.' : 'No se pudo sincronizar: ' + e.message;
+    dlog(DRIVE.err);
+  } finally { DRIVE.busy = false; updateDriveChip(); }
+}
+async function pushImages(d, remote) {
+  let n = 0;
+  for (const id of docImgIds(d)) {
+    const name = `img-${id}.txt`; if (remote.has(name)) continue;
+    const v = doc && doc.images[id] || await store.get('img:' + id).catch(() => null); if (!v) continue;
+    const f = await gupload(name, v, 'text/plain', null, {}); remote.set(name, f); n++;
+  }
+  return n;
+}
+async function pullImages(d, remote) {
+  let n = 0;
+  for (const id of docImgIds(d)) {
+    const have = await store.get('img:' + id).catch(() => null); if (have) continue;
+    const f = remote.get(`img-${id}.txt`); if (!f) continue;
+    await store.set('img:' + id, await gtext(f)); imgMissing.delete(id); n++;
+  }
+  return n;
+}
+/* conversión fiel: Google convierte el archivo y lo devuelve como PDF */
+async function driveConvert(file, ext) {
+  setProgress(`Convirtiendo «${file.name}» con Google Drive…`, false);
+  const tmp = await gupload('tmp-' + file.name, file, file.type || 'application/octet-stream', null, { tmp: '1' }, GDOCS[ext]);
+  try {
+    const r = await gfetch(`${GAPI}/files/${tmp.id}/export?mimeType=application/pdf`);
+    const buf = new Uint8Array(await r.arrayBuffer());
+    const lib2 = await loadPdfJs();
+    const pdf = await lib2.getDocument({ data: buf }).promise;
+    const pages = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      if (imp.stop) break;
+      setProgress(`«${file.name}»: página ${i} de ${pdf.numPages}…`, true);
+      pages.push(await pdfPageToPage(pdf, i));
+    }
+    try { pdf.destroy(); } catch (e) {}
+    return pages;
+  } finally { gdelete(tmp); }
+}
+async function pdfPageToPage(pdf, i) {
+  const page = await pdf.getPage(i), vp1 = page.getViewport({ scale: 1 });
+  const s2 = clamp(2000 / Math.max(vp1.width, vp1.height), 1, 4), vp = page.getViewport({ scale: s2 });
+  const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+  await page.render({ canvasContext: x, viewport: vp }).promise;
+  const id = newImgId(); await putImage(id, c.toDataURL('image/jpeg', .86));
+  page.cleanup(); c.width = c.height = 0;
+  return pageFromSize(vp1.width, vp1.height, id);
+}
+function ago(t) { if (!t) return 'nunca'; const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'hace un momento' : m < 60 ? `hace ${m} min` : `hace ${Math.round(m / 60)} h`; }
+function updateDriveChip() {
+  const c = $('drive-chip'); if (!c) return;
+  c.classList.remove('off', 'err');
+  if (!prefs.driveOn) { c.textContent = '☁ Drive: sin conectar'; c.classList.add('off'); }
+  else if (DRIVE.busy) c.textContent = '☁ Sincronizando…';
+  else if (DRIVE.err) { c.textContent = '☁ Drive: revisar'; c.classList.add('err'); }
+  else if (!driveReady()) { c.textContent = '☁ Toca para sincronizar'; c.classList.add('off'); }
+  else c.textContent = `☁ Sincronizado ${ago(DRIVE.last || prefs.driveLast)}`;
+}
+$('drive-chip').onclick = () => { if (prefs.driveOn && clientId() && !driveReady()) syncAll(true); setView('drive'); };
+function renderDrive(main) {
+  headEl(main, '☁ Google Drive', 'Tus cursos y cuadernos se guardan en la carpeta «Pizarra de Apuntes» de tu Google Drive y se sincronizan entre tu iPad, tu PC y tu Android.');
+  const box = document.createElement('div'); box.className = 'drv';
+  const cid = clientId(), ready = driveReady();
+  const st = DRIVE.busy ? ['busy', 'Sincronizando…'] : DRIVE.err ? ['err', DRIVE.err] : ready ? ['ok', `Conectado · última sincronización ${ago(DRIVE.last || prefs.driveLast)}`] : prefs.driveOn ? ['', `Conectado antes en este dispositivo · última sincronización ${ago(prefs.driveLast)}. Toca «Sincronizar ahora».`] : ['', 'Sin conectar'];
+  box.innerHTML = `<div class="st"><span class="dotst ${st[0]}"></span><span>${escH(st[1])}</span></div>`;
+  const row = document.createElement('div'); row.className = 'row';
+  if (cid) {
+    row.appendChild(mkBtn(prefs.driveOn ? 'Sincronizar ahora' : 'Conectar con Google Drive', () => syncAll(true), 'primary'));
+    if (DRIVE.folder) { const a = document.createElement('a'); a.className = 'btn'; a.href = `https://drive.google.com/drive/folders/${DRIVE.folder}`; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Abrir la carpeta en Drive'; row.appendChild(a); }
+    if (prefs.driveOn) row.appendChild(mkBtn('Desconectar', () => { try { if (DRIVE.token && window.google) google.accounts.oauth2.revoke(DRIVE.token, () => {}); } catch (e) {} DRIVE.token = null; prefs.driveOn = false; savePrefs(); dlog('Desconectado. Tus apuntes siguen en este dispositivo y en tu Drive.'); }));
+  }
+  box.appendChild(row);
+  const conv = document.createElement('label'); conv.className = 'check';
+  conv.innerHTML = `<input type="checkbox" id="drv-conv" ${prefs.driveConvert !== false ? 'checked' : ''}> Convertir Word, PowerPoint y Excel con Google para que queden iguales al original (también .doc, .ppt, .xls antiguos)`;
+  conv.querySelector('input').onchange = e => { prefs.driveConvert = e.target.checked; savePrefs(); };
+  box.appendChild(conv);
+  const how = document.createElement('div'); how.className = 'col';
+  how.innerHTML = `<h3>Cómo funciona</h3><ol>
+    <li>Cada vez que abres la biblioteca y cada 2 minutos mientras escribes, se suben tus cambios y se bajan los de tus otros dispositivos.</li>
+    <li>Sin internet sigues trabajando normal; se sincroniza cuando vuelve la conexión.</li>
+    <li>Si un mismo cuaderno cambió en dos dispositivos a la vez, no se pierde nada: la otra versión aparece como copia «(de otro dispositivo)».</li>
+    <li>La pizarra solo puede ver los archivos que ella crea en tu Drive. No ve el resto de tus archivos.</li>
+    <li>Por seguridad, Google pide confirmar la conexión de vez en cuando: toca «Sincronizar ahora» cuando lo veas.</li></ol>`;
+  box.appendChild(how);
+  const cfg = document.createElement('div'); cfg.className = 'col';
+  cfg.innerHTML = `<h3>Client ID de Google ${cid ? '✓' : ''}</h3><p class="hint">${cid ? 'Ya está configurado.' : 'Pega aquí el ID de cliente que creaste en Google Cloud (termina en <code>.apps.googleusercontent.com</code>).'}</p>`;
+  const r2 = document.createElement('div'); r2.className = 'row';
+  const inp = document.createElement('input'); inp.id = 'drv-cid'; inp.type = 'text'; inp.placeholder = '1234567890-abc.apps.googleusercontent.com'; inp.value = GOOGLE_CLIENT_ID ? '' : (cid || '');
+  inp.style.cssText = 'flex:1;min-width:240px;height:40px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--panel)';
+  if (!GOOGLE_CLIENT_ID) { r2.appendChild(inp); r2.appendChild(mkBtn('Guardar', () => { const v = inp.value.trim(); if (v && !/\.apps\.googleusercontent\.com$/.test(v)) { toast('Ese no parece un Client ID: debe terminar en .apps.googleusercontent.com'); return; } try { localStorage.setItem('pizarra-gclient', v); } catch (e) {} toast(v ? 'Client ID guardado. Ahora pulsa «Conectar con Google Drive».' : 'Client ID borrado.'); renderLibrary(); })); cfg.appendChild(r2); }
+  box.appendChild(cfg);
+  if (DRIVE.log.length) { const lg = document.createElement('div'); lg.className = 'col'; lg.innerHTML = `<h3>Actividad</h3><div class="log">${DRIVE.log.map(escH).join('\n')}</div>`; box.appendChild(lg); }
+  main.appendChild(box);
+}
+setInterval(() => { if (prefs.driveOn && driveReady() && navigator.onLine && !DRIVE.busy) syncAll(false); updateDriveChip(); }, 120000);
+window.addEventListener('online', () => { if (prefs.driveOn && driveReady()) setTimeout(() => syncAll(false), 2500); });
 
 init();
 

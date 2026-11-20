@@ -88,7 +88,8 @@ a.btn{text-decoration:none;color:inherit}
 .chip.done{background:var(--warn);border-color:var(--warn);color:#fff}
 .menu-wrap{position:relative}
 .menu{position:absolute;right:0;top:calc(100% + 4px);z-index:30;min-width:250px;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:4px;display:flex;flex-direction:column}
-.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 12px;border-radius:5px;min-height:var(--ctl)}
+.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:9px 12px;border-radius:5px;min-height:var(--ctl);flex:none;line-height:1.3}
+.menu>*{flex-shrink:0}
 .menu button:hover{background:var(--hover)}
 .menu hr{border:0;border-top:1px solid var(--line);margin:4px 2px}
 
@@ -7158,12 +7159,15 @@ $('cont-btn').onclick = contToggle;
 function contCuts(p) {
   const step = contStep(p), boxes = p.objs.map(o => { try { return bbox(o); } catch (e) { return null; } }).filter(Boolean), cuts = [0];
   let y = 0;
-  while (y + step < p.H - 4) {
+  while (true) {
+    if (!boxes.some(b => b[3] > y + 4)) break;
+    if (p.H - y <= step + 4) { cuts.push(p.H); return cuts; }
     let cut = y + step;
     for (let t = 0; t < 60 && cut > y + step * .7; t++) { const bad = boxes.some(b => b[1] < cut - 2 && b[3] > cut + 2 && b[3] - b[1] < step * .5); if (!bad) break; cut -= step * .005; }
     cuts.push(Math.round(cut)); y = cut;
   }
-  cuts.push(p.H); return cuts;
+  if (cuts.length === 1) cuts.push(Math.min(p.H, step));
+  return cuts;
 }
 const _buildPdfBlob = buildPdfBlob;
 buildPdfBlob = async function (onStep) {

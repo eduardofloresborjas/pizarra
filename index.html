@@ -128,6 +128,34 @@ body.touch .tool kbd{display:none}
 @keyframes pulse{to{opacity:.3}}
 #dict-live{color:var(--muted);font-size:14px;min-width:120px;max-width:420px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 #dict-lang{height:34px}
+body.presenting header.top,body.presenting .opts,body.presenting #rail,body.presenting #pages-panel,body.presenting #side,body.presenting #status{display:none!important}
+body.presenting .stage{background:#1d232b}
+#pres-bar{position:absolute;z-index:7;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:rgba(20,26,33,.86);color:#fff;border-radius:12px;padding:6px 8px;opacity:.35;transition:opacity .2s}
+#pres-bar:hover,#pres-bar:focus-within{opacity:1}
+#pres-bar .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.25);height:36px}
+#pres-bar .btn.on{background:#fff;color:#111}
+#pres-bar .sep{width:1px;height:22px;background:rgba(255,255,255,.3)}
+#pres-n{min-width:64px;text-align:center;font-variant-numeric:tabular-nums}
+#pomo-display{font:500 52px/1 var(--f-mono);font-variant-numeric:tabular-nums;text-align:center;padding:10px 0;border-radius:8px;border:2px solid #d92d20;color:#b42318}
+#pomo-display.pomo-short,#pomo-display.pomo-long{border-color:#12805c;color:#12805c}
+.st-card{display:block;color:var(--accent);cursor:pointer;margin:2px 0 6px}
+.study h3{font-size:15px;margin:22px 0 10px}
+.st-kpis{display:flex;gap:12px;flex-wrap:wrap}
+.st-kpis div{flex:1;min-width:140px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel);display:flex;flex-direction:column}
+.st-kpis b{font-size:24px}.st-kpis span{color:var(--muted);font-size:13px}
+.st-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:640px}
+.st-day{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px}
+.st-day.today span{font-weight:700;color:var(--accent)}
+.st-day small{color:var(--muted)}
+.st-col{height:140px;width:100%;max-width:46px;display:flex;flex-direction:column-reverse;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.st-col i{display:block;width:100%}
+.st-rows{display:flex;flex-direction:column;gap:10px;max-width:760px}
+.st-row{display:grid;grid-template-columns:minmax(120px,220px) 1fr 130px;gap:12px;align-items:center}
+.st-name{display:flex;align-items:center;gap:8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.st-name .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.st-bar{height:14px;background:var(--bg);border-radius:7px;overflow:hidden;border:1px solid var(--line)}
+.st-bar i{display:block;height:100%;border-radius:7px}
+.st-val{display:flex;flex-direction:column;font-weight:600}.st-val small{font-weight:400;color:var(--muted)}
 body.touch #float .btn{height:40px}
 #float .alt{font-size:17px;border-color:var(--accent);color:var(--accent)}
 #float .note{font-size:12px;color:var(--muted);padding:0 6px;max-width:300px}
@@ -335,6 +363,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
     </div>
     <span class="chip" id="net-chip" hidden title="Tus cambios se guardan en este dispositivo. La escritura inteligente se convertirá cuando vuelva la conexión.">Sin internet</span>
     <button class="chip" id="rec-chip" hidden title="Grabando el audio de la clase. Toca para detener.">● 00:00</button>
+    <button class="chip" id="pomo-chip" hidden title="Abrir el Pomodoro">🍅 25:00</button>
     <button class="chip" id="timer-chip" hidden title="Abrir el temporizador">00:00</button>
     <div class="group">
       <div class="menu-wrap">
@@ -378,6 +407,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="rec-btn">Grabar el audio de la clase</button>
           <button id="hl-summary">Resumen de lo resaltado</button>
           <button id="nb-ref">Datos de la lectura (APA 7)…</button>
+          <button id="share-btn">🔗 Compartir por enlace…</button>
           <button id="save-png">Guardar esta hoja como imagen PNG</button>
           <button id="save-docx">Exportar como Word (.docx)</button>
           <button id="save-pptx">Exportar como PowerPoint (.pptx)</button>
@@ -385,8 +415,9 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="new-doc">Nuevo cuaderno en este curso…</button>
           <div class="mh">Vista</div>
           <button id="fit-width">Ajustar al ancho de la pantalla</button>
+          <button id="present-btn">▶ Modo presentación</button>
           <button id="full">Pantalla completa</button>
-          <button id="side-toggle" aria-controls="side">Panel de clase (temporizador, alumno al azar)</button>
+          <button id="side-toggle" aria-controls="side">Panel de clase (Pomodoro, temporizador, alumno al azar)</button>
           <div class="mh">Ayuda</div>
           <button id="news-btn">Novedades</button>
           <button id="report-btn">Reportar un problema o idea…</button>
@@ -448,9 +479,25 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
       <textarea id="ed" hidden spellcheck="false" aria-label="Texto para la hoja"></textarea>
       <div id="status" hidden></div>
       <div id="float" hidden></div>
+      <div id="pres-bar" hidden><button class="btn ic" id="pres-prev" aria-label="Hoja anterior">‹</button><span id="pres-n">1 / 1</span><button class="btn ic" id="pres-next" aria-label="Hoja siguiente">›</button><span class="sep"></span><button class="btn" id="pres-laser">🔴 Láser</button><button class="btn" id="pres-pen">✏ Lápiz</button><button class="btn" id="pres-hl">🖍 Resaltar</button><button class="btn ic" id="pres-undo" aria-label="Deshacer">↶</button><span class="sep"></span><button class="btn" id="pres-exit">Salir</button></div>
       <div id="dict-bar" hidden><span class="dot"></span><b>Dictando</b><span id="dict-live"></span><select id="dict-lang" aria-label="Idioma del dictado"></select><button class="btn primary" id="dict-stop">Detener</button></div>
     </div>
     <aside class="side" id="side" aria-label="Panel de clase" hidden>
+      <section>
+        <h2>Pomodoro</h2>
+        <div id="pomo-display" class="pomo-focus">25:00</div>
+        <div id="pomo-phase" class="hint" style="text-align:center">Enfoque · ronda 1 de 4</div>
+        <div class="row">
+          <button class="btn primary" id="pomo-start">Iniciar</button>
+          <button class="btn" id="pomo-skip" title="Pasar a la siguiente fase">Saltar</button>
+          <button class="btn" id="pomo-reset">Reiniciar</button>
+        </div>
+        <div class="row">
+          <label class="lbl" for="pomo-f">Enfoque</label><input type="number" id="pomo-f" min="5" max="90" value="25" style="width:56px">
+          <label class="lbl" for="pomo-b">Descanso</label><input type="number" id="pomo-b" min="1" max="30" value="5" style="width:56px"><span class="hint">min</span>
+        </div>
+        <p class="hint" id="pomo-today"></p>
+      </section>
       <section>
         <h2>Temporizador</h2>
         <div id="timer-display">05:00</div>
@@ -579,6 +626,21 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
   <div class="lib-body">
     <nav class="lib-side" id="lib-side" aria-label="Ciclos y accesos"></nav>
     <main class="lib-main" id="lib-main"></main>
+  </div>
+</div>
+
+<div class="modal" id="share" hidden role="dialog" aria-modal="true" aria-labelledby="share-title">
+  <div class="sheet small">
+    <h1 id="share-title" style="font-size:19px">🔗 Compartir por enlace</h1>
+    <p class="hint" id="share-msg" style="margin:0;font-size:14px"></p>
+    <input id="share-link" readonly hidden style="border:1px solid var(--line);border-radius:8px;padding:9px 10px;font:inherit;background:var(--bg)" onfocus="this.select()">
+    <div class="actions" style="flex-wrap:wrap">
+      <button class="btn danger" id="share-stop" hidden style="margin-right:auto">Dejar de compartir</button>
+      <button class="btn" id="share-close">Cerrar</button>
+      <button class="btn" id="share-update" hidden>Actualizar con lo último</button>
+      <button class="btn primary" id="share-copy" hidden>Copiar enlace</button>
+      <button class="btn primary" id="share-make">Crear enlace</button>
+    </div>
   </div>
 </div>
 
@@ -2274,7 +2336,7 @@ $('side-toggle').onclick = () => { closeMenus(); toggleSide(); };
 function toggleSide(show) {
   const s = $('side'); s.hidden = show === undefined ? !s.hidden : !show;
   $('side-toggle').setAttribute('aria-expanded', String(!s.hidden));
-  updateChip();
+  updateChip(); if (typeof pomoDraw === 'function') pomoDraw();
 }
 $('full').onclick = () => { closeMenus(); fullscreen(); };
 function fullscreen() {
@@ -2350,13 +2412,22 @@ async function exportPDF() {
   try {
     commitEditor(); await finishSmart(); await fontsReady();
     toast('Preparando el PDF…', 60000);
-    try { await loadFirst(JSPDF_URLS, () => !!window.jspdf); } catch (e) { toast('No se pudo cargar el creador de PDF. Revisa tu conexión a internet.'); return; }
+    let blob;
+    try { blob = await buildPdfBlob(i => toast(`Creando el PDF: hoja ${i + 1} de ${doc.pages.length}…`, 60000)); } catch (e) { toast(e.message === 'lib' ? 'No se pudo cargar el creador de PDF. Revisa tu conexión a internet.' : 'No se pudo crear el PDF. Inténtalo otra vez.'); return; }
+    await downloadBlob(blob, fileBase() + '.pdf');
+  } catch (e) { toast('No se pudo crear el PDF. Inténtalo otra vez.'); }
+  finally { exporting = false; }
+}
+async function buildPdfBlob(onStep) {
+  {
+    commitEditor(); await finishSmart(); await fontsReady();
+    try { await loadFirst(JSPDF_URLS, () => !!window.jspdf); } catch (e) { throw new Error('lib'); }
     const { jsPDF } = window.jspdf;
     const orient = a => a[0] > a[1] ? 'landscape' : 'portrait';
     const first = ptOf(doc.pages[0]);
     const pdf = new jsPDF({ orientation: orient(first), unit: 'pt', format: first, compress: true });
     for (let i = 0; i < doc.pages.length; i++) {
-      toast(`Creando el PDF: hoja ${i + 1} de ${doc.pages.length}…`, 60000);
+      onStep(i);
       const page = doc.pages[i], sz = ptOf(page);
       const c = await renderPageCanvas(page, clamp(2200 / Math.max(page.W, page.H), 1.4, 2.4));
       if (i) pdf.addPage(sz, orient(sz));
@@ -2364,9 +2435,8 @@ async function exportPDF() {
       pdf.addImage(c.toDataURL('image/jpeg', .9), 'JPEG', 0, 0, pw, ph, undefined, 'FAST');
       await new Promise(r => setTimeout(r, 0));
     }
-    await downloadBlob(pdf.output('blob'), fileBase() + '.pdf');
-  } catch (e) { toast('No se pudo crear el PDF. Inténtalo otra vez.'); }
-  finally { exporting = false; }
+    return pdf.output('blob');
+  }
 }
 $('export-pdf').onclick = exportPDF;
 $('save-png').onclick = async () => {
@@ -3227,6 +3297,7 @@ function renderLibrary() {
   side.appendChild(sideItem('🏷 Etiquetas', v === 'tags', () => setView('tags')));
   side.appendChild(sideItem('🧠 Repaso', v === 'cards', () => setView('cards')));
   side.appendChild(sideItem('📚 Mi bibliografía', v === 'biblio', () => setView('biblio'), liveNbs().filter(n => n.ref && n.ref.title).length));
+  side.appendChild(sideItem('⏱ Horas de estudio', v === 'study', () => setView('study')));
   side.appendChild(sideItem('🎓 Tesis', v === 'tesis', () => setView('tesis'), liveNbs().filter(n => n.kind === 'tesis').length));
   h('Respaldo');
   side.appendChild(sideItem('🗑 Papelera', v === 'trash', () => setView('trash'), lib.nbs.filter(n => n.trashed).length + lib.cursos.filter(c => c.trashed).length || null));
@@ -3241,6 +3312,7 @@ function renderLibrary() {
   if (v === 'drive') return renderDrive(main);
   if (v === 'trash') return renderTrash(main);
   if (v === 'cal') return renderCal(main);
+  if (v === 'study') return renderStudy(main);
   if (v === 'tags') return renderTags(main);
   if (v === 'cards') return renderCards(main);
   if (v === 'biblio') return renderBiblio(main);
@@ -3286,6 +3358,8 @@ function courseCard(c) {
     b.onclick = () => openNotebook(n); ss.appendChild(b);
   });
   if (list.length > 3) { const b = document.createElement('button'); b.innerHTML = `<span style="color:var(--accent)">Ver las ${list.length} sesiones</span>`; b.onclick = () => setView('curso', { curso: c.id }); ss.appendChild(b); }
+  const sw = studyWeek(c.id, 0);
+  if (sw) { const st = document.createElement('small'); st.className = 'st-card'; st.textContent = `⏱ ${hm(sw)} esta semana`; st.onclick = () => setView('study'); card.querySelector('.ss').before(st); }
   const acts = card.querySelector('.acts');
   acts.appendChild(mkBtn('+ Nueva sesión', () => openSetup(c.id, 'sesion'), 'primary'));
   acts.appendChild(mkBtn('Editar', () => editCourse(c)));
@@ -3792,6 +3866,8 @@ function mergeLib(local, remote) {
   const out = Object.assign({}, local);
   out.ciclos = mergeArr(local.ciclos, remote.ciclos); out.cursos = mergeArr(local.cursos, remote.cursos); out.nbs = mergeArr(local.nbs, remote.nbs); out.tasks = mergeArr(local.tasks, remote.tasks);
   out.deleted = del;
+  out.study = JSON.parse(JSON.stringify(local.study || {}));
+  Object.entries(remote.study || {}).forEach(([cid, days]) => { const o = out.study[cid] = out.study[cid] || {}; Object.entries(days).forEach(([d, m]) => { o[d] = Math.max(o[d] || 0, m); }); });
   if ((remote.nameMod || 0) > (local.nameMod || 0)) { out.name = remote.name; out.nameMod = remote.nameMod; }
   out.cur = local.cur;
   out.ciclos = out.ciclos.filter(y => {
@@ -4021,8 +4097,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20h';
+const APP_VERSION = '2026-11-20i';
 const CHANGELOG = [
+  { v: '2026-11-20i', t: '20 de noviembre · noche (4)', items: ['🔗 Compartir por enlace («⋯ → Compartir por enlace»): crea un PDF de solo lectura en tu Drive. Puedes actualizarlo o dejar de compartir cuando quieras.', '▶ Modo presentación: pantalla completa sin botones, puntero láser, lápiz y resaltador para anotar, y ← → para pasar de hoja.', '🍅 Pomodoro en el panel de clase (25 min de enfoque y 5 de descanso, ajustables).', '⏱ Horas de estudio por curso y por día: se cuentan solas mientras trabajas en un cuaderno y las ves en la biblioteca.'] },
   { v: '2026-11-20h', t: '20 de noviembre · noche (3)', items: ['🎤 Dictado por voz («Insertar → Dictar por voz»): lo que dices aparece como texto. Di «punto», «coma» o «punto y aparte».', 'Leer texto de fotos: toca una imagen → «Leer texto», o «⋯ → Leer el texto de esta hoja». Usa Google Drive si está conectado.', 'Traducir: selecciona un texto → «Traducir» y la traducción aparece debajo, en azul.', 'Exportar como Word (.docx) o PowerPoint (.pptx), cada hoja con su orientación.'] },
   { v: '2026-11-20g', t: '20 de noviembre · noche (2)', items: ['Diagramas de flujo (herramienta D): proceso, decisión, inicio/fin, entrada/salida, documento y conector, con flechas que siguen a las figuras.', 'Tablas editables, gráficos de barras, líneas y torta desde datos, fórmulas con aspecto de libro y ejes con la escala que elijas.', 'Regla con medida en cm, transportador con ángulos y compás (herramienta C).', 'Fondo de papel milimetrado.'] },
   { v: '2026-11-20f', t: '20 de noviembre · noche', items: ['🗑 Papelera: lo que eliminas (cursos, cuadernos y hojas) se guarda 30 días.', 'Copias de seguridad semanales automáticas en Drive (últimas 8) y copia completa en archivo.', '📅 Calendario: tus sesiones por fecha con el color de cada curso, y entregas con aviso de las próximas.', 'En cada curso, las sesiones se agrupan por mes.'] },
@@ -5335,6 +5412,180 @@ async function exportPptx() {
 }
 $('save-docx').onclick = exportDocx;
 $('save-pptx').onclick = exportPptx;
+
+/* ---------- Fase G: compartir, presentación, Pomodoro y horas de estudio ---------- */
+/* 24 · compartir por enlace */
+let sharing = false;
+async function shareOpen() {
+  closeMenus(); if (!curNb || sharing) return;
+  if (!clientId()) { toast('Para compartir por enlace primero conecta Google Drive (biblioteca → ☁ Google Drive).', 7000); return; }
+  if (!navigator.onLine) { toast('Compartir necesita internet.'); return; }
+  try { if (!driveReady()) await driveConnect(true); } catch (e) { toast('No se pudo conectar con Google Drive: ' + e.message); return; }
+  shareShow();
+}
+function shareShow(msg) {
+  const s = curNb.share;
+  $('share-link').hidden = $('share-copy').hidden = $('share-stop').hidden = $('share-update').hidden = !s;
+  $('share-make').hidden = !!s;
+  if (s) $('share-link').value = s.link;
+  $('share-msg').textContent = msg || (s ? `Compartido el ${new Date(s.at).toLocaleString('es-PE', { dateStyle: 'medium', timeStyle: 'short' })}. Quien tenga el enlace puede ver el PDF, pero no editar tus apuntes. Si escribes más, pulsa «Actualizar» y el mismo enlace mostrará lo nuevo.` : 'Crearé un PDF de este cuaderno en tu Google Drive (carpeta «Pizarra de Apuntes») y un enlace de solo lectura para enviarlo por WhatsApp o correo. Puedes dejar de compartir cuando quieras.');
+  $('share').hidden = false;
+}
+async function shareBuild(update) {
+  if (sharing) return; sharing = true;
+  const btns = ['share-make', 'share-update', 'share-stop'].map($); btns.forEach(b => { b.disabled = true; });
+  try {
+    if (!driveReady()) await driveConnect(true);
+    const blob = await buildPdfBlob(i => { $('share-msg').textContent = `Preparando el PDF: hoja ${i + 1} de ${doc.pages.length}…`; });
+    $('share-msg').textContent = 'Subiendo a Google Drive…';
+    const name = `${curNb.title} (compartido).pdf`;
+    let f;
+    if (update && curNb.share) { try { f = await gupload(name, blob, 'application/pdf', { id: curNb.share.id }, { share: '1', nb: curNb.id }); } catch (e) { f = null; } }
+    if (!f) {
+      f = await gupload(name, blob, 'application/pdf', null, { share: '1', nb: curNb.id });
+      await gfetch(`${GAPI}/files/${f.id}/permissions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: 'reader', type: 'anyone' }) });
+    }
+    const info = await (await gfetch(`${GAPI}/files/${f.id}?fields=webViewLink`)).json();
+    curNb.share = { id: f.id, link: info.webViewLink || `https://drive.google.com/file/d/${f.id}/view`, at: Date.now() }; curNb.mod = Date.now(); saveLibrary();
+    const ok = await copyText(curNb.share.link);
+    shareShow(update ? 'Listo: el enlace ya muestra la versión más reciente.' + (ok ? ' Enlace copiado.' : '') : 'Listo: tu enlace de solo lectura.' + (ok ? ' Ya está copiado, pégalo donde quieras.' : ''));
+  } catch (e) { $('share-msg').textContent = 'No se pudo compartir: ' + (e.message === 'auth' ? 'vuelve a conectar Google Drive.' : e.message); }
+  finally { sharing = false; btns.forEach(b => { b.disabled = false; }); }
+}
+$('share-btn').onclick = shareOpen;
+$('share-make').onclick = () => shareBuild(false);
+$('share-update').onclick = () => shareBuild(true);
+$('share-copy').onclick = async () => {
+  const l = curNb.share && curNb.share.link; if (!l) return;
+  if (navigator.share && touchUI()) { try { await navigator.share({ title: curNb.title, url: l }); return; } catch (e) {} }
+  toast((await copyText(l)) ? 'Enlace copiado.' : 'Mantén presionado el enlace para copiarlo.');
+};
+$('share-stop').onclick = async () => {
+  if (!curNb.share || !(await confirmBox('¿Dejar de compartir? El enlace dejará de funcionar para todos.', 'Dejar de compartir'))) { $('share').hidden = false; return; }
+  try { if (!driveReady()) await driveConnect(true); await gfetch(`${GAPI}/files/${curNb.share.id}`, { method: 'DELETE' }).catch(e => { if (!/404/.test(e.message)) throw e; }); delete curNb.share; curNb.mod = Date.now(); saveLibrary(); shareShow('Listo: ya no se comparte. El enlace anterior no funciona.'); }
+  catch (e) { shareShow('No se pudo dejar de compartir: ' + e.message); }
+};
+$('share-close').onclick = () => { $('share').hidden = true; };
+
+/* 25 · modo presentación */
+let presenting = null;
+function presentStart() {
+  closeMenus(); if (!curNb || presenting) return;
+  commitEditor(); hideFloat();
+  presenting = { tool, side: $('side').hidden, panel: $('pages-panel').hidden };
+  document.body.classList.add('presenting'); $('pres-bar').hidden = false;
+  try { const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen; if (req && !(document.fullscreenElement || document.webkitFullscreenElement)) { const r = req.call(el); if (r && r.catch) r.catch(() => {}); } } catch (e) {}
+  setTool('laser'); presUpdate();
+  setTimeout(() => { resize(); fitView('page'); }, 60); setTimeout(() => { resize(); fitView('page'); }, 400);
+  toast('Presentación: ← → para cambiar de hoja, Esc para salir.', 3500);
+}
+function presentStop() {
+  if (!presenting) return;
+  const p = presenting; presenting = null;
+  document.body.classList.remove('presenting'); $('pres-bar').hidden = true;
+  try { if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {}
+  setTool(p.tool === 'laser' ? 'pen' : p.tool);
+  setTimeout(() => { resize(); fitView('page'); }, 60); setTimeout(() => { resize(); fitView('page'); }, 400);
+}
+function presGo(d) { const i = clamp(doc.cur + d, 0, doc.pages.length - 1); if (i !== doc.cur) { goPage(i); setTimeout(() => fitView('page'), 0); } presUpdate(); }
+function presUpdate() {
+  if (!presenting) return;
+  $('pres-n').textContent = `${doc.cur + 1} / ${doc.pages.length}`;
+  ['laser', 'pen', 'hl'].forEach(t => $('pres-' + t).classList.toggle('on', tool === t));
+}
+window.addEventListener('keydown', e => {
+  if (!presenting || /INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ''))) return;
+  const k = e.key;
+  if (k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'ArrowDown') { e.preventDefault(); e.stopImmediatePropagation(); presGo(1); }
+  else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'ArrowUp') { e.preventDefault(); e.stopImmediatePropagation(); presGo(-1); }
+  else if (k === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); presentStop(); }
+}, true);
+document.addEventListener('fullscreenchange', () => { if (presenting && !document.fullscreenElement && !presenting.leaving) { /* salir de pantalla completa con Esc del navegador también termina la presentación */ presentStop(); } });
+$('present-btn').onclick = presentStart;
+$('pres-prev').onclick = () => presGo(-1);
+$('pres-next').onclick = () => presGo(1);
+$('pres-exit').onclick = presentStop;
+['laser', 'pen', 'hl'].forEach(t => { $('pres-' + t).onclick = () => { setTool(t); presUpdate(); }; });
+$('pres-undo').onclick = () => undo();
+
+/* 26 · Pomodoro y horas de estudio */
+const pomo = { phase: 'focus', round: 1, left: 0, end: 0, run: false, int: 0 };
+const pomoMin = ph => ph === 'focus' ? (prefs.pomoF || 25) : ph === 'long' ? 15 : (prefs.pomoB || 5);
+const PHASE = { focus: 'Enfoque', short: 'Descanso corto', long: 'Descanso largo' };
+function pomoDraw() {
+  if (!pomo.left && !pomo.run) pomo.left = pomoMin(pomo.phase) * 60;
+  $('pomo-display').textContent = fmt(pomo.left);
+  $('pomo-display').className = 'pomo-' + pomo.phase;
+  $('pomo-phase').textContent = `${PHASE[pomo.phase]} · ronda ${pomo.round} de 4`;
+  $('pomo-start').textContent = pomo.run ? 'Pausar' : 'Iniciar';
+  const ch = $('pomo-chip'); ch.hidden = !(pomo.run && $('side').hidden); ch.textContent = (pomo.phase === 'focus' ? '🍅 ' : '☕ ') + fmt(pomo.left);
+  const m = studyToday(); $('pomo-today').textContent = m ? `Hoy llevas ${hm(m)} de estudio${curNb && courseOf(curNb.cursoId) ? ' (' + hm(studyCourseDay(curNb.cursoId, todayISO())) + ' en ' + courseOf(curNb.cursoId).name + ')' : ''}.` : 'Tu tiempo de estudio se cuenta solo mientras trabajas en un cuaderno.';
+}
+function pomoNext() {
+  if (pomo.phase === 'focus') { pomo.phase = pomo.round % 4 === 0 ? 'long' : 'short'; }
+  else { pomo.phase = 'focus'; pomo.round = pomo.round % 4 + 1; }
+  pomo.left = pomoMin(pomo.phase) * 60;
+}
+function pomoTick() {
+  pomo.left = Math.max(0, Math.ceil((pomo.end - Date.now()) / 1000));
+  if (pomo.left === 0) {
+    const was = pomo.phase; beep(); pomoNext(); pomo.end = Date.now() + pomo.left * 1000;
+    toast(was === 'focus' ? `¡Bien! Toma un ${pomo.phase === 'long' ? 'descanso largo de 15' : 'descanso de ' + pomoMin('short')} minutos.` : '¡A seguir! Empieza otro bloque de enfoque.', 6000);
+    try { if (document.hidden && window.Notification && Notification.permission === 'granted') new Notification(was === 'focus' ? 'Hora de descansar' : 'Hora de volver a estudiar'); } catch (e) {}
+  }
+  pomoDraw();
+}
+$('pomo-start').onclick = () => {
+  if (pomo.run) { clearInterval(pomo.int); pomo.run = false; pomoDraw(); return; }
+  try { tm.actx = tm.actx || new (window.AudioContext || window.webkitAudioContext)(); tm.actx.resume(); } catch (e) {}
+  try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) {}
+  if (!pomo.left) pomo.left = pomoMin(pomo.phase) * 60;
+  pomo.run = true; pomo.end = Date.now() + pomo.left * 1000; pomo.int = setInterval(pomoTick, 250); pomoDraw();
+};
+$('pomo-skip').onclick = () => { pomoNext(); if (pomo.run) pomo.end = Date.now() + pomo.left * 1000; pomoDraw(); };
+$('pomo-reset').onclick = () => { clearInterval(pomo.int); pomo.run = false; pomo.phase = 'focus'; pomo.round = 1; pomo.left = pomoMin('focus') * 60; pomoDraw(); };
+$('pomo-f').onchange = e => { prefs.pomoF = clamp(Math.round(+e.target.value) || 25, 5, 90); e.target.value = prefs.pomoF; savePrefs(); if (!pomo.run && pomo.phase === 'focus') pomo.left = prefs.pomoF * 60; pomoDraw(); };
+$('pomo-b').onchange = e => { prefs.pomoB = clamp(Math.round(+e.target.value) || 5, 1, 30); e.target.value = prefs.pomoB; savePrefs(); if (!pomo.run && pomo.phase === 'short') pomo.left = prefs.pomoB * 60; pomoDraw(); };
+$('pomo-chip').onclick = () => toggleSide(true);
+$('pomo-f').value = prefs.pomoF || 25; $('pomo-b').value = prefs.pomoB || 5;
+
+const hm = m => m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ' ' + (m % 60) + ' min' : ''}`;
+function studyCourseDay(cid, day) { return ((lib.study || {})[cid] || {})[day] || 0; }
+function studyToday() { const d = todayISO(); return Object.values(lib.study || {}).reduce((a, c) => a + (c[d] || 0), 0); }
+function weekDays(offset) { const d = new Date(); d.setHours(12); const dow = (d.getDay() + 6) % 7; d.setDate(d.getDate() - dow + 7 * (offset || 0)); return [...Array(7)].map((_, i) => { const x = new Date(d); x.setDate(d.getDate() + i); return isoOf(x); }); }
+function studyWeek(cid, offset) { const c = (lib.study || {})[cid] || {}; return weekDays(offset).reduce((a, d) => a + (c[d] || 0), 0); }
+let lastAct = Date.now(), studySec = 0;
+['pointerdown', 'keydown', 'wheel'].forEach(ev => window.addEventListener(ev, () => { lastAct = Date.now(); }, { passive: true, capture: true }));
+setInterval(() => {
+  const inNb = curNb && $('library').hidden && $('setup').hidden && document.visibilityState === 'visible';
+  const active = Date.now() - lastAct < 4 * 60000 || (pomo.run && pomo.phase === 'focus') || !!dict || !!presenting || !$('rec-chip').hidden;
+  if (!inNb || !active || !curNb.cursoId) return;
+  studySec += 15;
+  if (studySec >= 60) {
+    studySec -= 60;
+    lib.study = lib.study || {}; const c = lib.study[curNb.cursoId] = lib.study[curNb.cursoId] || {}, d = todayISO();
+    c[d] = (c[d] || 0) + 1; saveLibrary();
+    if (!$('side').hidden) pomoDraw();
+  }
+}, 15000);
+function renderStudy(main) {
+  const days = weekDays(0), courses = liveCursos();
+  const tot = days.reduce((a, d) => a + courses.reduce((b, c) => b + studyCourseDay(c.id, d), 0), 0);
+  const prev = courses.reduce((a, c) => a + studyWeek(c.id, -1), 0);
+  headEl(main, '⏱ Horas de estudio', 'Se cuentan solas mientras trabajas en un cuaderno (si pasas más de 4 minutos sin tocar nada, se pausa). Se guardan por curso y por día.');
+  const box = document.createElement('div'); box.className = 'study';
+  const names = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  const perDay = days.map(d => courses.map(c => [c, studyCourseDay(c.id, d)]).filter(x => x[1]));
+  const maxD = Math.max(60, ...perDay.map(l => l.reduce((a, x) => a + x[1], 0)));
+  box.innerHTML = `<div class="st-kpis"><div><b>${hm(tot)}</b><span>esta semana</span></div><div><b>${hm(prev)}</b><span>semana pasada</span></div><div><b>${hm(studyToday())}</b><span>hoy</span></div></div>
+  <h3>Esta semana por día</h3><div class="st-days">${perDay.map((l, i) => `<div class="st-day${days[i] === todayISO() ? ' today' : ''}"><div class="st-col">${l.map(([c, m]) => `<i style="height:${(m / maxD * 100).toFixed(1)}%;background:${c.color}" title="${escH(c.name)}: ${hm(m)}"></i>`).join('')}</div><span>${names[i]}</span><small>${l.length ? hm(l.reduce((a, x) => a + x[1], 0)) : '—'}</small></div>`).join('')}</div>
+  <h3>Por curso</h3>`;
+  const rows = courses.map(c => { const all = Object.values((lib.study || {})[c.id] || {}).reduce((a, b) => a + b, 0); return [c, studyWeek(c.id, 0), all]; }).sort((a, b) => b[1] - a[1] || b[2] - a[2]);
+  const maxW = Math.max(1, ...rows.map(r => r[1]));
+  const list = document.createElement('div'); list.className = 'st-rows';
+  list.innerHTML = rows.length ? rows.map(([c, w, all]) => `<div class="st-row"><span class="st-name"><span class="dot" style="background:${c.color}"></span>${escH(c.name)}</span><span class="st-bar"><i style="width:${(w / maxW * 100).toFixed(1)}%;background:${c.color}"></i></span><span class="st-val">${w ? hm(w) : '—'}<small>${all ? 'total ' + hm(all) : ''}</small></span></div>`).join('') : '<p class="sub">Aún no hay cursos.</p>';
+  box.appendChild(list); main.appendChild(box);
+}
 
 init();
 

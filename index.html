@@ -212,6 +212,12 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
 .pg-handle{cursor:grab;color:var(--muted);font-size:16px;line-height:1;padding:4px 0;text-align:center;touch-action:none;user-select:none;-webkit-user-select:none}
 .pg-ghost{position:fixed;z-index:80;pointer-events:none;width:120px;opacity:.85;transform:rotate(-2deg);box-shadow:0 10px 26px rgba(0,0,0,.3);border-radius:4px;background:#fff}
 @media (max-width:820px){#pages-panel{position:absolute;left:0;top:0;bottom:0;z-index:15;box-shadow:8px 0 24px rgba(0,0,0,.2)}}
+#player{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:62;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 10px;box-shadow:0 10px 30px rgba(0,0,0,.2);width:min(560px,92vw)}
+#player input{flex:1;accent-color:var(--accent)}
+#pl-time{font:500 13px var(--f-mono);min-width:96px;text-align:right}
+#rec-chip{border-color:#d92d20;color:#d92d20;font-weight:600}
+.cardrow{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.cardrow b{flex:1}
 #progress{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:61;display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:8px 8px 8px 14px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:min(92vw,560px)}
 #drive-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-body);font-size:12px}
 #drive-chip.off{border-color:var(--line);color:var(--muted)}
@@ -607,6 +613,39 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
   </div>
 </div>
 
+<div class="modal" id="refm" hidden role="dialog" aria-modal="true" aria-labelledby="ref-title">
+  <div class="sheet" style="width:min(640px,100%)">
+    <h1 id="ref-title" style="font-size:20px">Datos de la lectura (APA 7)</h1>
+    <div class="pills" role="radiogroup" aria-label="Tipo de fuente" id="ref-type"></div>
+    <div class="frow" id="ref-fields"></div>
+    <div class="field"><span class="lbl">Referencia en APA 7</span><div id="ref-out" style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;padding-left:36px;text-indent:-24px;line-height:1.55;background:var(--bg);min-height:48px"></div></div>
+    <p class="hint">Autores en formato «Apellido, I.», separados por coma; el último con «y». Ejemplo: Hernández, R., Fernández, C. y Baptista, P.</p>
+    <div class="actions">
+      <button class="btn" id="ref-cancel">Cerrar</button>
+      <button class="btn" id="ref-insert">Insertar en la hoja</button>
+      <button class="btn" id="ref-copy">Copiar referencia</button>
+      <button class="btn primary" id="ref-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="study" hidden role="dialog" aria-modal="true" aria-labelledby="st-title">
+  <div class="sheet" style="width:min(620px,100%);align-items:stretch">
+    <div class="row" style="justify-content:space-between"><h1 id="st-title" style="font-size:18px">Repaso</h1><span class="hint" id="st-count"></span></div>
+    <div id="st-front" style="font-size:22px;font-weight:600;text-align:center;padding:18px 8px;min-height:90px;display:grid;place-items:center"></div>
+    <div id="st-back" hidden style="text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:14px"></div>
+    <div class="actions" style="justify-content:center">
+      <button class="btn primary" id="st-show">Ver respuesta</button>
+      <button class="btn" id="st-no" hidden style="color:var(--warn);border-color:var(--warn)">No la sabía</button>
+      <button class="btn" id="st-hard" hidden>Difícil</button>
+      <button class="btn" id="st-yes" hidden style="color:#12805c;border-color:#12805c">La sabía</button>
+    </div>
+    <div class="actions"><button class="btn" id="st-close">Terminar</button></div>
+  </div>
+</div>
+
+<div id="player" hidden role="region" aria-label="Audio de la clase"><button class="btn ic" id="pl-play" aria-label="Reproducir o pausar">⏸</button><input type="range" id="pl-seek" min="0" max="100" value="0" aria-label="Posición del audio"><span id="pl-time">00:00</span><button class="btn ic" id="pl-close" aria-label="Cerrar audio">✕</button></div>
+
 <div class="modal" id="pageset" hidden role="dialog" aria-modal="true" aria-labelledby="ps-title">
   <div class="sheet" style="width:min(640px,100%)">
     <div>
@@ -819,7 +858,7 @@ function serialize(withImages) {
   const images = {};
   if (withImages) usedImageIds().forEach(id => { if (doc.images[id]) images[id] = doc.images[id]; });
   const pages = doc.pages.map(p => { const o = { fmt: p.fmt, W: p.W, H: p.H, bg: p.bg, board: p.board, objs: p.objs }; if (p.pt) o.pt = p.pt; if (p.bgImg) o.bgImg = p.bgImg; if (p.tags && p.tags.length) o.tags = p.tags; if (p.ptext) o.ptext = p.ptext; if (p.ptw) o.ptw = p.ptw; return o; });
-  return { v: 3, cur: doc.cur, pages, images, imgIds: usedImageIds() };
+  return { v: 3, cur: doc.cur, pages, images, imgIds: usedImageIds(), audio: doc.audio || [] };
 }
 const savedImgs = new Set();
 async function loadStoredImages() {
@@ -836,7 +875,7 @@ function validDoc(d) { return d && Array.isArray(d.pages) && d.pages.length; }
 function loadDoc(d) {
   const oldFmt = FORMATS[d.format] ? d.format : 'wide', oldBoard = BOARDS[d.board] ? d.board : 'white';
   doc = {
-    v: 3, cur: 0, images: Object.assign({}, d.images || {}),
+    v: 3, cur: 0, images: Object.assign({}, d.images || {}), audio: Array.isArray(d.audio) ? d.audio : [],
     pages: d.pages.map(p => {
       const fmt = p.fmt || oldFmt, dm = p.W > 0 && p.H > 0 ? { W: p.W, H: p.H } : dimsOf(fmt);
       const q = { fmt, W: dm.W, H: dm.H, bg: BGS[p.bg] ? p.bg : 'grid', board: BOARDS[p.board] ? p.board : oldBoard, objs: Array.isArray(p.objs) ? p.objs : [], undo: [], redo: [] };
@@ -1602,7 +1641,7 @@ function end(cancelled) {
     if (cancelled) { curTs = null; requestPaint(); return; }
     if (at === 'smart') { o.ts = curTs; curTs = null; pend.strokes.push(o); pend.page = doc.cur; scheduleSmart(); requestPaint(); return; }
     const tiny = o.t !== 'pen' && Math.hypot(o.x2 - o.x1, o.y2 - o.y1) < 3 / cam.s;
-    if (!tiny) mutate(() => pg().objs.push(o)); else requestPaint();
+    if (!tiny) { stampAudio(o); mutate(() => pg().objs.push(o)); } else requestPaint();
   }
   if (erasing) { if (erasing.any) pushUndo(pg(), erasing.before); erasing = null; if (touchUI()) eraserPos = null; requestPaint(); }
   if (cropRect) { applyCrop(); return; }
@@ -1640,7 +1679,7 @@ function commitEditor() {
     const objs = pg().objs, i = objs.indexOf(e.ref);
     if (i < 0 || text === e.ref.text) { invalidate(); return; }
     mutate(() => { if (text) { e.ref.text = text; delete e.ref.ink; delete e.ref.alts; } else { objs.splice(i, 1); sel = -1; } });
-  } else if (text) mutate(() => pg().objs.push({ t: 'text', x: r1(e.x), y: r1(e.y), text, c: e.c, size: e.size, f: e.f }));
+  } else if (text) mutate(() => pg().objs.push({ au: recAt(), t: 'text', x: r1(e.x), y: r1(e.y), text, c: e.c, size: e.size, f: e.f }));
 }
 function cancelEditor() { if (!ed) return; ed = null; ta.hidden = true; invalidate(); }
 ta.addEventListener('input', fitEditor);
@@ -1690,7 +1729,7 @@ function runSmart() {
     }
     const bb = ptsBox(batch.strokes), f = prefs.font, fit = fitText(text, bb, f);
     const obj = { t: 'text', x: r1(fit.x), y: r1(fit.y), text, c: batch.strokes[0].c, size: Math.round(fit.size * 10) / 10, f, ink: inkObjs, alts: [...new Set(cands.map(c => c.trim()).filter(Boolean))].slice(0, 6), bb };
-    mutatePage(page, () => page.objs.push(obj));
+    stampAudio(obj); mutatePage(page, () => page.objs.push(obj));
     if (page === pg() && tool === 'smart') showFloat('smart', obj);
   });
   batch.job = job;
@@ -1795,6 +1834,7 @@ function showFloat(kind, o) {
         fbtn('Recortar', () => startCrop(o));
         fbtn('Original', () => restoreImg(o), '', 'Volver a la imagen completa');
       }
+      if (o.au && doc.audio && doc.audio.some(a => a.id === o.au[0])) fbtn('▶ Escuchar desde aquí', () => playAudioAt(o.au[0], o.au[1]), 'primary', 'Escucha lo que se decía en clase cuando escribiste esto');
       fbtn('Duplicar', () => duplicateSel());
       fbtn('Eliminar', () => deleteSel(), 'danger');
     } else fbtn('✕', hideFloat, '', 'Cerrar');
@@ -2545,6 +2585,8 @@ async function preparePdf(file) {
   try { imp.pdf = await lib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise; }
   catch (e) { toast(e && e.name === 'PasswordException' ? 'Ese PDF tiene contraseña. Quítasela y vuelve a intentarlo.' : 'No se pudo abrir ese PDF. ¿Está dañado?'); return; }
   imp.name = file.name.replace(/\.pdf$/i, '');
+  imp.meta = null;
+  try { const md = await imp.pdf.getMetadata(); const inf = md && md.info || {}; const yr = (String(inf.CreationDate || '').match(/D:(\d{4})/) || [])[1]; imp.meta = { title: (inf.Title || '').trim(), authors: (inf.Author || '').trim(), year: yr || '' }; } catch (e) {}
   const n = imp.pdf.numPages;
   $('im-title').textContent = imp.newDoc ? 'Anotar sobre un PDF' : 'Importar PDF';
   $('im-info').textContent = `«${imp.name}» tiene ${n} página${n > 1 ? 's' : ''}.` + (n > 150 ? ' Es largo: puede tardar unos minutos. Puedes detenerlo cuando quieras y se quedan las páginas ya importadas.' : '');
@@ -2578,6 +2620,7 @@ async function startImport() {
   if (imp.newDoc) {
     savePrefsFromChoice();
     const nb = createNb($('nb-course').value || (lib.cursos[0] && lib.cursos[0].id), $('nb-name').value.trim() || imp.name || 'Lectura', 'lectura', $('nb-date').value);
+    if (imp.meta && (imp.meta.title || imp.meta.authors)) nb.ref = { type: 'libro', title: imp.meta.title || nb.title, authors: imp.meta.authors, year: imp.meta.year };
     $('setup').hidden = true;
     await openNotebook(nb, { pages: [newPage({ fmt: 'a4p' })] });
   }
@@ -2855,7 +2898,7 @@ $('pick').onclick = () => {
 
 /* ---------- teclado ---------- */
 window.addEventListener('keydown', e => {
-  if (!$('library').hidden || !$('ask').hidden || !$('course-modal').hidden || !$('news').hidden || !$('report').hidden || !$('checklist').hidden) { if (e.key === 'Escape') { if (!$('ask').hidden) $('ask-no').click(); else if (!$('course-modal').hidden) $('cm-cancel').click(); } return; }
+  if (!$('library').hidden || !$('ask').hidden || !$('course-modal').hidden || !$('news').hidden || !$('report').hidden || !$('checklist').hidden || !$('refm').hidden || !$('study').hidden) { if (e.key === 'Escape') { if (!$('ask').hidden) $('ask-no').click(); else if (!$('course-modal').hidden) $('cm-cancel').click(); } return; }
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && msel && msel.length && !/INPUT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); copyMsel(); return; }
   if ((e.key === 'Delete' || e.key === 'Backspace') && msel && msel.length && !/INPUT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); deleteMsel(); return; }
   if (!$('pageset').hidden || !$('importer').hidden) { if (e.key === 'Escape') { $('pageset').hidden = true; if (!$('importer').hidden) $('im-cancel').click(); } return; }
@@ -3026,6 +3069,8 @@ async function openNotebook(nb, data) {
 }
 async function closeNotebook() {
   if (!curNb) return;
+  if (rec) await stopRec();
+  if (player) $('pl-close').click();
   commitEditor(); cancelCrop(); clearMsel();
   try { await finishSmart(); } catch (e) {}
   await saveNow(); await makeNbThumb();
@@ -3064,6 +3109,8 @@ function renderLibrary() {
   side.appendChild(sideItem('🕘 Recientes', v === 'recent', () => setView('recent')));
   side.appendChild(sideItem('📄 PDFs y lecturas', v === 'lecturas', () => setView('lecturas'), lib.nbs.filter(n => n.kind === 'lectura').length));
   side.appendChild(sideItem('🏷 Etiquetas', v === 'tags', () => setView('tags')));
+  side.appendChild(sideItem('🧠 Repaso', v === 'cards', () => setView('cards')));
+  side.appendChild(sideItem('📚 Mi bibliografía', v === 'biblio', () => setView('biblio'), lib.nbs.filter(n => n.ref && n.ref.title).length));
   side.appendChild(sideItem('🎓 Tesis', v === 'tesis', () => setView('tesis'), lib.nbs.filter(n => n.kind === 'tesis').length));
   h('Respaldo');
   side.appendChild(sideItem('☁ Google Drive', v === 'drive', () => setView('drive')));
@@ -3076,6 +3123,8 @@ function renderLibrary() {
   if (v === 'lecturas') return renderNbList(main, 'PDFs y lecturas', 'Cuadernos creados a partir de PDF, Word, PowerPoint u otros archivos.', lib.nbs.filter(n => n.kind === 'lectura').sort((a, b) => b.updated - a.updated));
   if (v === 'drive') return renderDrive(main);
   if (v === 'tags') return renderTags(main);
+  if (v === 'cards') return renderCards(main);
+  if (v === 'biblio') return renderBiblio(main);
   if (v === 'tesis') return renderNbList(main, 'Tesis', 'Avances, observaciones y todo lo de tu tesis.', lib.nbs.filter(n => n.kind === 'tesis').sort((a, b) => b.updated - a.updated), true);
   renderCiclo(main);
 }
@@ -3482,6 +3531,7 @@ function buildMultiFloat() {
     placeFloat();
   });
   if (pens.length) fbtn('Convertir a texto', convertMselToText, '', 'Pasa lo escrito a mano a letra limpia');
+  fbtn('Crear tarjeta', cardFromSelection, '', 'Usa lo seleccionado como respuesta de una tarjeta de repaso');
   fbtn('Eliminar', deleteMsel, 'danger');
 }
 function deleteMsel() { if (!msel) return; const s = new Set(msel); mutate(() => { pg().objs = pg().objs.filter(o => !s.has(o)); }); msel = null; hideFloat(); requestPaint(); }
@@ -3671,6 +3721,19 @@ async function syncAll(interactive) {
         }
       }
     }
+    // 2b) audios y tarjetas
+    for (const nb of lib.nbs) {
+      const d = curNb && curNb.id === nb.id ? doc : await store.get('doc:' + nb.id).catch(() => null);
+      for (const a of (d && d.audio) || []) {
+        const name = `aud-${a.id}`, have = await store.get('aud:' + a.id).catch(() => null);
+        if (have && !remote.has(name)) { await gupload(name, have, a.mime || 'audio/webm', null, {}); }
+        else if (!have && remote.has(name)) { const b = await (await gfetch(`${GAPI}/files/${remote.get(name).id}?alt=media`)).blob(); await store.set('aud:' + a.id, b); }
+      }
+    }
+    const rc = remote.get('cards.json');
+    let cards = await loadCards();
+    if (rc) { try { const rcards = JSON.parse(await gtext(rc)); const m = new Map(); rcards.forEach(x => m.set(x.id, x)); cards.forEach(x => { const o = m.get(x.id); if (!o || (x.mod || 0) >= (o.mod || 0)) m.set(x.id, x); }); cards = [...m.values()].filter(x => !(lib.deleted && lib.deleted[x.id])); await saveCards(cards); } catch (e) {} }
+    await gupload('cards.json', JSON.stringify(cards), 'application/json', rc, { updated: String(Date.now()) });
     // 3) borrar en Drive lo eliminado aquí
     for (const id of Object.keys(lib.deleted || {})) { const f = remote.get(`nb-${id}.json`); if (f) await gdelete(f); }
     // 4) subir la biblioteca
@@ -3819,8 +3882,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20d';
+const APP_VERSION = '2026-11-20e';
 const CHANGELOG = [
+  { v: '2026-11-20e', t: '20 de noviembre · tarde (3)', items: ['Referencias en APA 7 de tus lecturas («⋯ → Datos de la lectura») y vista 📚 Mi bibliografía para copiarla completa a Word.', 'Tarjetas de repaso con repetición espaciada (🧠 Repaso): créalas con el lazo, a mano o desde líneas «término: definición».', 'Grabar el audio de la clase: toca lo que escribiste y escucha lo que se decía en ese momento.'] },
   { v: '2026-11-20d', t: '20 de noviembre · tarde (2)', items: ['Notas adhesivas de 4 colores y enlaces a otras hojas o cuadernos (Insertar ▾).', '9 plantillas: matriz de consistencia, operacionalización, FODA, mapa conceptual, cronograma, cuadro comparativo, árbol de problemas, línea de tiempo y planificador semanal.', 'Etiquetas por hoja (Examen, Duda, Cita para tesis…) y vista 🏷 Etiquetas en la biblioteca.', 'Búsqueda dentro de tus apuntes y del texto de los PDF importados.', 'Resumen de lo resaltado: junta todo lo resaltado en un cuaderno nuevo, con enlaces a cada hoja.'] },
   { v: '2026-11-20c', t: '20 de noviembre · tarde', items: ['Barra superior en una sola fila: «Insertar ▾» y «⋯» agrupan el resto de opciones.', 'Lápices favoritos: 4 botones con tus combinaciones de color y grosor (mantén presionado para guardar).', 'Formas perfectas: dibuja un círculo, rectángulo, triángulo o línea y deja quieto el lápiz.', 'Reportar un problema o idea, y revisión semanal de los reportes.', 'Lista para probar la pizarra en cada dispositivo.'] },
   { v: '2026-11-20b', t: '20 de noviembre · mañana', items: ['Sincronización con Google Drive y espacio «☁ Google Drive» en la biblioteca.', 'Conversión fiel de Word, PowerPoint y Excel con Google.', 'Biblioteca de la maestría: ciclos, cursos, sesiones, favoritos, recientes, lecturas y tesis.', 'Miniaturas de hojas y selección con lazo.'] },
@@ -3917,7 +3981,7 @@ $('check-btn').onclick = () => { closeMenus(); renderChecklist(); $('checklist')
 $('chk-ok').onclick = () => { $('checklist').hidden = true; };
 $('chk-reset').onclick = () => { if (prefs.checks) prefs.checks[prefs.device] = {}; savePrefs(); renderChecklist(); };
 
-['nb-ref', 'rec-btn'].forEach(id => { const el = $(id); if (el && !el.onclick) el.onclick = () => { closeMenus(); toast('Esta opción llega en la próxima actualización de hoy.'); }; });
+[].forEach(id => { const el = $(id); if (el && !el.onclick) el.onclick = () => { closeMenus(); toast('Esta opción llega en la próxima actualización de hoy.'); }; });
 
 /* ======================= NOTAS ADHESIVAS Y ENLACES ======================= */
 function wrapLines(text, size, f, maxW) {
@@ -4135,6 +4199,205 @@ function textInBox(p, b) {
   words.sort((a, c) => (Math.abs(a[1] - c[1]) < 6 ? a[0] - c[0] : a[1] - c[1]));
   return words.map(w => w[4]).join(' ').replace(/\s+/g, ' ').trim();
 }
+
+
+/* ======================= REFERENCIAS APA 7 ======================= */
+const REF_TYPES = { libro: 'Libro', capitulo: 'Capítulo de libro', articulo: 'Artículo de revista', tesis: 'Tesis', web: 'Página web' };
+const REF_FIELDS = {
+  libro: [['authors', 'Autores'], ['year', 'Año'], ['title', 'Título del libro'], ['edition', 'Edición (número)'], ['publisher', 'Editorial'], ['doi', 'DOI o URL']],
+  capitulo: [['authors', 'Autores del capítulo'], ['year', 'Año'], ['title', 'Título del capítulo'], ['editors', 'Editores (I. Apellido)'], ['book', 'Título del libro'], ['pages', 'Páginas (ej. 45–67)'], ['publisher', 'Editorial'], ['doi', 'DOI o URL']],
+  articulo: [['authors', 'Autores'], ['year', 'Año'], ['title', 'Título del artículo'], ['journal', 'Revista'], ['volume', 'Volumen'], ['issue', 'Número'], ['pages', 'Páginas'], ['doi', 'DOI o URL']],
+  tesis: [['authors', 'Autor'], ['year', 'Año'], ['title', 'Título de la tesis'], ['degree', 'Grado (maestría o doctorado)'], ['university', 'Universidad'], ['repo', 'Repositorio'], ['doi', 'URL']],
+  web: [['authors', 'Autor u organización'], ['year', 'Fecha (año, día mes)'], ['title', 'Título de la página'], ['site', 'Nombre del sitio'], ['doi', 'URL']]
+};
+function apaHtml(r) {
+  if (!r || !r.title) return '';
+  const e = escH, au = r.authors ? e(r.authors.replace(/\.?\s*$/, '.')) + ' ' : '', yr = `(${e(r.year || 's.f.')}). `;
+  const link = r.doi ? (/^10\./.test(r.doi) ? ' https://doi.org/' + e(r.doi) : ' ' + e(r.doi)) : '';
+  switch (r.type) {
+    case 'articulo': return `${au}${yr}${e(r.title)}. <i>${e(r.journal || '')}</i>${r.volume ? `, <i>${e(r.volume)}</i>` : ''}${r.issue ? `(${e(r.issue)})` : ''}${r.pages ? `, ${e(r.pages)}` : ''}.${link}`;
+    case 'capitulo': return `${au}${yr}${e(r.title)}. En ${r.editors ? e(r.editors) + ' (Eds.), ' : ''}<i>${e(r.book || '')}</i>${r.pages ? ` (pp. ${e(r.pages)})` : ''}. ${e(r.publisher || '')}.${link}`;
+    case 'tesis': return `${au}${yr}<i>${e(r.title)}</i> [Tesis de ${e(r.degree || 'maestría')}, ${e(r.university || '')}]. ${r.repo ? e(r.repo) + '.' : ''}${link}`;
+    case 'web': return `${au}${yr}<i>${e(r.title)}</i>. ${r.site ? e(r.site) + '.' : ''}${link}`;
+    default: return `${au}${yr}<i>${e(r.title)}</i>${r.edition && r.edition !== '1' ? ` (${e(r.edition)}.ª ed.)` : ''}. ${e(r.publisher || '')}.${link}`;
+  }
+}
+const apaText = r => { const d = document.createElement('div'); d.innerHTML = apaHtml(r); return d.textContent; };
+let refNb = null, refData = null;
+function openRef(nb) {
+  refNb = nb; refData = Object.assign({ type: 'libro' }, nb.ref || {});
+  if (!refData.title) refData.title = nb.title;
+  renderRefForm(); $('refm').hidden = false;
+}
+function renderRefForm() {
+  const tb = $('ref-type'); tb.innerHTML = '';
+  Object.entries(REF_TYPES).forEach(([k, v]) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'opt'; b.setAttribute('role', 'radio'); b.textContent = v; b.setAttribute('aria-checked', String(refData.type === k)); b.onclick = () => { refData.type = k; renderRefForm(); }; tb.appendChild(b); });
+  const fb = $('ref-fields'); fb.innerHTML = '';
+  REF_FIELDS[refData.type].forEach(([k, l]) => {
+    const lab2 = document.createElement('label'); lab2.className = 'field'; if (k === 'authors' || k === 'title') lab2.style.gridColumn = '1 / -1';
+    lab2.innerHTML = `<span class="lbl">${l}</span><input type="text" data-k="${k}">`;
+    const inp = lab2.querySelector('input'); inp.value = refData[k] || ''; inp.oninput = () => { refData[k] = inp.value; $('ref-out').innerHTML = apaHtml(refData) || '<span class="hint">Completa al menos el título.</span>'; };
+    fb.appendChild(lab2);
+  });
+  $('ref-out').innerHTML = apaHtml(refData) || '<span class="hint">Completa al menos el título.</span>';
+}
+$('nb-ref').onclick = () => { closeMenus(); if (curNb) openRef(curNb); };
+$('ref-cancel').onclick = () => { $('refm').hidden = true; };
+$('ref-save').onclick = () => { refNb.ref = refData; refNb.mod = Date.now(); if (refNb.kind === 'sesion' && refData.title) refNb.kind = 'lectura'; saveLibrary(); $('refm').hidden = true; toast('Referencia guardada. La verás en la biblioteca, en 📚 Mi bibliografía.'); if (!$('library').hidden) renderLibrary(); };
+async function copyRich(html, text) {
+  try { if (window.ClipboardItem) { await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) })]); } else await navigator.clipboard.writeText(text); toast('Copiado. Al pegarlo en Word se mantienen las cursivas.'); }
+  catch (e) { toast('No se pudo copiar automáticamente. Selecciona el texto y cópialo.'); }
+}
+$('ref-copy').onclick = () => copyRich(apaHtml(refData), apaText(refData));
+$('ref-insert').onclick = () => {
+  if (!curNb || !refData.title) return;
+  const lines = wrapLines(apaText(refData), 16, 'plex', Math.min(W * .8, 640)), pos = placeAtView(Math.min(W * .8, 640), lines.length * 20);
+  mutate(() => pg().objs.push({ t: 'text', x: pos.x, y: pos.y, text: lines.join('\n'), c: 'ink', size: 16, f: 'plex' }));
+  $('refm').hidden = true; toast('Referencia insertada en la hoja.');
+};
+function renderBiblio(main) {
+  const nbs = lib.nbs.filter(n => n.ref && n.ref.title).sort((a, b) => apaText(a.ref).localeCompare(apaText(b.ref), 'es'));
+  const html = nbs.map(n => `<p style="margin:0 0 10px;padding-left:36px;text-indent:-36px;line-height:1.6">${apaHtml(n.ref)}</p>`).join('');
+  headEl(main, '📚 Mi bibliografía', 'Referencias en APA 7 de tus lecturas, ordenadas alfabéticamente. Agrega los datos desde un cuaderno: «⋯ → Datos de la lectura».', nbs.length ? [mkBtn('Copiar toda la bibliografía', () => copyRich(html, nbs.map(n => apaText(n.ref)).join('\n')), 'primary')] : []);
+  const box = document.createElement('div'); box.className = 'drv'; box.style.maxWidth = '860px';
+  box.innerHTML = nbs.length ? html : '<p class="lib-empty">Aún no tienes referencias. Al importar un PDF se llenan solas con lo que traiga el archivo; luego las completas.</p>';
+  nbs.forEach((n, i) => { const p = box.children[i]; if (p) { p.style.cursor = 'pointer'; p.title = 'Editar'; p.onclick = () => openRef(n); } });
+  main.appendChild(box);
+}
+
+/* ======================= TARJETAS DE REPASO ======================= */
+async function loadCards() { try { return (await store.get('cards')) || []; } catch (e) { return []; } }
+async function saveCards(c) { await store.set('cards', c).catch(() => {}); }
+const BOX_DAYS = [0, 1, 3, 7, 14, 30, 60];
+async function addCard(c) { const cards = await loadCards(); cards.push(Object.assign({ id: uid('t'), box: 0, due: Date.now(), created: Date.now(), mod: Date.now() }, c)); await saveCards(cards); scheduleSync(); }
+async function cardFromSelection() {
+  if (!msel || !msel.length || !curNb) return;
+  const front = await askText('Nueva tarjeta de repaso', 'Pregunta (lo seleccionado será la respuesta)', ''); if (!front) return;
+  const [a, b, c2, d] = mselBox(), pad = 10, page = pg();
+  const pc = await renderPageCanvas(page, 1.5), x0 = clamp(a - pad, 0, page.W), y0 = clamp(b - pad, 0, page.H), w = clamp(c2 + pad, 0, page.W) - x0, h = clamp(d + pad, 0, page.H) - y0;
+  const cc = document.createElement('canvas'); cc.width = Math.max(4, Math.round(w * 1.5)); cc.height = Math.max(4, Math.round(h * 1.5));
+  cc.getContext('2d').drawImage(pc, x0 * 1.5, y0 * 1.5, cc.width, cc.height, 0, 0, cc.width, cc.height);
+  const texts = msel.filter(o => o.t === 'text' || o.t === 'note').map(o => o.text).join(' ');
+  await addCard({ course: curNb.cursoId, nb: curNb.id, page: doc.cur, front, back: texts, img: cc.toDataURL('image/jpeg', .8) });
+  toast('Tarjeta creada. Estúdiala en la biblioteca: 🧠 Repaso.', 3500);
+}
+async function cardsFromNotebook(nb) {
+  const d = nb === curNb ? doc : await store.get('doc:' + nb.id).catch(() => null); if (!d) return 0;
+  let n = 0; const cards = await loadCards(), have = new Set(cards.filter(c => c.nb === nb.id).map(c => c.front));
+  (d.pages || []).forEach((p, i) => (p.objs || []).forEach(o => {
+    if (o.t !== 'text' && o.t !== 'note') return;
+    String(o.text).split('\n').forEach(line => {
+      const m = line.match(/^\s*[-•*]?\s*([^:=–—]{2,60}?)\s*(?::|=|–|—| - )\s*(.{3,})$/);
+      if (m && !have.has(m[1].trim())) { have.add(m[1].trim()); cards.push({ id: uid('t'), course: nb.cursoId, nb: nb.id, page: i, front: m[1].trim(), back: m[2].trim(), box: 0, due: Date.now(), created: Date.now(), mod: Date.now() }); n++; }
+    });
+  }));
+  await saveCards(cards); return n;
+}
+async function renderCards(main) {
+  headEl(main, '🧠 Repaso', 'Tarjetas de pregunta y respuesta. Las que fallas vuelven pronto; las que sabes, cada vez más espaciadas (1, 3, 7, 14, 30 días).');
+  const box = document.createElement('div'); box.className = 'nblist'; main.appendChild(box);
+  const cards = await loadCards(), now = Date.now();
+  const all = document.createElement('div'); all.className = 'row';
+  all.appendChild(mkBtn('+ Tarjeta escrita a mano', async () => {
+    const cid = await askSelect('Nueva tarjeta', 'Curso', lib.cursos.map(c => [c.id, c.name])); if (!cid) return;
+    const f = await askText('Nueva tarjeta', 'Pregunta', ''); if (!f) return;
+    const bk = await askArea('Nueva tarjeta', 'Respuesta', ''); if (bk === null) return;
+    await addCard({ course: cid, front: f, back: bk }); renderLibrary();
+  }));
+  all.appendChild(mkBtn('Crear tarjetas desde mis apuntes', async () => {
+    let n = 0; for (const nb of lib.nbs) n += await cardsFromNotebook(nb);
+    toast(n ? `Creé ${n} tarjeta${n > 1 ? 's' : ''} a partir de líneas «término: definición» de tus apuntes escritos o convertidos a texto.` : 'No encontré líneas del tipo «término: definición» en tus apuntes.', 6000); renderLibrary();
+  }, '', 'Busca líneas como «Media: promedio de los datos» en tus apuntes escritos o convertidos a texto'));
+  box.appendChild(all);
+  const byCourse = {};
+  cards.forEach(c => { (byCourse[c.course] = byCourse[c.course] || []).push(c); });
+  if (!cards.length) box.insertAdjacentHTML('beforeend', '<p class="lib-empty">Aún no tienes tarjetas. Créalas con el lazo (encierra la respuesta y pulsa «Crear tarjeta») o con los botones de arriba.</p>');
+  Object.entries(byCourse).forEach(([cid, cs]) => {
+    const c = courseOf(cid) || { name: 'Sin curso', color: '#8894a3' }, due = cs.filter(x => x.due <= now).length;
+    const row = document.createElement('div'); row.className = 'cardrow';
+    row.innerHTML = `<span class="dot" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.color}"></span><b>${escH(c.name)}</b><span class="pill">${cs.length} tarjeta${cs.length > 1 ? 's' : ''}</span><span class="pill" style="${due ? 'background:#d92d20;color:#fff' : ''}">${due} para hoy</span>`;
+    row.appendChild(mkBtn(due ? 'Estudiar' : 'Repasar igual', () => startStudy(cs.filter(x => x.due <= now).length ? cs.filter(x => x.due <= now) : cs, c.name), due ? 'primary' : ''));
+    box.appendChild(row);
+  });
+}
+let study = null;
+function startStudy(list, name) { study = { list: list.slice().sort(() => Math.random() - .5), i: 0, name, ok: 0 }; $('study').hidden = false; showCard(); }
+function showCard() {
+  const c = study.list[study.i];
+  if (!c) { $('st-front').textContent = `¡Terminaste! Sabías ${study.ok} de ${study.list.length}.`; $('st-back').hidden = true; ['st-show', 'st-no', 'st-hard', 'st-yes'].forEach(id => { $(id).hidden = true; }); $('st-count').textContent = ''; return; }
+  $('st-title').textContent = 'Repaso · ' + study.name; $('st-count').textContent = `${study.i + 1} de ${study.list.length}`;
+  $('st-front').textContent = c.front; const bk = $('st-back'); bk.hidden = true; bk.innerHTML = '';
+  if (c.back) { const p2 = document.createElement('div'); p2.style.cssText = 'font-size:18px;white-space:pre-wrap'; p2.textContent = c.back; bk.appendChild(p2); }
+  if (c.img) { const im = document.createElement('img'); im.src = c.img; im.alt = 'Respuesta'; im.style.cssText = 'max-width:100%;max-height:38vh;border:1px solid var(--line);border-radius:6px;background:#fff'; bk.appendChild(im); }
+  $('st-show').hidden = false; ['st-no', 'st-hard', 'st-yes'].forEach(id => { $(id).hidden = true; });
+}
+$('st-show').onclick = () => { $('st-back').hidden = false; $('st-show').hidden = true; ['st-no', 'st-hard', 'st-yes'].forEach(id => { $(id).hidden = false; }); };
+async function grade(g) {
+  const c = study.list[study.i], cards = await loadCards(), k = cards.find(x => x.id === c.id);
+  if (k) { if (g === 'no') { k.box = 0; k.due = Date.now() + 10 * 60000; } else if (g === 'hard') { k.due = Date.now() + 864e5; } else { k.box = Math.min(BOX_DAYS.length - 1, (k.box || 0) + 1); k.due = Date.now() + BOX_DAYS[k.box] * 864e5; study.ok++; } k.mod = Date.now(); await saveCards(cards); }
+  study.i++; showCard();
+}
+$('st-no').onclick = () => grade('no'); $('st-hard').onclick = () => grade('hard'); $('st-yes').onclick = () => grade('yes');
+$('st-close').onclick = () => { $('study').hidden = true; scheduleSync(); if (!$('library').hidden) renderLibrary(); };
+
+/* ======================= AUDIO DE LA CLASE ======================= */
+let rec = null, recTimer = 0, player = null;
+function recAt() { return rec ? [rec.id, Date.now() - rec.start] : undefined; }
+function stampAudio(o) { if (rec && o && !o.au) o.au = [rec.id, Date.now() - rec.start]; }
+const fmtT = ms => { const s2 = Math.max(0, Math.floor(ms / 1000)); const h = Math.floor(s2 / 3600), m = Math.floor(s2 % 3600 / 60), ss = s2 % 60; return (h ? h + ':' : '') + String(m).padStart(2, '0') + ':' + String(ss).padStart(2, '0'); };
+async function startRec() {
+  if (!curNb) return;
+  if (!navigator.mediaDevices || !window.MediaRecorder) { toast('Este navegador no permite grabar audio.'); return; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch (e) { toast('No hay permiso para usar el micrófono. Actívalo en la configuración del navegador.'); return; }
+  const mime = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm'].find(m => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || '';
+  const mr = new MediaRecorder(stream, mime ? { mimeType: mime, audioBitsPerSecond: 32000 } : undefined);
+  rec = { id: uid('a'), start: Date.now(), chunks: [], mr, stream, mime: mr.mimeType || mime || 'audio/webm', nb: curNb.id };
+  mr.ondataavailable = e => { if (e.data && e.data.size) rec && rec.chunks.push(e.data); };
+  mr.start(4000);
+  $('rec-chip').hidden = false; $('rec-btn').textContent = 'Detener la grabación';
+  recTimer = setInterval(() => { if (rec) $('rec-chip').textContent = '● ' + fmtT(Date.now() - rec.start); }, 500);
+  toast('Grabando. Todo lo que escribas queda unido a este momento del audio.', 4000);
+}
+async function stopRec() {
+  if (!rec) return;
+  const r = rec; rec = null; clearInterval(recTimer);
+  $('rec-chip').hidden = true; $('rec-btn').textContent = 'Grabar el audio de la clase';
+  await new Promise(res => { r.mr.onstop = res; try { r.mr.stop(); } catch (e) { res(); } });
+  r.stream.getTracks().forEach(t => t.stop());
+  const blob = new Blob(r.chunks, { type: r.mime.split(';')[0] });
+  try { await store.set('aud:' + r.id, blob); } catch (e) { toast('No se pudo guardar el audio en este dispositivo (¿sin espacio?).'); return; }
+  const dur = Date.now() - r.start;
+  if (curNb && curNb.id === r.nb) { doc.audio = doc.audio || []; doc.audio.push({ id: r.id, start: r.start, dur, mime: r.mime.split(';')[0] }); scheduleSave(); markLocal(r.nb); }
+  else { const d = await store.get('doc:' + r.nb).catch(() => null); if (d) { d.audio = d.audio || []; d.audio.push({ id: r.id, start: r.start, dur, mime: r.mime.split(';')[0] }); await store.set('doc:' + r.nb, d); markLocal(r.nb); } }
+  toast(`Audio guardado (${fmtT(dur)}). Selecciona algo que escribiste y pulsa «▶ Escuchar desde aquí».`, 6000);
+}
+$('rec-btn').onclick = () => { closeMenus(); rec ? stopRec() : startRec(); };
+$('rec-chip').onclick = () => stopRec();
+document.addEventListener('visibilitychange', () => { if (document.hidden && rec) stopRec(); });
+async function playAudioAt(id, ms) {
+  const blob = await store.get('aud:' + id).catch(() => null);
+  if (!blob) { toast('Ese audio no está en este dispositivo todavía (se baja al sincronizar con Drive).'); return; }
+  if (!player || player.id !== id) {
+    if (player) { player.a.pause(); URL.revokeObjectURL(player.url); }
+    const url = URL.createObjectURL(blob), a = new Audio(url);
+    player = { id, a, url };
+    a.addEventListener('timeupdate', () => { const d = a.duration || 1; $('pl-seek').value = Math.round(a.currentTime / d * 1000); $('pl-time').textContent = `${fmtT(a.currentTime * 1000)} / ${isFinite(a.duration) ? fmtT(a.duration * 1000) : '—'}`; });
+    a.addEventListener('play', () => { $('pl-play').textContent = '⏸'; }); a.addEventListener('pause', () => { $('pl-play').textContent = '▶'; });
+    $('pl-seek').max = 1000;
+    await new Promise(res => { if (a.readyState >= 1) res(); else { a.addEventListener('loadedmetadata', res, { once: true }); setTimeout(res, 3000); } });
+    if (!isFinite(a.duration)) {
+      await new Promise(res => { const done = () => { a.removeEventListener('durationchange', chk); res(); }; const chk = () => { if (isFinite(a.duration)) done(); }; a.addEventListener('durationchange', chk); try { a.currentTime = 1e101; } catch (e) {} setTimeout(done, 2500); });
+      a.currentTime = 0;
+    }
+  }
+  $('player').hidden = false;
+  try { player.a.currentTime = Math.max(0, ms / 1000 - 3); await player.a.play(); } catch (e) { toast('Toca ▶ para empezar a escuchar.'); }
+}
+$('pl-play').onclick = () => { if (!player) return; player.a.paused ? player.a.play() : player.a.pause(); };
+$('pl-seek').oninput = e => { if (player && isFinite(player.a.duration)) player.a.currentTime = e.target.value / 1000 * player.a.duration; };
+$('pl-close').onclick = () => { if (player) { player.a.pause(); URL.revokeObjectURL(player.url); player = null; } $('player').hidden = true; };
 
 init();
 

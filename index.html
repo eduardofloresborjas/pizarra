@@ -14,7 +14,7 @@
 <title>Pizarra de Apuntes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&family=Lora:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <link id="hand-fonts" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Playpen+Sans&family=Shantell+Sans&family=Kalam&family=Delius&family=Comic+Neue&family=Handlee&family=Architects+Daughter&family=Caveat&family=Shadows+Into+Light&family=Indie+Flower&family=Gochi+Hand&family=Gloria+Hallelujah&family=Schoolbell&family=Reenie+Beanie&family=Covered+By+Your+Grace&family=Just+Another+Hand&family=Nanum+Pen+Script&family=Playwrite+PE&family=Playwrite+ES&family=Playwrite+MX&family=Homemade+Apple&display=swap" rel="stylesheet">
 <style>
 /* Layout: barra superior y barra de opciones; riel de herramientas a la izquierda;
@@ -222,6 +222,8 @@ body.splitting #split{display:flex}
 .gd-ord{font-size:14px;line-height:1.7;border:1px solid var(--line);border-radius:10px;padding:10px 10px 10px 30px;background:var(--bg);margin:6px 0}.gd-ord li.sub{list-style:circle;margin-left:16px;color:var(--muted)}
 .sec-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 .sec-row span{display:flex;flex-direction:column}.sec-row small{color:var(--muted);font-size:12px}.opt-tag{font-style:normal;font-size:11px;background:#e3f5ec;color:#12805c;border-radius:999px;padding:1px 7px}
+.sty-box{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:8px 12px;font-size:14px}.sty-box ul{margin:0;padding-left:18px;line-height:1.7}
+.sty-secs{display:grid;grid-template-columns:1fr 1fr;gap:4px}
 .look-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .look-opts .opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
 .look-opts .opt[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
@@ -555,6 +557,10 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="refs-btn">📚 Referencias APA de este cuaderno</button>
           <button id="layers-btn">🗂 Capas: mostrar u ocultar…</button>
           <button id="vrec-btn">⏺ Grabar video explicando…</button>
+          <button id="sum-btn">✨ Resumir este documento (con mi estilo)</button>
+          <button id="sum-split">◫ Ver el original al lado del resumen</button>
+          <button id="sum-style">✨ Mi estilo de resumen…</button>
+          <button id="formal-btn">🎩 Versión formal (alta dirección)…</button>
           <button id="cu-apr-btn">📋 Cuadro de aprendizaje de esta sesión</button>
           <button id="cu-comp-btn">⚖️ Cuadro comparativo de esta sesión…</button>
           <button id="nb-ref">Datos de la lectura (APA 7)…</button>
@@ -842,6 +848,32 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
     <div class="actions"><button class="btn" id="gd-cancel">Cancelar</button><button class="btn primary" id="gd-go">Crear en Google Docs</button></div>
   </div>
 </div>
+<div class="modal" id="stylem" hidden role="dialog" aria-modal="true" aria-labelledby="sty-title">
+  <div class="sheet" style="width:min(640px,100%);gap:10px">
+    <h1 id="sty-title" style="font-size:20px;margin:0">✨ Mi estilo de resumen</h1>
+    <div class="lbl">Lo que aprendí de tus apuntes</div><div id="sty-learned" class="sty-box"></div>
+    <label class="row" style="gap:8px">Largo de cada idea <select id="sty-words"><option value="auto">Automático (aprende de ti)</option><option value="corto">Corto</option><option value="medio">Medio</option><option value="largo">Largo</option></select></label>
+    <label class="row" style="gap:8px">Letra <select id="sty-font"></select></label>
+    <div class="lbl">Partes del resumen</div><div id="sty-secs" class="sty-secs"></div>
+    <label class="row" style="gap:8px">Al subir un documento <select id="sty-ask"><option value="ask">Preguntarme si quiero el resumen</option><option value="never">No preguntar (lo pido yo desde «⋯»)</option></select></label>
+    <div class="actions"><button class="btn" id="sty-reset" style="margin-right:auto">Reiniciar aprendizaje</button><button class="btn" id="sty-cancel">Cancelar</button><button class="btn primary" id="sty-ok">Guardar</button></div>
+  </div>
+</div>
+<div class="modal" id="formalm" hidden role="dialog" aria-modal="true" aria-labelledby="fm-title">
+  <div class="sheet small" style="gap:10px">
+    <h1 id="fm-title" style="font-size:20px;margin:0">🎩 Versión formal (alta dirección)</h1>
+    <p class="hint" style="margin:0">Creo una copia de este cuaderno con formato formal. Tu cuaderno original no cambia.</p>
+    <label class="row" style="gap:8px">Letra <select id="fm-font"><option value="lora">Formal con serifa (Lora)</option><option value="sourcesans">Formal sin serifa (Source Sans)</option><option value="plex">IBM Plex Sans</option></select></label>
+    <label class="row" style="gap:8px">Elaborado por <input id="fm-author" placeholder="Tu nombre" style="flex:1;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;background:var(--bg);color:var(--text)"></label>
+    <label class="check"><input type="checkbox" id="fm-cover" checked> Portada</label>
+    <label class="check"><input type="checkbox" id="fm-exec" checked> Resumen ejecutivo</label>
+    <label class="check"><input type="checkbox" id="fm-toc" checked> Índice</label>
+    <label class="check"><input type="checkbox" id="fm-hf" checked> Encabezado y «Página N de M»</label>
+    <label class="check"><input type="checkbox" id="fm-notes" checked> Notas adhesivas como recuadros formales</label>
+    <label class="check"><input type="checkbox" id="fm-red" checked> Quitar mis dudas y comentarios en rojo</label>
+    <div class="actions"><button class="btn" id="fm-cancel">Cancelar</button><button class="btn primary" id="fm-go">Crear versión formal</button></div>
+  </div>
+</div>
 <div class="modal" id="layers" hidden role="dialog" aria-modal="true" aria-labelledby="ly-title">
   <div class="sheet small" style="gap:10px">
     <h1 id="ly-title" style="font-size:19px">🗂 Capas de este cuaderno</h1>
@@ -1092,7 +1124,8 @@ const FONTS = {
   gloria: ['Gloria Hallelujah', 1], schoolbell: ['Schoolbell', 1], reenie: ['Reenie Beanie', 1], covered: ['Covered By Your Grace', 1],
   justhand: ['Just Another Hand', 1], nanum: ['Nanum Pen Script', 1],
   pwpe: ['Playwrite PE', 1, 'Playwrite Perú'], pwes: ['Playwrite ES', 1, 'Playwrite España'], pwmx: ['Playwrite MX', 1, 'Playwrite México'],
-  homemade: ['Homemade Apple', 1], plex: ['IBM Plex Sans', 0, 'Letra normal']
+  homemade: ['Homemade Apple', 1], plex: ['IBM Plex Sans', 0, 'Letra normal'],
+  lora: ['Lora', 0, 'Formal con serifa (Lora)'], sourcesans: ['Source Sans 3', 0, 'Formal sin serifa (Source Sans)']
 };
 const FEATURED = ['shantell', 'patrick', 'playpen', 'kalam', 'caveat', 'pwpe'];
 const fontCss = f => `"${(FONTS[f] || FONTS.plex)[0]}", system-ui, sans-serif`;
@@ -3168,7 +3201,9 @@ async function convDocx(buf) {
     if (imp.stop) break;
     setProgress(`Convirtiendo Word: página ${i + 1} de ${secs.length}…`, true);
     const s = secs[i], w = s.offsetWidth, h = parseFloat(getComputedStyle(s).minHeight) || w * 1.414;
-    pages.push(...await pagesFromElement(s, [w * .75, h * .75], 2));
+    const added = await pagesFromElement(s, [w * .75, h * .75], 2);
+    if (added[0]) { added[0].ptext = (s.innerText || '').replace(/[ \t\u00a0]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim().slice(0, 40000); added[0].pheads = headsOfEl(s); }
+    pages.push(...added);
   }
   host.innerHTML = '';
   return pages;
@@ -3184,7 +3219,9 @@ async function convPptx(buf) {
     if (imp.stop) break;
     setProgress(`Convirtiendo PowerPoint: diapositiva ${i + 1} de ${slides.length}…`, true);
     const el = slides[i], c = await snapEl(el, 1.5);
-    pages.push(await canvasToPage(c, [el.offsetWidth * .75, el.offsetHeight * .75]));
+    const pgx = await canvasToPage(c, [el.offsetWidth * .75, el.offsetHeight * .75]);
+    pgx.ptext = (el.innerText || '').replace(/[ \t\u00a0]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim().slice(0, 20000); const lines0 = (el.innerText || '').split('\n').map(x => x.trim()).filter(x => x.length > 2 && x.length < 90); if (lines0[0]) pgx.pheads = [{ t: lines0[0], lvl: 0 }];
+    pages.push(pgx);
   }
   try { pv.destroy(); } catch (e) {}
   host.innerHTML = '';
@@ -4377,8 +4414,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20o';
+const APP_VERSION = '2026-11-20p';
 const CHANGELOG = [
+  { v: '2026-11-20p', t: '20 de noviembre · tarde (5)', items: ['✨ Resumir un documento (PDF, Word o PowerPoint) con tu estilo: ideas principales, estructura con enlaces, conceptos, datos, preguntas y tus notas. Se abre al lado del original y todo es editable.', 'La pizarra aprende de tus apuntes y de cómo corriges sus resúmenes («⋯ → Mi estilo de resumen»). Tú decides si te pregunta al subir un documento.', '🎩 Versión formal (alta dirección): copia con portada, resumen ejecutivo, índice, letra formal, colores sobrios y numeración.', 'Citas, índice, mapas y demás usan la letra de tus apuntes.', 'Ahora se guardan bien el índice, la hoja continua y las capas al cerrar el cuaderno.'] },
   { v: '2026-11-20o', t: '20 de noviembre · tarde (4)', items: ['📖 Citas APA 7: eliges un libro, artículo o documento (subido o escrito a mano) y ves 5 formas de citarlo. Puedes modificar la cita, guardar tu versión y reutilizarla, moverla, copiarla y pegarla.', '📑 Índice tipo documento que se actualiza solo, con puntos y número de página. Toca una línea para ir; manténla presionada para cambiar su texto o número.', '🧠 Mapa mental: ahora también «Lo más importante», armado por la pizarra a partir de títulos, definiciones y lo que más se repite.', '🔒 Seguridad como en un celular: el PIN siempre funciona; la huella o el rostro es opcional. Puedes cambiar el PIN y elegir si te lo pide cada vez.', '📁 Google Docs: antes de crear el documento te muestra un orden sugerido en Drive (ciclo → curso → apuntes) y del documento (índice, contenido y referencias).'] },
   { v: '2026-11-20n', t: '20 de noviembre · tarde (3)', items: ['Se quitó el modo examen, como pediste.'] },
   { v: '2026-11-20m', t: '20 de noviembre · tarde (2)', items: ['🔗 Mantén presionado un enlace (en la hoja, la matriz o un cuadro) para cambiar a qué hoja va, editar el texto o quitarlo.', '🔎 El buscador también encuentra términos del glosario y de tus cuadros de estudio.', '◫ Pantalla dividida: una lectura o PDF al lado; recorta un pedazo y pásalo a tu hoja.', '📖 Citas APA dentro de la hoja que llevan a la fuente, y lista de referencias del cuaderno.', '📑 Índice automático del cuaderno con enlaces a cada hoja. 🧠 Mapa mental de lo resaltado.', '🗂 Capas: oculta PDF, escritura, resaltador, texto o tus dudas (lo rojo), también al exportar.', '📜 Hoja continua que crece hacia abajo y se exporta en páginas A4 sin cortar líneas.', '⏺ Grabar video de la pizarra con tu voz (y cámara).', '📲 Entregas al calendario del celular (.ics) o a Google Calendar.', '🔥 Metas semanales por curso y racha de estudio.', '🫆 Entrar con huella o rostro y bloqueo automático.', 'Exportar a Google Docs como texto editable.'] },
@@ -4678,7 +4716,7 @@ $('hl-summary').onclick = async () => {
   const np = () => { page = newPage({ fmt: 'a4p', bg: 'lines', board: 'white' }); delete page.undo; pages.push(page); y = L * 3; };
   np();
   page.objs.push({ t: 'text', x: left, y: L * 1.2, text: 'Resumen de lo resaltado', c: 'blue', size: 30, f });
-  page.objs.push({ t: 'text', x: left, y: L * 1.2 + 38, text: `${src.title} · ${entries.length} parte${entries.length > 1 ? 's' : ''}`, c: 'ink', size: 14, f: 'plex' });
+  page.objs.push({ t: 'text', x: left, y: L * 1.2 + 38, text: `${src.title} · ${entries.length} parte${entries.length > 1 ? 's' : ''}`, c: 'ink', size: 14, f });
   y = L * 3 + 8;
   for (const e of entries) {
     const lines = e.text ? wrapLines(e.text, 19, f, maxW - 24) : [];
@@ -4689,7 +4727,7 @@ $('hl-summary').onclick = async () => {
     if (e.text) { lines.forEach((ln, k) => page.objs.push({ t: 'text', x: left + 16, y: y + k * L + 4, text: ln, c: 'ink', size: 19, f })); y += lines.length * L; }
     else { const sc = Math.min(1, (maxW - 24) / e.img.w, 300 / e.img.h); page.objs.push({ t: 'img', id: e.img.id, x: left + 16, y: y + 4, w: e.img.w * sc, h: e.img.h * sc }); y += Math.ceil((e.img.h * sc + 12) / L) * L; }
     setFont(mctx, 13, 'plex');
-    page.objs.push({ t: 'link', x: Wp - 40 - mctx.measureText(`↗ hoja ${e.page + 1}`).width - 4, y: y - 2, text: `hoja ${e.page + 1}`, size: 13, f: 'plex', c: 'blue', nb: src.id, page: e.page });
+    page.objs.push({ t: 'link', x: Wp - 40 - mctx.measureText(`↗ hoja ${e.page + 1}`).width - 4, y: y - 2, text: `hoja ${e.page + 1}`, size: 13, f, c: 'blue', nb: src.id, page: e.page });
     y += L;
   }
   pages.forEach(pp => { pp.undo = []; pp.redo = []; });
@@ -4757,7 +4795,7 @@ $('ref-copy').onclick = () => copyRich(apaHtml(refData), apaText(refData));
 $('ref-insert').onclick = () => {
   if (!curNb || !refData.title) return;
   const lines = wrapLines(apaText(refData), 16, 'plex', Math.min(W * .8, 640)), pos = placeAtView(Math.min(W * .8, 640), lines.length * 20);
-  mutate(() => pg().objs.push({ t: 'text', x: pos.x, y: pos.y, text: lines.join('\n'), c: 'ink', size: 16, f: 'plex' }));
+  mutate(() => pg().objs.push({ t: 'text', x: pos.x, y: pos.y, text: lines.join('\n'), c: 'ink', size: 16, f: prefs.font }));
   $('refm').hidden = true; toast('Referencia insertada en la hoja.');
 };
 function renderBiblio(main) {
@@ -6248,7 +6286,7 @@ $('page-tr').onclick = async () => {
       const chunk = lines.splice(0, maxLines); n++;
       if (!first) { addPageAfter(newPage(pg())); pg().objs = []; }
       const objs = [{ t: 'text', x: 48, y: 54, text: chunk.join('\n'), c: 'ink', size, f }];
-      if (first) objs.unshift({ t: 'text', x: 48, y: 18, text: `Traducción de la hoja ${doc.pages.indexOf(p) + 1}${from}`, c: 'blue', size: 14, f: 'plex' });
+      if (first) objs.unshift({ t: 'text', x: 48, y: 18, text: `Traducción de la hoja ${doc.pages.indexOf(p) + 1}${from}`, c: 'blue', size: 14, f: prefs.font });
       mutate(() => pg().objs.push(...objs)); first = false;
     }
     requestPaint(); toast(`Listo: ${n === 1 ? 'la traducción está en una hoja nueva' : `la traducción ocupa ${n} hojas nuevas`}, justo después de la original.`);
@@ -6519,7 +6557,7 @@ const GL_STOP = new Set(['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 
 function glClean(t) { return t.replace(/^[\s•\-–—*·▸>]+/, '').replace(/^(el|la|los|las|un|una|lo)\s+/i, '').replace(/[\s:;,.\-–—=]+$/, '').replace(/\s+/g, ' ').trim(); }
 function glCap(s) { s = s.trim().replace(/\s+/g, ' '); return s ? s.charAt(0).toLocaleUpperCase('es') + s.slice(1) : s; }
 function glDef(s) { s = glCap(s.replace(/^[\s:=\-–—→]+/, '')); return s && !/[.!?…)]$/.test(s) ? s + '.' : s; }
-function glTermOk(t) { const w = t.split(/\s+/); return t.length >= 3 && t.length <= 60 && w.length <= 6 && /\p{L}{3}/u.test(t) && !GL_STOP.has(t.toLowerCase()) && !/^\d/.test(t) && !/https?:|www\./i.test(t); }
+function glTermOk(t) { if (/^(su|sus|este|esta|estos|estas|ello|ella|él|lo|que|cual|cuyo|dicho|dicha|otro|otra|uno|una)\b/i.test(t)) return false; const w = t.split(/\s+/); return t.length >= 3 && t.length <= 60 && w.length <= 6 && /\p{L}{3}/u.test(t) && !GL_STOP.has(t.toLowerCase()) && !/^\d/.test(t) && !/https?:|www\./i.test(t); }
 async function glossScan(cid, onlyNbs) {
   const nbs = onlyNbs || liveNbs().filter(n => n.cursoId === cid), found = new Map();
   const add = (term, def, kind, src) => {
@@ -7723,7 +7761,7 @@ function placeMap(branches, title, note) {
   const W2 = np.W, H2 = np.H, cx = W2 / 2, cy = H2 / 2 + 10, n = branches.length, R1x = W2 * .27, R1y = H2 * .27;
   const center = { t: 'node', nid: uid('d'), kind: 'round', x: r1(cx - 105), y: r1(cy - 38), w: 210, h: 76, text: title, c: 'blue', f: prefs.font, size: 18 };
   const objs = [center];
-  if (note) objs.push({ t: 'text', x: 24, y: 14, text: note, c: 'ink', size: 12, f: 'plex' });
+  if (note) objs.push({ t: 'text', x: 24, y: 14, text: note, c: 'ink', size: 12, f: prefs.font });
   branches.forEach((b, k) => {
     const a = -Math.PI / 2 + k * 2 * Math.PI / n, bx = cx + Math.cos(a) * R1x, by = cy + Math.sin(a) * R1y;
     const nb = { t: 'node', nid: uid('d'), kind: 'rect', x: r1(clamp(bx - 80, 8, W2 - 168)), y: r1(clamp(by - 30, 40, H2 - 68)), w: 160, h: 60, text: b.t, c: 'ink', f: prefs.font, size: 15 };
@@ -7831,6 +7869,308 @@ exportGdocs = async function () {
   };
 };
 $('gdocs-btn').onclick = exportGdocs;
+
+/* ======================= RONDA: guardar ajustes, letra propia, resumen con tu estilo y versión formal ======================= */
+/* ---------- guardar los ajustes nuevos de hojas y cuadernos ---------- */
+const PAGE_EXTRA = ['toc', 'cont', 'contH0', 'pheads', 'formal'], DOC_EXTRA = ['toc', 'layersOff', 'fontOverride', 'formalOf'];
+const _serialize = serialize;
+serialize = function (w) { const d = _serialize(w); d.pages.forEach((p, i) => { const s = doc.pages[i]; if (s) PAGE_EXTRA.forEach(k => { if (s[k] != null) p[k] = s[k]; }); }); DOC_EXTRA.forEach(k => { if (doc[k] != null) d[k] = doc[k]; }); return d; };
+const _loadDoc = loadDoc;
+loadDoc = function (d) { _loadDoc(d); (d.pages || []).forEach((p, i) => { const q = doc.pages[i]; if (q) PAGE_EXTRA.forEach(k => { if (p[k] != null) q[k] = p[k]; }); }); DOC_EXTRA.forEach(k => { if (d[k] != null) doc[k] = d[k]; }); };
+/* ---------- la letra de tus apuntes en todo lo que genera la pizarra ---------- */
+const nbFont = () => (doc && doc.fontOverride) || prefs.font;
+const _drawToc = drawToc;
+drawToc = function (c, o) { const f = o.f; o.f = nbFont(); try { _drawToc(c, o); } finally { o.f = f; } };
+
+/* ---------- texto de Word y PowerPoint para poder resumirlos ---------- */
+function headsOfEl(el) {
+  const out = [];
+  el.querySelectorAll('h1,h2,h3,h4,p,span,div').forEach(n => {
+    if (n.children.length > 2) return; const t = (n.innerText || '').trim(); if (!t || t.length > 90 || t.length < 3) return;
+    const cs = getComputedStyle(n), fs = parseFloat(cs.fontSize) || 0, bold = (+cs.fontWeight || 400) >= 600;
+    if (/^H[1-4]$/.test(n.tagName) || fs >= 20 || (bold && fs >= 15 && !/[.:;]$/.test(t))) out.push({ t, fs });
+  });
+  const seen = new Set(); return out.filter(h => !seen.has(h.t) && seen.add(h.t)).slice(0, 12).map(h => ({ t: h.t, lvl: h.fs >= 22 ? 0 : 1 }));
+}
+
+/* ---------- resumen con tu estilo ---------- */
+const SUM_SECS = { ideas: 'Ideas principales', estructura: 'Estructura del documento', conceptos: 'Conceptos clave', datos: 'Datos y cifras', preguntas: 'Preguntas para repasar', notas: 'Mis notas' };
+function stylePrefs() { lib.style = lib.style || { learned: {}, user: { words: 'auto', secs: {} } }; lib.style.user = lib.style.user || { words: 'auto', secs: {} }; lib.style.learned = lib.style.learned || {}; return lib.style; }
+async function learnStyle() {
+  const S = stylePrefs(), L = { fonts: {}, colors: {}, bullets: {}, words: [], notes: 0, defs: 0, lines: 0, nbs: 0, secs: {} };
+  const own = liveNbs().filter(n => n.kind === 'sesion' && !n.sumOf && !n.formalOf).sort((a, b) => (b.updated || 0) - (a.updated || 0)).slice(0, 15);
+  for (const nb of own) {
+    const d = nb === curNb ? doc : await store.get('doc:' + nb.id).catch(() => null); if (!d || !d.pages) continue; L.nbs++;
+    d.pages.forEach(p => {
+      const texts = (p.objs || []).filter(o => o.t === 'text' && o.text && !o.cite && !o.gid);
+      const sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor((sizes.length - 1) / 2)] : 18;
+      texts.forEach(o => {
+        L.fonts[o.f] = (L.fonts[o.f] || 0) + o.text.length;
+        if (o.size >= med * 1.25) L.colors[o.c] = (L.colors[o.c] || 0) + 1;
+        o.text.split('\n').forEach(ln => {
+          const t = ln.trim(); if (!t) return; L.lines++;
+          const m = t.match(/^([•\-–▸*→✓►]|\d+[.)])\s+/); if (m) { const k = /\d/.test(m[1]) ? '1.' : m[1]; L.bullets[k] = (L.bullets[k] || 0) + 1; L.words.push(t.split(/\s+/).length - 1); }
+          if (/^[^:]{2,50}:\s*\S/.test(t)) L.defs++;
+        });
+      });
+      L.notes += (p.objs || []).filter(o => o.t === 'note').length;
+    });
+  }
+  for (const nb of liveNbs().filter(n => n.sumOf && n.gen)) {
+    const d = nb === curNb ? doc : await store.get('doc:' + nb.id).catch(() => null); if (!d || !d.pages) continue;
+    const cur = new Map(); d.pages.forEach(p => (p.objs || []).forEach(o => { if (o.gid) cur.set(o.gid, o); }));
+    Object.entries(nb.gen).forEach(([gid, m]) => {
+      const s = L.secs[m.sec] = L.secs[m.sec] || { kept: 0, del: 0, shorter: 0, longer: 0 }, o = cur.get(gid);
+      if (!o) s.del++; else { s.kept++; const len = (o.text || '').length; if (len < m.len * .8) s.shorter++; else if (len > m.len * 1.2) s.longer++; }
+    });
+  }
+  const top = obj => Object.entries(obj).sort((a, b) => b[1] - a[1])[0];
+  const words = L.words.sort((a, b) => a - b), medW = words.length ? words[Math.floor(words.length / 2)] : 0;
+  const learned = { nbs: L.nbs, font: (top(L.fonts) || [])[0], title: (top(L.colors) || [])[0], bullet: (top(L.bullets) || [])[0], words: medW, notes: L.notes, defRatio: L.lines ? L.defs / L.lines : 0, secs: L.secs, at: Date.now() };
+  S.learned = learned; S.mod = Date.now(); saveLibrary(); return learned;
+}
+function styleNow() {
+  const S = stylePrefs(), L = S.learned || {}, U = S.user || {};
+  const allSec = Object.values(L.secs || {}); const shorter = allSec.reduce((a, s) => a + s.shorter, 0), longer = allSec.reduce((a, s) => a + s.longer, 0);
+  let words = U.words === 'corto' ? 12 : U.words === 'medio' ? 20 : U.words === 'largo' ? 32 : (L.words ? clamp(L.words * 2 + 4, 12, 30) : 20);
+  if (U.words === 'auto' || !U.words) words = Math.round(clamp(words * (shorter > longer + 2 ? .75 : longer > shorter + 2 ? 1.3 : 1), 10, 40));
+  const secs = {}; Object.keys(SUM_SECS).forEach(k => { const st = (L.secs || {})[k], w = st ? (st.kept + 1) / (st.kept + st.del + 1) : 1; secs[k] = U.secs && U.secs[k] != null ? !!U.secs[k] : w >= .35; });
+  return { font: U.font && U.font !== 'auto' ? U.font : (L.font && FONTS[L.font] ? L.font : prefs.font), title: L.title || 'blue', bullet: U.bullet || L.bullet || '•', words, notes: (L.notes || 0) >= 2, secs, learned: L };
+}
+function docTextPages(d) {
+  return d.pages.map((p, i) => {
+    if (p.toc) return null;
+    let text = p.ptext || ''; const own = (p.objs || []).filter(o => (o.t === 'text' || o.t === 'note' || o.t === 'node') && o.text && !o.gid).map(o => o.text).join('\n');
+    if (own) text = text ? text + '\n' + own : own;
+    let heads = p.pheads ? p.pheads.slice() : [];
+    if (!heads.length && p.ptw && p.ptw.length) {
+      const lines = []; p.ptw.slice().sort((a, b) => a[1] - b[1] || a[0] - b[0]).forEach(w => { const l = lines.find(x => Math.abs(x.y - w[1]) < w[3] * .5); if (l) { l.w.push(w); l.h = Math.max(l.h, w[3]); } else lines.push({ y: w[1], h: w[3], w: [w] }); });
+      const hs = lines.map(l => l.h).sort((a, b) => a - b), med = hs[Math.floor(hs.length / 2)] || 10;
+      lines.filter(l => l.h >= med * 1.3).forEach(l => { const t = l.w.sort((a, b) => a[0] - b[0]).map(w => w[4]).join(' ').replace(/\s+/g, ' ').trim(); if (t.length >= 3 && t.length <= 90 && !/[.,;]$/.test(t) && /\p{L}{3}/u.test(t)) heads.push({ t, lvl: l.h >= med * 1.8 ? 0 : 1 }); });
+    }
+    if (!heads.length) { const big = (p.objs || []).filter(o => o.t === 'text' && o.text && o.size >= 22).sort((a, b) => a.y - b.y); big.forEach(o => heads.push({ t: o.text.split('\n')[0].trim(), lvl: o.size >= 28 ? 0 : 1 })); }
+    return { i, text: text.replace(/\s+\n/g, '\n'), heads: heads.slice(0, 6) };
+  }).filter(Boolean);
+}
+function summarizeText(pages, opt) {
+  const sents = [], freq = new Map();
+  pages.forEach(pg2 => {
+    const parts = pg2.text.split(/\n+/).filter(x => x.trim().split(/\s+/).length >= 6 || /[.!?]$/.test(x.trim())).flatMap(par => par.split(/(?<=[.!?])\s+(?=[¿¡«"“(]?[A-ZÁÉÍÓÚÑ0-9])/));
+    parts.forEach((s, k) => { s = s.trim(); const n = s.split(/\s+/).length; if (n < 7 || n > 55 || !/[.!?]$/.test(s)) return; sents.push({ s, i: pg2.i, k, n }); });
+    pg2.text.toLowerCase().split(/[^\p{L}]+/u).forEach(w => { if (w.length >= 4 && !ES_STOP.has(w)) freq.set(w, (freq.get(w) || 0) + 1); });
+  });
+  const headW = new Set(pages.flatMap(p => p.heads.flatMap(h => h.t.toLowerCase().split(/[^\p{L}]+/u))));
+  sents.forEach(o => {
+    const ws = [...new Set(o.s.toLowerCase().split(/[^\p{L}]+/u).filter(w => w.length >= 4 && !ES_STOP.has(w)))];
+    o.ws = ws; o.score = ws.reduce((a, w) => a + Math.sqrt(freq.get(w) || 0), 0) / Math.sqrt(o.n) + (o.k < 2 ? 1.2 : 0) + (/\b(es|son|se define|consiste|significa|permite|implica|por lo tanto|en conclusión|en resumen)\b/i.test(o.s) ? 1.5 : 0) + ws.filter(w => headW.has(w)).length * .6;
+  });
+  const N = clamp(Math.round(Math.max(pages.length * 1.2, sents.length / 3)), opt.min || 5, opt.max || 14), pick = [];
+  sents.forEach(o => { const over = o.n / Math.max(8, opt.words); if (over > 1.6) o.score -= (over - 1.6) * 1.2; });
+  for (const o of sents.slice().sort((a, b) => b.score - a.score)) {
+    if (pick.length >= N) break;
+    if (pick.some(p => { const inter = p.ws.filter(w => o.ws.includes(w)).length; return inter / Math.max(1, Math.min(p.ws.length, o.ws.length)) > .55; })) continue;
+    pick.push(o);
+  }
+  return pick.sort((a, b) => a.i - b.i || a.k - b.k).map(o => ({ t: shorten(o.s, opt.words), i: o.i }));
+}
+function shorten(s, words) {
+  const w = s.split(/\s+/); if (w.length <= words * 1.35) return s;
+  let t = s.replace(/\s*\([^)]{3,80}\)/g, ''); if (t.split(/\s+/).length <= words * 1.35) return t;
+  const cut = t.split(/(?<=[,;:])\s+/); let out = '';
+  for (const c of cut) { if ((out + ' ' + c).trim().split(/\s+/).length > words * 1.2 && out) break; out = (out + ' ' + c).trim(); }
+  out = out.replace(/[,;:]$/, ''); if (out.split(/\s+/).length > words * 1.6 || out.split(/\s+/).length < 5) return t;
+  return /[.!?…]$/.test(out) ? out : out + '.';
+}
+function factsOf(pages) {
+  const out = [];
+  pages.forEach(p => p.text.replace(/\n+/g, ' ').split(/(?<=[.!?])\s+/).forEach(s => { if (/\d/.test(s) && /(\d+[.,]?\d*\s?%|\b(19|20)\d{2}\b|\d+[.,]\d+|\b\d{2,}\b)/.test(s) && s.split(/\s+/).length >= 6 && s.split(/\s+/).length <= 40) out.push({ t: s.trim(), i: p.i }); }));
+  return out.slice(0, 6);
+}
+async function makeSummary(src) {
+  if (!src) return;
+  await saveNow().catch(() => {});
+  const d = src === curNb ? { pages: doc.pages } : await store.get('doc:' + src.id).catch(() => null);
+  if (!d || !d.pages) { toast('No pude abrir el documento.'); return; }
+  const pages = docTextPages(d), total = pages.reduce((a, p) => a + p.text.length, 0);
+  if (total < 200) { toast('Este documento casi no tiene texto que pueda leer (puede ser escaneado). Usa primero «⋯ → Leer el texto de esta hoja» y vuelve a intentarlo.', 8000); return; }
+  toast('Aprendiendo de tu forma de hacer resúmenes…', 20000);
+  await learnStyle();
+  const st = styleNow(); toast('Armando tu resumen…', 20000);
+  const ideas = summarizeText(pages, { words: st.words });
+  const defs = (await nbConcepts(src)).filter(f => f.def).slice(0, 10);
+  const facts = factsOf(pages);
+  const f = st.font, Wp = 840, Hp = 1188, left = 72, maxW = Wp - left - 64, lh = 1.35, gen = {}, out = [];
+  let page = null, y = 0;
+  const np = () => { page = newPage({ fmt: 'a4p', bg: prefs.bg && BGS[prefs.bg] && !prefs.bg.startsWith('t_') ? prefs.bg : 'lines', board: 'white' }); delete page.undo; page.objs = []; out.push(page); y = 70; };
+  const put = (o, sec) => { o.gid = uid('g'); gen[o.gid] = { sec, len: (o.text || '').length }; page.objs.push(o); };
+  const need = h => { if (y + h > Hp - 60) np(); };
+  const head = (t, sec) => { need(90); y += 10; put({ t: 'text', x: left, y, text: t, c: st.title, size: 24, f }, sec); y += 24 * lh + 14; };
+  const para = (t, sec, o2) => { o2 = o2 || {}; const size = o2.size || 17, ind = o2.ind || 0, lines = wrapLines(t, size, f, maxW - ind); const ln2 = lines.map((l, k) => (k && o2.hang ? '   ' : '') + l); need(ln2.length * size * lh + 8); put({ t: 'text', x: left + ind, y, text: ln2.join('\n'), c: o2.c || 'ink', size, f }, sec); y += ln2.length * size * lh + (o2.gap != null ? o2.gap : 10); };
+  const bul = (t, sec) => para(`${st.bullet === '1.' ? '' : st.bullet + ' '}${t}`, sec, { hang: true, gap: 8 });
+  /* hoja 1: título + índice */
+  np(); page.toc = 1;
+  put({ t: 'text', x: left, y: 50, text: `Resumen: ${src.title}`, c: st.title, size: 28, f }, 'titulo');
+  put({ t: 'text', x: left, y: 50 + 28 * lh + 6, text: `${(courseOf(src.cursoId) || {}).name || ''} · ${new Date().toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' })} · documento original: @«${src.title}» hoja 1`, c: 'ink', size: 13, f }, 'titulo');
+  page.objs.push({ t: 'toc', x: left, y: 170, w: Wp - left * 2, size: 16, f });
+  np();
+  if (st.secs.ideas && ideas.length) { head(SUM_SECS.ideas, 'ideas'); ideas.forEach((s, k) => bul(st.bullet === '1.' ? `${k + 1}. ${s.t}` : s.t, 'ideas')); }
+  const heads = pages.flatMap(p => p.heads.map(h => ({ ...h, i: p.i })));
+  if (st.secs.estructura && heads.length >= 2) { head(SUM_SECS.estructura, 'estructura'); heads.slice(0, 18).forEach(h => para(`${h.lvl ? '      ' : ''}▸ ${h.t} — @«${src.title}» hoja ${h.i + 1}`, 'estructura', { size: 15, gap: 4 })); y += 8; }
+  if (st.secs.conceptos && defs.length) { head(SUM_SECS.conceptos, 'conceptos'); defs.forEach(c => para(`${c.term}: ${shorten(c.def, st.words + 6)}`, 'conceptos', { hang: true, gap: 8 })); }
+  if (st.secs.datos && facts.length) { head(SUM_SECS.datos, 'datos'); facts.forEach(x => bul(shorten(x.t, st.words + 6), 'datos')); }
+  if (st.secs.preguntas && (defs.length || heads.length)) {
+    head(SUM_SECS.preguntas, 'preguntas');
+    const qs = [...defs.slice(0, 4).map(c => `¿Qué es ${c.term.charAt(0).toLowerCase() + c.term.slice(1)}?`), ...heads.filter(h => h.lvl === 0).slice(0, 2).map(h => `¿Qué plantea el autor sobre «${h.t}»?`)].slice(0, 6);
+    if (st.notes) { let col = 0; need(150); qs.forEach(q => { if (col === 2) { col = 0; y += 150; need(150); } const o = { t: 'note', x: left + col * (maxW / 2 + 8), y, w: maxW / 2 - 8, h: 130, text: q, col: 'yellow', f, size: 16 }; put(o, 'preguntas'); col++; }); y += 160; }
+    else qs.forEach(q => bul(q, 'preguntas'));
+  }
+  if (st.secs.notas) { head(SUM_SECS.notas, 'notas'); need(170); put({ t: 'note', x: left, y, w: maxW, h: 150, text: 'Escribe aquí lo que tú piensas de esta lectura, dudas o cómo lo usarías en tu tesis.', col: 'blue', f, size: 16 }, 'notas'); y += 170; }
+  out.forEach(p => { p.undo = []; p.redo = []; });
+  const nb = createNb(src.cursoId, 'Resumen · ' + src.title.replace(/^Lectura:\s*/i, ''), 'otro', todayISO());
+  nb.sumOf = src.id; nb.gen = gen; saveLibrary();
+  await openNotebook(nb, { pages: out });
+  toast('', 1);
+  await splitShow(src, 0);
+  toast('Resumen listo con tu estilo. A la derecha está el documento original. Todo se puede editar, mover, copiar y pegar; mientras más lo ajustes, mejor saldrá el próximo.', 9000);
+}
+async function splitShow(nb, i) {
+  split.nb = nb; split.i = i || 0;
+  split.d = nb === curNb ? { pages: doc.pages.map(p => JSON.parse(JSON.stringify(p))) } : await store.get('doc:' + nb.id).catch(() => null);
+  if (!split.d || !split.d.pages) return;
+  split.on = true; document.body.classList.add('splitting'); $('split').hidden = false; $('sp-title').textContent = nb.title;
+  setTimeout(() => { resize(); fitView('width'); }, 30); splitDraw();
+}
+const _followLink = followLink;
+followLink = function (l) { if (split.on && split.nb && l && l.nb === split.nb.id && curNb && l.nb !== curNb.id) { split.i = clamp(l.page || 0, 0, split.d.pages.length - 1); splitDraw(); toast(`Documento original: hoja ${split.i + 1}.`, 2000); return; } return _followLink(l); };
+async function sumAsk() {
+  closeMenus(); if (!curNb) return;
+  const src = curNb.sumOf ? lib.nbs.find(n => n.id === curNb.sumOf) : curNb;
+  if (curNb.sumOf) { if (src) { await splitShow(src, 0); toast('Este ya es un resumen: a la derecha tienes el documento original.'); } return; }
+  makeSummary(src);
+}
+$('sum-btn').onclick = sumAsk;
+$('sum-split').onclick = async () => { closeMenus(); const src = curNb && curNb.sumOf && lib.nbs.find(n => n.id === curNb.sumOf); if (src) splitShow(src, 0); else splitOpen(); };
+/* al subir un documento: tú decides si quieres que te lo proponga */
+const _finishImport = finishImport;
+finishImport = async function (pages, label) {
+  const wasNew = imp.newDoc;
+  await _finishImport(pages, label);
+  if (!wasNew || !pages.length || !curNb) return;
+  const mode = prefs.sumAsk || 'ask';
+  if (mode === 'never') return;
+  setTimeout(async () => {
+    const v = await askSelect('Documento listo', '¿Quieres que haga un resumen con tu estilo? (lo verás al lado del original)', [['yes', '✨ Sí, hacer el resumen ahora'], ['no', 'Ahora no'], ['never', 'No volver a preguntar (lo haré desde «⋯ → Resumir este documento»)']], 'yes');
+    if (v === 'never') { prefs.sumAsk = 'never'; savePrefs(); toast('Listo. Cuando quieras un resumen: «⋯ → ✨ Resumir este documento».'); }
+    else if (v === 'yes') makeSummary(curNb);
+  }, 5600);
+};
+/* panel: tu estilo de resumen */
+async function styleOpen() {
+  closeMenus(); toast('Revisando tus apuntes…', 8000); await learnStyle(); toast('', 1);
+  const S = stylePrefs(), st = styleNow(), L = S.learned || {};
+  const secs = L.secs || {};
+  $('sty-learned').innerHTML = `<ul>
+    <li>Revisé <b>${L.nbs || 0}</b> cuaderno${L.nbs === 1 ? '' : 's'} de tus clases${Object.keys(secs).length ? ' y los resúmenes que ya corregiste' : ''}.</li>
+    <li>Tu letra: <b>${escH(fontLabel(st.font))}</b>${L.font ? '' : ' (la de tu pizarra)'}.</li>
+    <li>Tus títulos: <b><span style="color:${resolve(st.title)}">${escH(COLOR_NAMES[st.title] || st.title)}</span></b>. Tus viñetas: <b>${escH(st.bullet)}</b>.</li>
+    <li>Largo de cada idea: <b>unas ${st.words} palabras</b>${L.words ? ` (tú sueles escribir ${L.words})` : ''}.</li>
+    <li>${st.notes ? 'Usas notas adhesivas: las preguntas irán como notas.' : 'Casi no usas notas adhesivas: las preguntas irán como lista.'}</li>
+    ${Object.entries(secs).filter(([, s]) => s.del || s.shorter || s.longer).map(([k, s]) => `<li>En «${SUM_SECS[k] || k}»: guardaste ${s.kept}, borraste ${s.del}${s.shorter ? `, acortaste ${s.shorter}` : ''}${s.longer ? `, alargaste ${s.longer}` : ''}.</li>`).join('')}
+  </ul>`;
+  $('sty-words').value = (S.user && S.user.words) || 'auto';
+  $('sty-font').innerHTML = `<option value="auto">Como en mis apuntes (${escH(fontLabel(st.learned.font && FONTS[st.learned.font] ? st.learned.font : prefs.font))})</option>` + Object.keys(FONTS).map(k => `<option value="${k}">${escH(fontLabel(k))}</option>`).join('');
+  $('sty-font').value = (S.user && S.user.font) || 'auto';
+  $('sty-ask').value = prefs.sumAsk || 'ask';
+  const box = $('sty-secs'); box.innerHTML = '';
+  Object.entries(SUM_SECS).forEach(([k, l]) => { const lb = document.createElement('label'); lb.className = 'check'; lb.innerHTML = `<input type="checkbox" data-k="${k}" ${st.secs[k] ? 'checked' : ''}> ${l}`; box.appendChild(lb); });
+  $('stylem').hidden = false;
+}
+$('sty-ok').onclick = () => {
+  const S = stylePrefs(); S.user.words = $('sty-words').value; S.user.font = $('sty-font').value;
+  const st = styleNow(); S.user.secs = {}; $('sty-secs').querySelectorAll('input').forEach(i => { if (i.checked !== st.secs[i.dataset.k]) S.user.secs[i.dataset.k] = i.checked ? 1 : 0; });
+  prefs.sumAsk = $('sty-ask').value; savePrefs(); S.mod = Date.now(); saveLibrary(); $('stylem').hidden = true; toast('Guardado. Tu próximo resumen usará estos ajustes.');
+};
+$('sty-reset').onclick = () => { lib.style = { learned: {}, user: { words: 'auto', secs: {} } }; liveNbs().forEach(n => { if (n.gen) n.gen = {}; }); saveLibrary(); $('stylem').hidden = true; toast('Aprendizaje reiniciado. Volveré a aprender de tus apuntes.'); };
+$('sty-cancel').onclick = () => { $('stylem').hidden = true; };
+$('sum-style').onclick = styleOpen;
+
+/* ---------- versión formal (alta dirección) ---------- */
+const NAVY = '#1f3864', NAVY2 = '#2f5597', GRAY = '#5a6676';
+function longDate(iso) { try { return new Date((iso || todayISO()) + 'T12:00:00').toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' }); } catch (e) { return iso; } }
+function centerText(text, size, f, Wd) { setFont(mctx, size, f); return Math.max(20, (Wd - mctx.measureText(text).width) / 2); }
+async function formalOpen() {
+  closeMenus(); if (!curNb) return;
+  $('fm-font').value = prefs.formalFont || 'lora'; $('fm-author').value = lib.author || lib.name || '';
+  $('formalm').hidden = false;
+}
+$('fm-cancel').onclick = () => { $('formalm').hidden = true; };
+$('fm-go').onclick = async () => {
+  $('formalm').hidden = true;
+  const ff = $('fm-font').value, opt = { cover: $('fm-cover').checked, exec: $('fm-exec').checked, toc: $('fm-toc').checked, hf: $('fm-hf').checked, red: $('fm-red').checked, notes: $('fm-notes').checked, author: $('fm-author').value.trim() };
+  prefs.formalFont = ff; savePrefs(); if (opt.author) { lib.author = opt.author; saveLibrary(); }
+  commitEditor(); await saveNow();
+  toast('Preparando la versión formal…', 20000);
+  const src = curNb, c = courseOf(src.cursoId) || { name: '' }, cy = (lib.ciclos.find(x => x.id === c.cicloId) || { name: '' }).name;
+  const base = doc.pages.filter(p => !p.toc).map(p => JSON.parse(JSON.stringify(Object.assign({}, p, { undo: [], redo: [] }))));
+  const portrait = base.filter(p => p.H >= p.W).length >= base.length / 2;
+  base.forEach(p => {
+    p.bg = 'blank'; p.board = 'white'; delete p.tags; delete p.toc; p.formal = 1;
+    const texts = p.objs.filter(o => o.t === 'text' && o.text && !o.cite), sizes = texts.map(o => o.size).sort((a, b) => a - b), med = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 18;
+    const heads = texts.filter(o => (o.size >= Math.max(22, med * 1.25) || (o.c === 'blue' && o.size >= med)) && o.text.trim().length <= 90), top = heads.length ? Math.max(...heads.map(o => o.size)) : 0;
+    const keep = [];
+    p.objs.forEach(o => {
+      if (opt.red && o.c === 'red' && o.t !== 'img') return;
+      if (o.t === 'text') { o.f = ff; if (heads.includes(o)) { const h1 = o.size >= top * .95; o.size = h1 ? 24 : 19; o.c = h1 ? NAVY : NAVY2; } else if (o.cite) { o.c = NAVY2; o.size = Math.min(o.size, 15); } else { o.size = clamp(Math.round(o.size * .9), 13, 16); o.c = 'ink'; } delete o.ink; keep.push(o); return; }
+      if (o.t === 'note' && opt.notes) { const lines = wrapLines('Nota: ' + (o.text || ''), 14, ff, o.w - 24), h = Math.max(o.h * .7, lines.length * 14 * 1.35 + 24); keep.push({ t: 'rect', x1: o.x, y1: o.y, x2: o.x + o.w, y2: o.y + h, c: NAVY2, w: 1.5 }, { t: 'text', x: o.x + 12, y: o.y + 12, text: lines.join('\n'), c: 'ink', size: 14, f: ff }); return; }
+      if (o.t === 'note' || o.t === 'node') { o.f = ff; keep.push(o); return; }
+      if (o.t === 'pen' && !o.hl) { o.c = 'ink'; keep.push(o); return; }
+      if (o.t === 'pen' && o.hl) { o.c = 'hl:blue'; o.a = .25; keep.push(o); return; }
+      if (['line', 'arrow', 'rect', 'ellipse', 'conn'].includes(o.t)) { if (o.c !== 'ink') o.c = NAVY2; keep.push(o); return; }
+      keep.push(o);
+    });
+    p.objs = keep;
+  });
+  const tpl = base[0] || newPage({ fmt: portrait ? 'a4p' : 'a4l' }), mk = () => { const p = JSON.parse(JSON.stringify(Object.assign({}, tpl, { undo: [], redo: [] }))); p.objs = []; delete p.bgImg; delete p.ptext; delete p.ptw; delete p.cont; p.bg = 'blank'; p.board = 'white'; p.formal = 1; if (portrait && p.W > p.H) { [p.W, p.H] = [p.H, p.W]; p.fmt = 'a4p'; p.pt = [595.28, 841.89]; } return p; };
+  const front = [];
+  if (opt.cover) {
+    const p = mk(), W2 = p.W, H2 = p.H, title = src.title.replace(/^Sesión \d+\s*[·:-]\s*/, ''), lines = wrapLines(title, 34, ff, W2 * .75);
+    p.objs.push({ t: 'rect', x1: W2 * .1, y1: H2 * .3 - 20, x2: W2 * .9, y2: H2 * .3 - 17, c: NAVY, w: 3 });
+    lines.forEach((l, k) => p.objs.push({ t: 'text', x: centerText(l, 34, ff, W2), y: H2 * .3 + k * 46, text: l, c: NAVY, size: 34, f: ff }));
+    let y2 = H2 * .3 + lines.length * 46 + 24;
+    [[`${c.name}${cy ? ' · ' + cy : ''}`, 18, NAVY2], [src.title !== title ? src.title : '', 15, GRAY]].forEach(([t, s, col]) => { if (t) { p.objs.push({ t: 'text', x: centerText(t, s, ff, W2), y: y2, text: t, c: col, size: s, f: ff }); y2 += s * 1.9; } });
+    p.objs.push({ t: 'rect', x1: W2 * .1, y1: y2 + 6, x2: W2 * .9, y2: y2 + 9, c: NAVY, w: 3 });
+    const by = [opt.author ? `Elaborado por: ${opt.author}` : '', longDate(src.date)].filter(Boolean);
+    by.forEach((t, k) => p.objs.push({ t: 'text', x: centerText(t, 15, ff, W2), y: H2 * .78 + k * 26, text: t, c: GRAY, size: 15, f: ff }));
+    front.push(p);
+  }
+  if (opt.exec) {
+    const p = mk(), left = 64, maxW = p.W - 128; let y = 60;
+    p.objs.push({ t: 'text', x: left, y, text: 'Resumen ejecutivo', c: NAVY, size: 26, f: ff }); y += 56;
+    const tp = docTextPages({ pages: base }), ideas = summarizeText(tp, { words: 22, min: 4, max: 7 });
+    const intro = `Este documento reúne los apuntes de «${src.title}»${c.name ? ` del curso ${c.name}` : ''}. Los puntos clave son:`;
+    const il = wrapLines(intro, 15, ff, maxW); p.objs.push({ t: 'text', x: left, y, text: il.join('\n'), c: 'ink', size: 15, f: ff }); y += il.length * 15 * 1.4 + 14;
+    let pts = ideas.slice();
+    if (pts.length < 3) { base.forEach(p => p.objs.forEach(o => { if (o.t === 'text' && o.text && o.size < 19) o.text.split('\n').forEach(ln => { const t = ln.replace(/^\s*([•\-–▸*→✓►]|\d+[.)])\s*/, '').trim(); if (t.split(/\s+/).length >= 3 && pts.length < 6 && !pts.some(x => x.t === t)) pts.push({ t: glCap(t) }); }); })); }
+    if (!pts.length) pts = tocHeads().slice(0, 6).map(h => ({ t: h.t }));
+    pts.forEach((s, k) => { const l = wrapLines(`${k + 1}.  ${s.t}`, 15, ff, maxW - 18).map((x, j) => (j ? '     ' : '') + x); if (y + l.length * 21 > p.H - 80) return; p.objs.push({ t: 'text', x: left + 6, y, text: l.join('\n'), c: 'ink', size: 15, f: ff }); y += l.length * 15 * 1.4 + 10; });
+    front.push(p);
+  }
+  if (opt.toc) { const p = mk(); p.toc = 1; p.objs.push({ t: 'toc', x: 64, y: 50, w: p.W - 128, size: 15, f: ff }); front.push(p); }
+  const all = [...front, ...base], n = all.length;
+  if (opt.hf) all.forEach((p, k) => {
+    if (opt.cover && k === 0) return;
+    p.objs.push({ t: 'text', x: 40, y: 16, text: src.title.slice(0, 70), c: GRAY, size: 10, f: ff });
+    const ct = c.name.slice(0, 50); if (ct) p.objs.push({ t: 'text', x: p.W - 40 - (setFont(mctx, 10, ff), mctx.measureText(ct).width), y: 16, text: ct, c: GRAY, size: 10, f: ff });
+    p.objs.push({ t: 'rect', x1: 40, y1: 34, x2: p.W - 40, y2: 34.6, c: '#c9d1da', w: .6 });
+    const pn = `Página ${k + 1} de ${n}`; p.objs.push({ t: 'text', x: p.W - 40 - (setFont(mctx, 10, ff), mctx.measureText(pn).width), y: p.H - 30, text: pn, c: GRAY, size: 10, f: ff });
+  });
+  const nb = createNb(src.cursoId, `${src.title} · versión formal`, src.kind === 'lectura' ? 'otro' : src.kind, src.date);
+  nb.formalOf = src.id; saveLibrary();
+  await openNotebook(nb, { pages: all, fontOverride: ff, formalOf: src.id });
+  doc.fontOverride = ff; doc.formalOf = src.id; scheduleSave(); invalidate();
+  toast(`Versión formal lista (${n} hojas): portada, resumen ejecutivo, índice y tus apuntes con formato de alta dirección. Tu cuaderno original no cambió.`, 8000);
+};
+$('formal-btn').onclick = formalOpen;
 
 init();
 

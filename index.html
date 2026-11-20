@@ -218,6 +218,17 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
 #rec-chip{border-color:#d92d20;color:#d92d20;font-weight:600}
 .cardrow{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .cardrow b{flex:1}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .dh{font-size:12px;color:var(--muted);text-align:center;padding:4px 0}
+.cal .d{min-height:86px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 5px;display:flex;flex-direction:column;gap:2px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.cal .d.out{opacity:.45}.cal .d.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}.cal .d[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.cal .d .n{font-size:12px;font-weight:600}
+.cal .d .ev{font-size:11px;border-radius:4px;padding:1px 4px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal .d .ev.task{background:transparent!important;color:var(--warn);border:1px solid var(--warn)}
+.due{border:1px solid var(--warn);color:var(--warn);background:color-mix(in srgb,var(--warn) 8%,var(--panel));border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:4px}
+.taskrow{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.taskrow b{flex:1;font-weight:500}.taskrow.done b{text-decoration:line-through;color:var(--muted)}
+@media (max-width:760px){.cal .d{min-height:60px}.cal .d .ev{font-size:0;height:6px;padding:0}}
 #progress{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:61;display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:8px 8px 8px 14px;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:min(92vw,560px)}
 #drive-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-body);font-size:12px}
 #drive-chip.off{border-color:var(--line);color:var(--muted)}
@@ -346,6 +357,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
           <button id="page-dup">Duplicar esta hoja</button>
           <button id="clear">Limpiar esta hoja</button>
           <button id="page-del">Eliminar esta hoja…</button>
+          <button id="page-restore">Recuperar hojas eliminadas…</button>
           <div class="mh">Este cuaderno</div>
           <button id="rec-btn">Grabar el audio de la clase</button>
           <button id="hl-summary">Resumen de lo resaltado</button>
@@ -366,6 +378,7 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
         </div>
       </div>
       <input type="file" id="open-file" accept=".json,application/json" hidden>
+      <input type="file" id="backup-file" accept=".json,application/json" hidden>
       <input type="file" id="import-file" accept="application/pdf,.pdf,image/*,.heic,.heif,.docx,.doc,.pptx,.ppt,.xlsx,.xls,.ods,.odt,.odp,.rtf,.csv,.txt,.md,.json,.html,.htm" multiple hidden>
       <button class="btn primary" id="export-pdf" title="Descargar todas las hojas en un PDF">PDF</button>
     </div>
@@ -851,14 +864,14 @@ const store = (() => {
 })();
 function usedImageIds() {
   const ids = new Set();
-  doc.pages.forEach(p => { if (p.bgImg) ids.add(p.bgImg); p.objs.forEach(o => { if (o.t === 'img') ids.add(o.id); }); });
+  doc.pages.concat((doc.trash || []).map(t => t.page)).forEach(p => { if (p.bgImg) ids.add(p.bgImg); p.objs.forEach(o => { if (o.t === 'img') ids.add(o.id); }); });
   return [...ids];
 }
 function serialize(withImages) {
   const images = {};
   if (withImages) usedImageIds().forEach(id => { if (doc.images[id]) images[id] = doc.images[id]; });
   const pages = doc.pages.map(p => { const o = { fmt: p.fmt, W: p.W, H: p.H, bg: p.bg, board: p.board, objs: p.objs }; if (p.pt) o.pt = p.pt; if (p.bgImg) o.bgImg = p.bgImg; if (p.tags && p.tags.length) o.tags = p.tags; if (p.ptext) o.ptext = p.ptext; if (p.ptw) o.ptw = p.ptw; return o; });
-  return { v: 3, cur: doc.cur, pages, images, imgIds: usedImageIds(), audio: doc.audio || [] };
+  return { v: 3, cur: doc.cur, pages, images, imgIds: usedImageIds(), audio: doc.audio || [], trash: (doc.trash || []).filter(t => Date.now() - t.at < 30 * 864e5) };
 }
 const savedImgs = new Set();
 async function loadStoredImages() {
@@ -875,7 +888,7 @@ function validDoc(d) { return d && Array.isArray(d.pages) && d.pages.length; }
 function loadDoc(d) {
   const oldFmt = FORMATS[d.format] ? d.format : 'wide', oldBoard = BOARDS[d.board] ? d.board : 'white';
   doc = {
-    v: 3, cur: 0, images: Object.assign({}, d.images || {}), audio: Array.isArray(d.audio) ? d.audio : [],
+    v: 3, cur: 0, images: Object.assign({}, d.images || {}), audio: Array.isArray(d.audio) ? d.audio : [], trash: Array.isArray(d.trash) ? d.trash : [],
     pages: d.pages.map(p => {
       const fmt = p.fmt || oldFmt, dm = p.W > 0 && p.H > 0 ? { W: p.W, H: p.H } : dimsOf(fmt);
       const q = { fmt, W: dm.W, H: dm.H, bg: BGS[p.bg] ? p.bg : 'grid', board: BOARDS[p.board] ? p.board : oldBoard, objs: Array.isArray(p.objs) ? p.objs : [], undo: [], redo: [] };
@@ -2052,8 +2065,9 @@ $('page-dup').onclick = () => {
 $('page-del').onclick = async () => {
   closeMenus();
   if (doc.pages.length === 1) { toast('Es la única hoja. Usa «Limpiar esta hoja» si quieres dejarla en blanco.'); return; }
-  if (!(await confirmBox(`¿Eliminar la hoja ${doc.cur + 1}? Esto no se puede deshacer.`, 'Eliminar hoja'))) return;
+  if (!(await confirmBox(`¿Eliminar la hoja ${doc.cur + 1}? Quedará 30 días en «⋯ → Recuperar hojas eliminadas».`, 'Eliminar hoja'))) return;
   cancelEditor(); pend = { strokes: [], page: doc.cur };
+  const gone = doc.pages[doc.cur]; doc.trash = (doc.trash || []).concat([{ at: Date.now(), idx: doc.cur, page: { fmt: gone.fmt, W: gone.W, H: gone.H, pt: gone.pt, bg: gone.bg, board: gone.board, bgImg: gone.bgImg, tags: gone.tags, ptext: gone.ptext, ptw: gone.ptw, objs: gone.objs } }]).slice(-50);
   doc.pages.splice(doc.cur, 1); doc.cur = Math.min(doc.cur, doc.pages.length - 1); sel = -1; hideFloat(); applyPage(pg()); fitView(cam.fit || 'page'); changed();
 };
 $('clear').onclick = () => {
@@ -3015,7 +3029,9 @@ function todayISO() { const d = new Date(); return `${d.getFullYear()}-${String(
 function shortDate(iso) { if (!iso) return ''; const [y, m, d] = iso.split('-').map(Number); return `${d} ${MONTHS[m - 1] || ''}`; }
 function escH(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 const courseOf = id => lib.cursos.find(c => c.id === id);
-const nbsOf = cid => lib.nbs.filter(n => n.cursoId === cid).sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.created - a.created);
+const liveNbs = () => lib.nbs.filter(n => !n.trashed);
+const liveCursos = () => lib.cursos.filter(c => !c.trashed);
+const nbsOf = cid => liveNbs().filter(n => n.cursoId === cid).sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.created - a.created);
 async function loadLibrary() {
   try { lib = await store.get('library'); } catch (e) { lib = null; }
   if (!lib || !Array.isArray(lib.nbs)) {
@@ -3032,6 +3048,12 @@ async function loadLibrary() {
     await saveLibrary();
   }
   if (!lib.cur) lib.cur = { view: 'ciclo', ciclo: lib.ciclos[0] && lib.ciclos[0].id };
+  lib.tasks = lib.tasks || [];
+  const limit = Date.now() - 30 * 864e5;
+  for (const nb of lib.nbs.filter(n => n.trashed && n.trashed < limit)) { await deleteNbData(nb); tomb(nb.id); }
+  lib.nbs = lib.nbs.filter(n => !(n.trashed && n.trashed < limit));
+  lib.cursos.filter(c => c.trashed && c.trashed < limit).forEach(c => tomb(c.id));
+  lib.cursos = lib.cursos.filter(c => !(c.trashed && c.trashed < limit));
 }
 async function saveLibrary() { try { await store.set('library', lib); } catch (e) {} scheduleSync(); }
 function tomb(id) { lib.deleted = lib.deleted || {}; lib.deleted[id] = Date.now(); }
@@ -3101,31 +3123,35 @@ function renderLibrary() {
   const h = t => { const e = document.createElement('h2'); e.textContent = t; side.appendChild(e); };
   const v = lib.cur.view;
   h('Ciclos');
-  lib.ciclos.forEach(c => side.appendChild(sideItem(escH(c.name), v === 'ciclo' && lib.cur.ciclo === c.id, () => setView('ciclo', { ciclo: c.id }), lib.cursos.filter(k => k.cicloId === c.id).length)));
+  lib.ciclos.forEach(c => side.appendChild(sideItem(escH(c.name), v === 'ciclo' && lib.cur.ciclo === c.id, () => setView('ciclo', { ciclo: c.id }), liveCursos().filter(k => k.cicloId === c.id).length)));
   side.appendChild(sideItem('+ Agregar ciclo', false, addCiclo));
+  side.appendChild(sideItem('📅 Calendario y entregas', v === 'cal', () => setView('cal'), (lib.tasks || []).filter(t => !t.done && !t.trashed).length || null));
   h('Accesos');
-  const favN = lib.cursos.filter(c => c.fav).length + lib.nbs.filter(n => n.fav).length;
+  const favN = liveCursos().filter(c => c.fav).length + liveNbs().filter(n => n.fav).length;
   side.appendChild(sideItem('⭐ Favoritos', v === 'fav', () => setView('fav'), favN));
   side.appendChild(sideItem('🕘 Recientes', v === 'recent', () => setView('recent')));
-  side.appendChild(sideItem('📄 PDFs y lecturas', v === 'lecturas', () => setView('lecturas'), lib.nbs.filter(n => n.kind === 'lectura').length));
+  side.appendChild(sideItem('📄 PDFs y lecturas', v === 'lecturas', () => setView('lecturas'), liveNbs().filter(n => n.kind === 'lectura').length));
   side.appendChild(sideItem('🏷 Etiquetas', v === 'tags', () => setView('tags')));
   side.appendChild(sideItem('🧠 Repaso', v === 'cards', () => setView('cards')));
-  side.appendChild(sideItem('📚 Mi bibliografía', v === 'biblio', () => setView('biblio'), lib.nbs.filter(n => n.ref && n.ref.title).length));
-  side.appendChild(sideItem('🎓 Tesis', v === 'tesis', () => setView('tesis'), lib.nbs.filter(n => n.kind === 'tesis').length));
+  side.appendChild(sideItem('📚 Mi bibliografía', v === 'biblio', () => setView('biblio'), liveNbs().filter(n => n.ref && n.ref.title).length));
+  side.appendChild(sideItem('🎓 Tesis', v === 'tesis', () => setView('tesis'), liveNbs().filter(n => n.kind === 'tesis').length));
   h('Respaldo');
+  side.appendChild(sideItem('🗑 Papelera', v === 'trash', () => setView('trash'), lib.nbs.filter(n => n.trashed).length + lib.cursos.filter(c => c.trashed).length || null));
   side.appendChild(sideItem('☁ Google Drive', v === 'drive', () => setView('drive')));
   const main = $('lib-main'); main.innerHTML = '';
   const q = $('lib-search').value.trim().toLowerCase();
   if (q) return renderSearch(main, q);
   if (v === 'curso' && courseOf(lib.cur.curso)) return renderCourse(main, courseOf(lib.cur.curso));
   if (v === 'fav') return renderFav(main);
-  if (v === 'recent') return renderNbList(main, 'Recientes', 'Lo último que abriste.', lib.nbs.filter(n => n.opened).sort((a, b) => b.opened - a.opened).slice(0, 30));
-  if (v === 'lecturas') return renderNbList(main, 'PDFs y lecturas', 'Cuadernos creados a partir de PDF, Word, PowerPoint u otros archivos.', lib.nbs.filter(n => n.kind === 'lectura').sort((a, b) => b.updated - a.updated));
+  if (v === 'recent') return renderNbList(main, 'Recientes', 'Lo último que abriste.', liveNbs().filter(n => n.opened).sort((a, b) => b.opened - a.opened).slice(0, 30));
+  if (v === 'lecturas') return renderNbList(main, 'PDFs y lecturas', 'Cuadernos creados a partir de PDF, Word, PowerPoint u otros archivos.', liveNbs().filter(n => n.kind === 'lectura').sort((a, b) => b.updated - a.updated));
   if (v === 'drive') return renderDrive(main);
+  if (v === 'trash') return renderTrash(main);
+  if (v === 'cal') return renderCal(main);
   if (v === 'tags') return renderTags(main);
   if (v === 'cards') return renderCards(main);
   if (v === 'biblio') return renderBiblio(main);
-  if (v === 'tesis') return renderNbList(main, 'Tesis', 'Avances, observaciones y todo lo de tu tesis.', lib.nbs.filter(n => n.kind === 'tesis').sort((a, b) => b.updated - a.updated), true);
+  if (v === 'tesis') return renderNbList(main, 'Tesis', 'Avances, observaciones y todo lo de tu tesis.', liveNbs().filter(n => n.kind === 'tesis').sort((a, b) => b.updated - a.updated), true);
   renderCiclo(main);
 }
 function headEl(main, title, sub, buttons) {
@@ -3147,8 +3173,9 @@ function renderCiclo(main) {
   if (!cy) { headEl(main, 'Agrega tu primer ciclo', '', [mkBtn('+ Agregar ciclo', addCiclo, 'primary')]); return; }
   lib.cur.ciclo = cy.id;
   headEl(main, escH(cy.name), 'Tus cursos de este ciclo. Toca un curso para ver todas sus sesiones.', [mkBtn('Renombrar ciclo', () => editCiclo(cy))]);
+  dueBanner(main);
   const grid = document.createElement('div'); grid.className = 'cgrid';
-  lib.cursos.filter(c => c.cicloId === cy.id).forEach(c => grid.appendChild(courseCard(c)));
+  liveCursos().filter(c => c.cicloId === cy.id).forEach(c => grid.appendChild(courseCard(c)));
   const add = document.createElement('button'); add.type = 'button'; add.className = 'ccard add'; add.textContent = '+ Agregar curso'; add.onclick = () => editCourse(null, cy.id);
   grid.appendChild(add); main.appendChild(grid);
 }
@@ -3187,7 +3214,10 @@ function renderCourse(main, c) {
   const list = document.createElement('div'); list.className = 'nblist';
   const nbs = nbsOf(c.id);
   if (!nbs.length) list.innerHTML = '<p class="lib-empty">Aún no hay sesiones en este curso. Crea la primera con «+ Nueva sesión».</p>';
-  nbs.forEach(n => list.appendChild(nbRow(n, false)));
+  let lastM = '';
+  nbs.forEach(n => { const mk = (n.date || '').slice(0, 7); if (mk !== lastM) { lastM = mk; const h3 = document.createElement('h3'); h3.style.cssText = 'margin:10px 0 0;font-size:14px;color:var(--muted);text-transform:capitalize'; h3.textContent = mk ? monthName(mk) : 'Sin fecha'; list.appendChild(h3); } list.appendChild(nbRow(n, false)); });
+  const tks = (lib.tasks || []).filter(t => t.course === c.id && !t.trashed);
+  if (tks.length) { const h3 = document.createElement('h3'); h3.style.cssText = 'margin:14px 0 0;font-size:15px'; h3.textContent = 'Entregas del curso'; list.appendChild(h3); tks.sort((a, b) => a.due.localeCompare(b.due)).forEach(t => list.appendChild(taskRow(t))); }
   main.appendChild(list);
 }
 function renderNbList(main, title, sub, nbs, tesis) {
@@ -3200,9 +3230,9 @@ function renderNbList(main, title, sub, nbs, tesis) {
 }
 function renderFav(main) {
   headEl(main, 'Favoritos', 'Toca la estrella ☆ de un curso o de un cuaderno para tenerlo aquí.');
-  const cs = lib.cursos.filter(c => c.fav);
+  const cs = liveCursos().filter(c => c.fav);
   if (cs.length) { const g = document.createElement('div'); g.className = 'cgrid'; cs.forEach(c => g.appendChild(courseCard(c))); main.appendChild(g); }
-  const nbs = lib.nbs.filter(n => n.fav);
+  const nbs = liveNbs().filter(n => n.fav);
   const list = document.createElement('div'); list.className = 'nblist';
   nbs.forEach(n => list.appendChild(nbRow(n, true)));
   if (!cs.length && !nbs.length) list.innerHTML = '<p class="lib-empty">Aún no marcaste favoritos.</p>';
@@ -3210,8 +3240,8 @@ function renderFav(main) {
 }
 function renderSearch(main, q) {
   const nq = normS(q);
-  const cs = lib.cursos.filter(c => normS([c.name, c.teacher].join(' ')).includes(nq));
-  const nbs = lib.nbs.filter(n => normS(n.title).includes(nq));
+  const cs = liveCursos().filter(c => normS([c.name, c.teacher].join(' ')).includes(nq));
+  const nbs = liveNbs().filter(n => normS(n.title).includes(nq));
   headEl(main, `Resultados para «${escH(q)}»`, `${cs.length} curso${cs.length !== 1 ? 's' : ''} y ${nbs.length} cuaderno${nbs.length !== 1 ? 's' : ''} por nombre`);
   if (cs.length) { const g = document.createElement('div'); g.className = 'cgrid'; cs.forEach(c => g.appendChild(courseCard(c))); main.appendChild(g); }
   const list = document.createElement('div'); list.className = 'nblist'; nbs.forEach(n => list.appendChild(nbRow(n, true))); main.appendChild(list);
@@ -3269,11 +3299,11 @@ $('cm-save').onclick = () => {
 };
 $('cm-delete').onclick = async () => {
   const c = cmCourse; if (!c) return;
-  const n = lib.nbs.filter(x => x.cursoId === c.id).length;
-  if (!(await confirmBox(n ? `¿Eliminar «${c.name}» y sus ${n} cuaderno${n > 1 ? 's' : ''}? Esto no se puede deshacer.` : `¿Eliminar el curso «${c.name}»?`, 'Eliminar curso'))) return;
-  for (const nb of lib.nbs.filter(x => x.cursoId === c.id)) await deleteNbData(nb);
-  lib.nbs.filter(x => x.cursoId === c.id).forEach(x => tomb(x.id)); tomb(c.id);
-  lib.nbs = lib.nbs.filter(x => x.cursoId !== c.id); lib.cursos = lib.cursos.filter(x => x !== c);
+  const n = liveNbs().filter(x => x.cursoId === c.id).length;
+  if (!(await confirmBox(n ? `¿Mover «${c.name}» y sus ${n} cuaderno${n > 1 ? 's' : ''} a la papelera? Podrás recuperarlos durante 30 días.` : `¿Mover el curso «${c.name}» a la papelera?`, 'Mover a la papelera'))) return;
+  const now = Date.now();
+  liveNbs().filter(x => x.cursoId === c.id).forEach(x => { x.trashed = now; x.trashedBy = c.id; x.mod = now; });
+  c.trashed = now; c.mod = now;
   $('course-modal').hidden = true; saveLibrary(); setView('ciclo', { ciclo: c.cicloId });
 };
 async function deleteNbData(nb) {
@@ -3298,7 +3328,7 @@ async function nbMenu(n) {
     if (d) await store.set('doc:' + c.id, d);
     lib.nbs.push(c);
   } else if (r === 'del') {
-    if (await confirmBox(`¿Eliminar «${n.title}»? Esto no se puede deshacer.`, 'Eliminar cuaderno')) { await deleteNbData(n); tomb(n.id); lib.nbs = lib.nbs.filter(x => x !== n); }
+    if (await confirmBox(`¿Mover «${n.title}» a la papelera? Podrás recuperarlo durante 30 días.`, 'Mover a la papelera')) { n.trashed = Date.now(); delete n.trashedBy; }
   }
   if (r) { if (lib.nbs.includes(n)) n.mod = Date.now(); saveLibrary(); renderLibrary(); }
 }
@@ -3330,7 +3360,7 @@ function askSelect(title, label, options, value) {
 function fillCourseSelect(sel, value) {
   sel.innerHTML = '';
   lib.ciclos.forEach(y => {
-    const cs = lib.cursos.filter(c => c.cicloId === y.id); if (!cs.length) return;
+    const cs = liveCursos().filter(c => c.cicloId === y.id); if (!cs.length) return;
     const g = document.createElement('optgroup'); g.label = y.name;
     cs.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.name; g.appendChild(o); });
     sel.appendChild(g);
@@ -3338,7 +3368,7 @@ function fillCourseSelect(sel, value) {
   if (value) sel.value = value;
 }
 function suggestNbName(force) {
-  const cid = $('nb-course').value, n = lib.nbs.filter(x => x.cursoId === cid && x.kind === choice.kind).length + 1;
+  const cid = $('nb-course').value, n = liveNbs().filter(x => x.cursoId === cid && x.kind === choice.kind).length + 1;
   const name = choice.kind === 'sesion' ? `Sesión ${n}` : choice.kind === 'tesis' ? `Tesis · avance ${n}` : choice.kind === 'lectura' ? `Lectura ${n}` : `Cuaderno ${n}`;
   if (force) return name;
   $('nb-name').placeholder = name;
@@ -3663,7 +3693,7 @@ function mergeLib(local, remote) {
     return [...m.values()].filter(x => !(del[x.id] && del[x.id] >= (x.mod || 0)));
   };
   const out = Object.assign({}, local);
-  out.ciclos = mergeArr(local.ciclos, remote.ciclos); out.cursos = mergeArr(local.cursos, remote.cursos); out.nbs = mergeArr(local.nbs, remote.nbs);
+  out.ciclos = mergeArr(local.ciclos, remote.ciclos); out.cursos = mergeArr(local.cursos, remote.cursos); out.nbs = mergeArr(local.nbs, remote.nbs); out.tasks = mergeArr(local.tasks, remote.tasks);
   out.deleted = del;
   if ((remote.nameMod || 0) > (local.nameMod || 0)) { out.name = remote.name; out.nameMod = remote.nameMod; }
   out.cur = local.cur;
@@ -3677,7 +3707,7 @@ function mergeLib(local, remote) {
 }
 function docImgIds(d) {
   if (d.imgIds) return d.imgIds;
-  const ids = new Set(); (d.pages || []).forEach(p => { if (p.bgImg) ids.add(p.bgImg); (p.objs || []).forEach(o => { if (o.t === 'img') ids.add(o.id); }); }); return [...ids];
+  const ids = new Set(); (d.pages || []).concat((d.trash || []).map(t => t.page)).forEach(p => { if (p.bgImg) ids.add(p.bgImg); (p.objs || []).forEach(o => { if (o.t === 'img') ids.add(o.id); }); }); return [...ids];
 }
 async function syncAll(interactive) {
   if (DRIVE.busy) return;
@@ -3740,6 +3770,7 @@ async function syncAll(interactive) {
     const libCopy = Object.assign({}, lib); delete libCopy.cur;
     await gupload('library.json', JSON.stringify(libCopy), 'application/json', remote.get('library.json'), { updated: String(Date.now()) });
     await store.set('library', lib); saveSyncMeta();
+    try { await weeklyBackup(remote, false); } catch (e) {}
     DRIVE.last = Date.now(); prefs.driveLast = DRIVE.last; savePrefs();
     dlog(`Sincronizado: ${up} subido${up !== 1 ? 's' : ''}, ${down} descargado${down !== 1 ? 's' : ''}${imgsUp + imgsDown ? `, ${imgsUp + imgsDown} imágenes` : ''}${conflicts ? `, ${conflicts} conflicto${conflicts > 1 ? 's' : ''} guardado${conflicts > 1 ? 's' : ''} como copia` : ''}.`);
     if (!$('library').hidden) renderLibrary();
@@ -3807,6 +3838,7 @@ function updateDriveChip() {
   else if (!driveReady()) { c.textContent = '☁ Toca para sincronizar'; c.classList.add('off'); }
   else c.textContent = `☁ Sincronizado ${ago(DRIVE.last || prefs.driveLast)}`;
 }
+$('backup-file').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) restoreFullBackup(f); };
 $('drive-chip').onclick = () => { if (prefs.driveOn && clientId() && !driveReady()) syncAll(true); setView('drive'); };
 function renderDrive(main) {
   headEl(main, '☁ Google Drive', 'Tus cursos y cuadernos se guardan en la carpeta «Pizarra de Apuntes» de tu Google Drive y se sincronizan entre tu iPad, tu PC y tu Android.');
@@ -3840,6 +3872,16 @@ function renderDrive(main) {
   inp.style.cssText = 'flex:1;min-width:240px;height:40px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--panel)';
   if (!GOOGLE_CLIENT_ID) { r2.appendChild(inp); r2.appendChild(mkBtn('Guardar', () => { const v = inp.value.trim(); if (v && !/\.apps\.googleusercontent\.com$/.test(v)) { toast('Ese no parece un Client ID: debe terminar en .apps.googleusercontent.com'); return; } try { localStorage.setItem('pizarra-gclient', v); } catch (e) {} toast(v ? 'Client ID guardado. Ahora pulsa «Conectar con Google Drive».' : 'Client ID borrado.'); renderLibrary(); })); cfg.appendChild(r2); }
   box.appendChild(cfg);
+  const bk = document.createElement('div'); bk.className = 'col';
+  bk.innerHTML = `<h3>Copias de seguridad</h3><p class="hint">Cada semana se guarda sola una copia de toda tu biblioteca en tu Drive (carpeta «Copias de seguridad»; se conservan las últimas 8). Última: ${prefs.lastBackup ? new Date(prefs.lastBackup).toLocaleString('es-PE') : 'todavía ninguna'}.</p>`;
+  const r3 = document.createElement('div'); r3.className = 'row';
+  if (ready) {
+    r3.appendChild(mkBtn('Hacer una copia ahora', async () => { try { await weeklyBackup(null, true); toast('Copia guardada en Drive.'); renderLibrary(); } catch (e) { toast('No se pudo: ' + e.message); } }));
+    r3.appendChild(mkBtn('Ver y restaurar copias…', async () => { try { const list = await listBackups(); if (!list.length) { toast('Aún no hay copias en Drive.'); return; } const k = await askSelect('Restaurar una copia', 'Copia', list.map(f => [f.id, f.name])); const f = list.find(x => x.id === k); if (f) restoreBackup(f); } catch (e) { toast('No se pudo leer las copias: ' + e.message); } }));
+  }
+  r3.appendChild(mkBtn('Descargar copia completa (archivo)', downloadFullBackup, '', 'Un archivo con todos tus cursos, cuadernos e imágenes, para guardar donde quieras'));
+  r3.appendChild(mkBtn('Restaurar desde archivo…', () => $('backup-file').click()));
+  bk.appendChild(r3); box.appendChild(bk);
   if (DRIVE.log.length) { const lg = document.createElement('div'); lg.className = 'col'; lg.innerHTML = `<h3>Actividad</h3><div class="log">${DRIVE.log.map(escH).join('\n')}</div>`; box.appendChild(lg); }
   main.appendChild(box);
 }
@@ -3882,8 +3924,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20e';
+const APP_VERSION = '2026-11-20f';
 const CHANGELOG = [
+  { v: '2026-11-20f', t: '20 de noviembre · noche', items: ['🗑 Papelera: lo que eliminas (cursos, cuadernos y hojas) se guarda 30 días.', 'Copias de seguridad semanales automáticas en Drive (últimas 8) y copia completa en archivo.', '📅 Calendario: tus sesiones por fecha con el color de cada curso, y entregas con aviso de las próximas.', 'En cada curso, las sesiones se agrupan por mes.'] },
   { v: '2026-11-20e', t: '20 de noviembre · tarde (3)', items: ['Referencias en APA 7 de tus lecturas («⋯ → Datos de la lectura») y vista 📚 Mi bibliografía para copiarla completa a Word.', 'Tarjetas de repaso con repetición espaciada (🧠 Repaso): créalas con el lazo, a mano o desde líneas «término: definición».', 'Grabar el audio de la clase: toca lo que escribiste y escucha lo que se decía en ese momento.'] },
   { v: '2026-11-20d', t: '20 de noviembre · tarde (2)', items: ['Notas adhesivas de 4 colores y enlaces a otras hojas o cuadernos (Insertar ▾).', '9 plantillas: matriz de consistencia, operacionalización, FODA, mapa conceptual, cronograma, cuadro comparativo, árbol de problemas, línea de tiempo y planificador semanal.', 'Etiquetas por hoja (Examen, Duda, Cita para tesis…) y vista 🏷 Etiquetas en la biblioteca.', 'Búsqueda dentro de tus apuntes y del texto de los PDF importados.', 'Resumen de lo resaltado: junta todo lo resaltado en un cuaderno nuevo, con enlaces a cada hoja.'] },
   { v: '2026-11-20c', t: '20 de noviembre · tarde', items: ['Barra superior en una sola fila: «Insertar ▾» y «⋯» agrupan el resto de opciones.', 'Lápices favoritos: 4 botones con tus combinaciones de color y grosor (mantén presionado para guardar).', 'Formas perfectas: dibuja un círculo, rectángulo, triángulo o línea y deja quieto el lápiz.', 'Reportar un problema o idea, y revisión semanal de los reportes.', 'Lista para probar la pizarra en cada dispositivo.'] },
@@ -4011,7 +4054,7 @@ $('ins-note').onclick = async () => {
 };
 $('ins-link').onclick = async () => {
   closeMenus(); if (!curNb) return;
-  const opts = [[curNb.id, `Este cuaderno («${curNb.title}»)`]].concat(lib.nbs.filter(n => n !== curNb).sort((a, b) => (b.opened || 0) - (a.opened || 0)).map(n => [n.id, `${n.title} · ${(courseOf(n.cursoId) || {}).name || ''}`]));
+  const opts = [[curNb.id, `Este cuaderno («${curNb.title}»)`]].concat(liveNbs().filter(n => n !== curNb).sort((a, b) => (b.opened || 0) - (a.opened || 0)).map(n => [n.id, `${n.title} · ${(courseOf(n.cursoId) || {}).name || ''}`]));
   const target = await askSelect('Enlace a…', 'Cuaderno', opts, curNb.id); if (!target) return;
   const nb = lib.nbs.find(n => n.id === target);
   const pgn = await askText('¿A qué hoja?', `Número de hoja (1 a ${target === curNb.id ? doc.pages.length : (nb.pages || 1)})`, '1'); if (!pgn) return;
@@ -4067,7 +4110,7 @@ function renderTags(main) {
   const box = document.createElement('div'); box.className = 'nblist'; box.innerHTML = '<p class="lib-empty">Cargando…</p>'; main.appendChild(box);
   ensureIndex().then(() => {
     const by = {};
-    for (const [id, ent] of IDX) { const nb = lib.nbs.find(n => n.id === id); if (!nb) continue; ent.pages.forEach((pp, i) => (pp.g || []).forEach(t => { (by[t] = by[t] || []).push({ nb, i, t: pp.t }); })); }
+    for (const [id, ent] of IDX) { const nb = liveNbs().find(n => n.id === id); if (!nb) continue; ent.pages.forEach((pp, i) => (pp.g || []).forEach(t => { (by[t] = by[t] || []).push({ nb, i, t: pp.t }); })); }
     box.innerHTML = '';
     const keys = Object.keys(by);
     if (!keys.length) { box.innerHTML = '<p class="lib-empty">Aún no pusiste etiquetas en ninguna hoja.</p>'; return; }
@@ -4102,7 +4145,7 @@ async function ensureIndex() {
 function searchNotes(nq) {
   const out = [];
   for (const [id, ent] of IDX) {
-    const nb = lib.nbs.find(n => n.id === id); if (!nb) continue;
+    const nb = liveNbs().find(n => n.id === id); if (!nb) continue;
     ent.pages.forEach((pp, i) => {
       if (out.length >= 80) return;
       const nt = normS(pp.t), k = nt.indexOf(nq);
@@ -4256,7 +4299,7 @@ $('ref-insert').onclick = () => {
   $('refm').hidden = true; toast('Referencia insertada en la hoja.');
 };
 function renderBiblio(main) {
-  const nbs = lib.nbs.filter(n => n.ref && n.ref.title).sort((a, b) => apaText(a.ref).localeCompare(apaText(b.ref), 'es'));
+  const nbs = liveNbs().filter(n => n.ref && n.ref.title).sort((a, b) => apaText(a.ref).localeCompare(apaText(b.ref), 'es'));
   const html = nbs.map(n => `<p style="margin:0 0 10px;padding-left:36px;text-indent:-36px;line-height:1.6">${apaHtml(n.ref)}</p>`).join('');
   headEl(main, '📚 Mi bibliografía', 'Referencias en APA 7 de tus lecturas, ordenadas alfabéticamente. Agrega los datos desde un cuaderno: «⋯ → Datos de la lectura».', nbs.length ? [mkBtn('Copiar toda la bibliografía', () => copyRich(html, nbs.map(n => apaText(n.ref)).join('\n')), 'primary')] : []);
   const box = document.createElement('div'); box.className = 'drv'; box.style.maxWidth = '860px';
@@ -4398,6 +4441,184 @@ async function playAudioAt(id, ms) {
 $('pl-play').onclick = () => { if (!player) return; player.a.paused ? player.a.play() : player.a.pause(); };
 $('pl-seek').oninput = e => { if (player && isFinite(player.a.duration)) player.a.currentTime = e.target.value / 1000 * player.a.duration; };
 $('pl-close').onclick = () => { if (player) { player.a.pause(); URL.revokeObjectURL(player.url); player = null; } $('player').hidden = true; };
+
+
+/* ======================= PAPELERA ======================= */
+function daysLeft(t) { return Math.max(0, 30 - Math.floor((Date.now() - t) / 864e5)); }
+function renderTrash(main) {
+  headEl(main, '🗑 Papelera', 'Lo que eliminas se guarda aquí 30 días. Después se borra solo.');
+  const list = document.createElement('div'); list.className = 'nblist';
+  const cs = lib.cursos.filter(c => c.trashed), ns = lib.nbs.filter(n => n.trashed && !(n.trashedBy && cs.some(c => c.id === n.trashedBy)));
+  if (!cs.length && !ns.length) list.innerHTML = '<p class="lib-empty">La papelera está vacía.</p>';
+  cs.forEach(c => {
+    const k = lib.nbs.filter(n => n.trashedBy === c.id).length, row = document.createElement('div'); row.className = 'taskrow';
+    row.innerHTML = `<span class="dot" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c.color}"></span><b>Curso: ${escH(c.name)} <span class="hint">(${k} cuaderno${k !== 1 ? 's' : ''})</span></b><span class="pill">se borra en ${daysLeft(c.trashed)} días</span>`;
+    row.appendChild(mkBtn('Recuperar', () => { const now = Date.now(); delete c.trashed; c.mod = now; lib.nbs.filter(n => n.trashedBy === c.id).forEach(n => { delete n.trashed; delete n.trashedBy; n.mod = now; }); saveLibrary(); renderLibrary(); toast('Curso recuperado.'); }, 'primary'));
+    row.appendChild(mkBtn('Eliminar ya', async () => { if (!(await confirmBox(`¿Eliminar para siempre «${c.name}» y sus cuadernos?`, 'Eliminar para siempre'))) return; for (const n of lib.nbs.filter(x => x.trashedBy === c.id)) { await deleteNbData(n); tomb(n.id); } lib.nbs = lib.nbs.filter(x => x.trashedBy !== c.id); tomb(c.id); lib.cursos = lib.cursos.filter(x => x !== c); saveLibrary(); renderLibrary(); }, 'danger'));
+    list.appendChild(row);
+  });
+  ns.forEach(n => {
+    const c = courseOf(n.cursoId), row = document.createElement('div'); row.className = 'taskrow';
+    row.innerHTML = `<b>${escH(n.title)} <span class="hint">${c ? '· ' + escH(c.name) : ''}</span></b><span class="pill">se borra en ${daysLeft(n.trashed)} días</span>`;
+    row.appendChild(mkBtn('Recuperar', () => { delete n.trashed; delete n.trashedBy; n.mod = Date.now(); if (c && c.trashed) { delete c.trashed; c.mod = Date.now(); } saveLibrary(); renderLibrary(); toast('Cuaderno recuperado.'); }, 'primary'));
+    row.appendChild(mkBtn('Eliminar ya', async () => { if (!(await confirmBox(`¿Eliminar para siempre «${n.title}»?`, 'Eliminar para siempre'))) return; await deleteNbData(n); tomb(n.id); lib.nbs = lib.nbs.filter(x => x !== n); saveLibrary(); renderLibrary(); }, 'danger'));
+    list.appendChild(row);
+  });
+  main.appendChild(list);
+}
+$('page-restore').onclick = async () => {
+  closeMenus(); if (!curNb) return;
+  const tr = (doc.trash || []).filter(t => Date.now() - t.at < 30 * 864e5);
+  if (!tr.length) { toast('No hay hojas eliminadas en este cuaderno.'); return; }
+  const k = await askSelect('Recuperar una hoja', 'Hojas eliminadas', tr.map((t, i) => [String(i), `Hoja ${t.idx + 1} · eliminada ${new Date(t.at).toLocaleDateString('es-PE')} · ${t.page.objs.length} elemento${t.page.objs.length !== 1 ? 's' : ''}`]));
+  if (k == null) return;
+  const t = tr[+k], pgx = Object.assign({ undo: [], redo: [] }, t.page);
+  doc.trash = doc.trash.filter(x => x !== t);
+  doc.pages.splice(Math.min(t.idx, doc.pages.length), 0, pgx); goPage(Math.min(t.idx, doc.pages.length - 1));
+  toast('Hoja recuperada.');
+};
+
+/* ======================= CALENDARIO, ENTREGAS Y APUNTES POR FECHA ======================= */
+const MONTHS_L = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'setiembre', 'octubre', 'noviembre', 'diciembre'];
+const monthName = ym => { const [y, m] = ym.split('-').map(Number); return `${MONTHS_L[m - 1]} ${y}`; };
+const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function daysTo(iso) { const a = new Date(todayISO() + 'T00:00'), b = new Date(iso + 'T00:00'); return Math.round((b - a) / 864e5); }
+function whenTxt(iso) { const d = daysTo(iso); return d < 0 ? `venció hace ${-d} día${d < -1 ? 's' : ''}` : d === 0 ? 'hoy' : d === 1 ? 'mañana' : `en ${d} días`; }
+function taskRow(t) {
+  const c = courseOf(t.course), row = document.createElement('div'); row.className = 'taskrow' + (t.done ? ' done' : '');
+  row.innerHTML = `<input type="checkbox" ${t.done ? 'checked' : ''} aria-label="Marcar como entregado" style="width:18px;height:18px;accent-color:var(--accent)"><b>${escH(t.title)}</b>${c ? `<span class="pill" style="background:${c.color};color:#fff">${escH(c.name)}</span>` : ''}<span class="pill" style="${!t.done && daysTo(t.due) <= 2 ? 'background:var(--warn);color:#fff' : ''}">${escH(shortDate(t.due))} · ${t.done ? 'entregado' : whenTxt(t.due)}</span>`;
+  row.querySelector('input').onchange = e => { t.done = e.target.checked; t.mod = Date.now(); saveLibrary(); renderLibrary(); };
+  row.appendChild(mkBtn('⋯', async () => {
+    const r = await askSelect(t.title, 'Elige qué hacer', [['edit', 'Cambiar nombre'], ['date', 'Cambiar fecha'], ['del', 'Eliminar']]);
+    if (r === 'edit') { const v = await askText('Entrega', 'Nombre', t.title); if (v) t.title = v; }
+    if (r === 'date') { const v = await askText('Fecha de entrega', 'Fecha', t.due, null, 'date'); if (v) t.due = v; }
+    if (r === 'del') { t.trashed = Date.now(); }
+    if (r) { t.mod = Date.now(); saveLibrary(); renderLibrary(); }
+  }));
+  return row;
+}
+async function newTask(date, course) {
+  if (!liveCursos().length) { toast('Primero crea un curso.'); return; }
+  const title = await askText('Nueva entrega', '¿Qué hay que entregar?', ''); if (!title) return;
+  const cid = course || await askSelect('Nueva entrega', 'Curso', liveCursos().map(c => [c.id, c.name])); if (!cid) return;
+  const due = await askText('Nueva entrega', 'Fecha de entrega', date || todayISO(), null, 'date'); if (!due) return;
+  lib.tasks.push({ id: uid('e'), title, course: cid, due, done: false, mod: Date.now() }); saveLibrary(); renderLibrary();
+}
+function dueBanner(main) {
+  const up = (lib.tasks || []).filter(t => !t.done && !t.trashed && daysTo(t.due) <= 7).sort((a, b) => a.due.localeCompare(b.due));
+  if (!up.length) return;
+  const b = document.createElement('div'); b.className = 'due';
+  b.innerHTML = `<b>⚠ Entregas próximas</b>` + up.slice(0, 4).map(t => `<span>${escH(t.title)} · ${escH((courseOf(t.course) || {}).name || '')} · <b>${escH(whenTxt(t.due))}</b></span>`).join('');
+  b.style.cursor = 'pointer'; b.onclick = () => setView('cal');
+  main.appendChild(b);
+}
+function renderCal(main) {
+  const base = lib.cur.month || todayISO().slice(0, 7), [y, m] = base.split('-').map(Number);
+  const prev = () => { const d = new Date(y, m - 2, 1); setView('cal', { month: isoOf(d).slice(0, 7) }); }, next = () => { const d = new Date(y, m, 1); setView('cal', { month: isoOf(d).slice(0, 7) }); };
+  headEl(main, `📅 ${MONTHS_L[m - 1][0].toUpperCase() + MONTHS_L[m - 1].slice(1)} ${y}`, 'Tus sesiones por fecha, con el color de cada curso, y tus entregas. Toca un día para ver lo que tiene.', [mkBtn('‹', prev), mkBtn('Hoy', () => setView('cal', { month: todayISO().slice(0, 7), day: todayISO() })), mkBtn('›', next), mkBtn('+ Nueva entrega', () => newTask(lib.cur.day), 'primary')]);
+  dueBanner(main);
+  const grid = document.createElement('div'); grid.className = 'cal';
+  ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].forEach(d => { const e = document.createElement('div'); e.className = 'dh'; e.textContent = d; grid.appendChild(e); });
+  const first = new Date(y, m - 1, 1), start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7));
+  const sel2 = lib.cur.day || todayISO();
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i); const iso = isoOf(d);
+    if (i >= 35 && d.getMonth() !== m - 1) break;
+    const cell = document.createElement('button'); cell.type = 'button'; cell.className = 'd' + (d.getMonth() !== m - 1 ? ' out' : '') + (iso === todayISO() ? ' today' : '');
+    cell.setAttribute('aria-pressed', String(iso === sel2)); cell.setAttribute('aria-label', `${d.getDate()} de ${MONTHS_L[d.getMonth()]}`);
+    cell.innerHTML = `<span class="n">${d.getDate()}</span>`;
+    liveNbs().filter(n => n.date === iso).slice(0, 3).forEach(n => { const c = courseOf(n.cursoId) || { color: '#8894a3' }; cell.insertAdjacentHTML('beforeend', `<span class="ev" style="background:${c.color}">${escH(n.title)}</span>`); });
+    (lib.tasks || []).filter(t => t.due === iso && !t.trashed && !t.done).forEach(t => cell.insertAdjacentHTML('beforeend', `<span class="ev task">⚑ ${escH(t.title)}</span>`));
+    cell.onclick = () => setView('cal', { day: iso });
+    grid.appendChild(cell);
+  }
+  main.appendChild(grid);
+  const dd = new Date(sel2 + 'T00:00'), list = document.createElement('div'); list.className = 'nblist';
+  list.innerHTML = `<h3 style="margin:6px 0 0;font-size:16px">${dd.getDate()} de ${MONTHS_L[dd.getMonth()]}</h3>`;
+  const nbs = liveNbs().filter(n => n.date === sel2), tks = (lib.tasks || []).filter(t => t.due === sel2 && !t.trashed);
+  if (!nbs.length && !tks.length) list.insertAdjacentHTML('beforeend', '<p class="lib-empty" style="padding:6px 0;text-align:left">Nada este día.</p>');
+  nbs.forEach(n => list.appendChild(nbRow(n, true))); tks.forEach(t => list.appendChild(taskRow(t)));
+  const acts = document.createElement('div'); acts.className = 'row';
+  acts.appendChild(mkBtn('+ Sesión en este día', () => { if (!liveCursos().length) { toast('Primero crea un curso.'); return; } openSetup(null, 'sesion'); $('nb-date').value = sel2; }));
+  acts.appendChild(mkBtn('+ Entrega en este día', () => newTask(sel2)));
+  list.appendChild(acts);
+  const pend = (lib.tasks || []).filter(t => !t.trashed).sort((a, b) => (a.done - b.done) || a.due.localeCompare(b.due));
+  if (pend.length) { list.insertAdjacentHTML('beforeend', '<h3 style="margin:14px 0 0;font-size:16px">Todas las entregas</h3>'); pend.forEach(t => list.appendChild(taskRow(t))); }
+  main.appendChild(list);
+}
+
+/* ======================= COPIAS DE SEGURIDAD ======================= */
+async function ensureSub(parent, name) {
+  const q = encodeURIComponent(`name='${name}' and '${parent}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+  const j = await (await gfetch(`${GAPI}/files?q=${q}&fields=files(id,name)`)).json();
+  if (j.files && j.files.length) return j.files[0].id;
+  return (await (await gfetch(`${GAPI}/files?fields=id`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, mimeType: 'application/vnd.google-apps.folder', parents: [parent] }) })).json()).id;
+}
+async function listIn(folder) {
+  const q = encodeURIComponent(`'${folder}' in parents and trashed=false`);
+  return (await (await gfetch(`${GAPI}/files?q=${q}&pageSize=1000&fields=files(id,name,mimeType)`)).json()).files || [];
+}
+async function weeklyBackup(remote, force) {
+  if (!force && Date.now() - (prefs.lastBackup || 0) < 7 * 864e5) return false;
+  const root = await ensureFolder(), copies = await ensureSub(root, 'Copias de seguridad');
+  const d = new Date(), name = `${isoOf(d)} ${String(d.getHours()).padStart(2, '0')}h${String(d.getMinutes()).padStart(2, '0')}`;
+  const dest = await ensureSub(copies, name);
+  const fresh = remote || await listRemote();
+  for (const [nm, f] of fresh) if (nm === 'library.json' || nm === 'cards.json' || /^nb-.*\.json$/.test(nm)) await gfetch(`${GAPI}/files/${f.id}/copy?fields=id`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: nm, parents: [dest] }) });
+  const all = (await listIn(copies)).filter(f => f.mimeType === 'application/vnd.google-apps.folder').sort((a, b) => b.name.localeCompare(a.name));
+  for (const old of all.slice(8)) await gdelete(old);
+  prefs.lastBackup = Date.now(); savePrefs(); dlog(`Copia de seguridad semanal guardada en Drive (${name}).`);
+  return true;
+}
+async function listBackups() {
+  const root = await ensureFolder(), copies = await ensureSub(root, 'Copias de seguridad');
+  return (await listIn(copies)).filter(f => f.mimeType === 'application/vnd.google-apps.folder').sort((a, b) => b.name.localeCompare(a.name));
+}
+async function restoreBackup(folder) {
+  if (!(await confirmBox(`¿Volver a la copia «${folder.name}»? Tus cuadernos actuales se reemplazan por los de esa fecha (antes guardo una copia de lo actual).`, 'Restaurar copia'))) return;
+  setProgress('Restaurando la copia…', false);
+  try {
+    await syncAll(false); await weeklyBackup(null, true);
+    const files = await listIn(folder.id), lf = files.find(f => f.name === 'library.json');
+    if (!lf) throw new Error('la copia no tiene biblioteca');
+    const old = JSON.parse(await gtext(lf)), meta = await loadSyncMeta(), now = Date.now();
+    for (const f of files) { const m2 = f.name.match(/^nb-(.+)\.json$/); if (m2) { await store.set('doc:' + m2[1], JSON.parse(await gtext(f))); meta.docs[m2[1]] = { local: now, synced: 0 }; IDX.delete(m2[1]); } }
+    const cf = files.find(f => f.name === 'cards.json'); if (cf) await saveCards(JSON.parse(await gtext(cf)));
+    const keep = new Set([...(old.nbs || []), ...(old.cursos || []), ...(old.ciclos || [])].map(x => x.id));
+    [...lib.nbs, ...lib.cursos, ...lib.ciclos].forEach(x => { if (!keep.has(x.id)) tomb(x.id); });
+    ['nbs', 'cursos', 'ciclos', 'tasks'].forEach(k => (old[k] || []).forEach(x => { x.mod = now; }));
+    const cur = lib.cur, del = lib.deleted;
+    lib = Object.assign(old, { cur, deleted: Object.assign({}, old.deleted || {}, del) });
+    Object.keys(lib.deleted).forEach(k => { if (keep.has(k)) delete lib.deleted[k]; });
+    await store.set('library', lib); saveSyncMeta();
+    await syncAll(false);
+    toast('Copia restaurada.'); renderLibrary();
+  } catch (e) { toast('No se pudo restaurar: ' + e.message); }
+  finally { setProgress(''); }
+}
+async function downloadFullBackup() {
+  setProgress('Preparando la copia completa…', false);
+  try {
+    const out = { app: 'pizarra-apuntes-copia', at: Date.now(), library: lib, docs: {}, images: {}, cards: await loadCards() };
+    for (const nb of lib.nbs) { const d = curNb && curNb.id === nb.id ? serialize(false) : await store.get('doc:' + nb.id).catch(() => null); if (!d) continue; out.docs[nb.id] = d; for (const id of docImgIds(d)) { if (!out.images[id]) { const v = (doc && doc.images[id]) || await store.get('img:' + id).catch(() => null); if (v) out.images[id] = v; } } }
+    await downloadBlob(new Blob([JSON.stringify(out)], { type: 'application/json' }), `copia-pizarra-${todayISO()}.json`);
+  } finally { setProgress(''); }
+}
+async function restoreFullBackup(file) {
+  let d; try { d = JSON.parse(await file.text()); } catch (e) { d = null; }
+  if (!d || d.app !== 'pizarra-apuntes-copia') { toast('Ese archivo no es una copia completa de la pizarra.'); return; }
+  if (!(await confirmBox(`¿Restaurar la copia del ${new Date(d.at).toLocaleString('es-PE')}? Se agregan y actualizan los cuadernos de la copia; lo que no está en la copia se mantiene.`, 'Restaurar'))) return;
+  setProgress('Restaurando…', false);
+  try {
+    const now = Date.now(), meta = await loadSyncMeta();
+    for (const [id, v] of Object.entries(d.images || {})) await store.set('img:' + id, v);
+    for (const [id, v] of Object.entries(d.docs || {})) { await store.set('doc:' + id, v); meta.docs[id] = { local: now, synced: 0 }; IDX.delete(id); }
+    ['ciclos', 'cursos', 'nbs', 'tasks'].forEach(k => (d.library[k] || []).forEach(x => { x.mod = now; const arr = lib[k] = lib[k] || [], i = arr.findIndex(y => y.id === x.id); if (i >= 0) arr[i] = x; else arr.push(x); if (lib.deleted) delete lib.deleted[x.id]; }));
+    const cards = await loadCards(), ids = new Set(cards.map(c => c.id)); (d.cards || []).forEach(c => { if (!ids.has(c.id)) cards.push(c); }); await saveCards(cards);
+    await store.set('library', lib); saveSyncMeta(); scheduleSync(2000);
+    toast('Copia restaurada.'); renderLibrary();
+  } finally { setProgress(''); }
+}
 
 init();
 

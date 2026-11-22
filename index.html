@@ -224,6 +224,30 @@ body.splitting #split{display:flex}
 .sec-row span{display:flex;flex-direction:column}.sec-row small{color:var(--muted);font-size:12px}.opt-tag{font-style:normal;font-size:11px;background:#e3f5ec;color:#12805c;border-radius:999px;padding:1px 7px}
 .sty-box{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:8px 12px;font-size:14px}.sty-box ul{margin:0;padding-left:18px;line-height:1.7}
 .sty-secs{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.fm-upload{border:2px dashed var(--accent);color:var(--accent);font-weight:600;background:var(--hover);padding:10px}
+#md-items{display:flex;flex-direction:column;gap:6px;overflow:auto;max-height:52vh}
+.md-row{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel);cursor:pointer}
+.md-row input{width:22px;height:22px;margin-top:2px;accent-color:#12805c;flex:none}.md-row.off{opacity:.5;cursor:default}
+.md-all{background:#e9f6f7;border-color:#9fd3d6}
+.md-ic{font-size:20px;flex:none}.md-tx{display:flex;flex-direction:column;gap:4px;min-width:0}.md-tx small{color:var(--muted);font-size:13px;display:block;line-height:1.5}.md-tx small img{display:block;margin:4px 0}
+.md-band{max-width:100%;max-height:70px;object-fit:contain;object-position:left;border:1px solid var(--line);border-radius:4px;background:#fff}
+.md-logo{max-height:46px;max-width:160px;border:1px solid var(--line);border-radius:4px;background:#fff}
+.md-sw{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;border:1px solid var(--line)}
+.xl-wrap{overflow:auto;border:1px solid #b7c2cf;background:#fff;max-height:70vh}
+.xl{border-collapse:collapse;font:13px Calibri,Carlito,Arimo,sans-serif;color:#1b2430;min-width:1500px}
+.xl th,.xl td{border:1px solid #d4dbe3;padding:3px 5px;vertical-align:middle;background:#fff}
+.xl thead th{background:#f1f4f7;font-weight:600;position:sticky;top:22px;z-index:1;text-align:left}
+.xl thead tr.xl-letters th{top:0;text-align:center;color:#5a6676;font-weight:400;background:#e8edf2}
+.xl .xl-n{background:#e8edf2;color:#5a6676;text-align:center;width:30px;font-weight:400}
+.xl input:not([type=checkbox]),.xl select{border:none;background:transparent;font:inherit;color:inherit;width:100%;min-width:70px;padding:3px}
+.xl input:focus,.xl select:focus{outline:2px solid #217346;background:#fff}
+.xl input[type=color]{width:46px;min-width:46px;height:24px;padding:0}
+.xl input[type=number]{width:70px;min-width:60px}
+.xl-pair{display:flex;gap:2px}.xl-ro{display:block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#5a6676}
+.xl-chk{display:flex;align-items:center;gap:6px}.xl-chk input{accent-color:#217346;width:16px;height:16px}
+.xl-img{max-height:30px;max-width:140px;border:1px solid #d4dbe3}.xl-img.sm{max-width:50px}
+.xl-star{border:none;background:none;font-size:18px;color:#c9a400;cursor:pointer}
+.xl-acts{display:flex;gap:4px}.xl-acts .btn{height:28px;padding:0 8px}
 .look-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .look-opts .opt{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text)}
 .look-opts .opt[aria-checked="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
@@ -859,10 +883,24 @@ mark{background:rgba(255,212,0,.55);color:inherit;border-radius:2px;padding:0 1p
     <div class="actions"><button class="btn" id="sty-reset" style="margin-right:auto">Reiniciar aprendizaje</button><button class="btn" id="sty-cancel">Cancelar</button><button class="btn primary" id="sty-ok">Guardar</button></div>
   </div>
 </div>
+<input type="file" id="model-file" accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+<div class="modal" id="modelm" hidden role="dialog" aria-modal="true" aria-labelledby="md-title">
+  <div class="sheet" style="width:min(760px,100%);gap:10px;max-height:92vh">
+    <h1 id="md-title" style="font-size:20px;margin:0">🛒 ¿Qué tomo de tu documento?</h1>
+    <p class="hint" style="margin:0">Marca lo que quieres usar como modelo para tus versiones formales. Lo que no marques se queda como en el formato estándar.</p>
+    <label class="row" style="gap:8px">Nombre del modelo <input id="md-name" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;background:var(--bg);color:var(--text)"></label>
+    <label class="md-row md-all"><input type="checkbox" id="md-all" checked><span class="md-ic">✅</span><span class="md-tx"><b>Todo lo del documento</b><small id="md-count"></small></span></label>
+    <div id="md-items"></div>
+    <div class="actions"><button class="btn" id="md-cancel">Cancelar</button><button class="btn" id="md-save">Guardar modelo</button><button class="btn primary" id="md-use">Guardar y usar ahora</button></div>
+  </div>
+</div>
 <div class="modal" id="formalm" hidden role="dialog" aria-modal="true" aria-labelledby="fm-title">
   <div class="sheet small" style="gap:10px">
     <h1 id="fm-title" style="font-size:20px;margin:0">🎩 Versión formal (alta dirección)</h1>
     <p class="hint" style="margin:0">Creo una copia de este cuaderno con formato formal. Tu cuaderno original no cambia.</p>
+    <button class="btn fm-upload" id="fm-upload">📄 Usar un documento como modelo (Word o PDF)…</button>
+    <label class="row" style="gap:8px">Formato <select id="fm-model" style="flex:1"></select><button class="btn" id="fm-manage" title="Ver y editar todos tus modelos">Mis modelos</button></label>
+    <p class="hint" id="fm-model-info" style="margin:0"></p>
     <label class="row" style="gap:8px">Letra <select id="fm-font"><option value="lora">Formal con serifa (Lora)</option><option value="sourcesans">Formal sin serifa (Source Sans)</option><option value="plex">IBM Plex Sans</option></select></label>
     <label class="row" style="gap:8px">Elaborado por <input id="fm-author" placeholder="Tu nombre" style="flex:1;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;background:var(--bg);color:var(--text)"></label>
     <label class="check"><input type="checkbox" id="fm-cover" checked> Portada</label>
@@ -1532,7 +1570,7 @@ function drawObj(c, o) {
     c.stroke();
   } else if (o.t === 'text') {
     setFont(c, o.size, o.f); c.textBaseline = 'top'; c.textAlign = 'left';
-    o.text.split('\n').forEach((ln, i) => c.fillText(ln, o.x, o.y + i * o.size * 1.25));
+    o.text.split('\n').forEach((ln, i) => c.fillText(ln, o.x, o.y + i * o.size * (o.lh || 1.25)));
   } else if (o.t === 'note') {
     c.fillStyle = NOTE_COLORS[o.col] || NOTE_COLORS.yellow; c.shadowColor = 'rgba(0,0,0,.22)'; c.shadowBlur = 8; c.shadowOffsetY = 3;
     if (o.closed) { c.fillRect(o.x, o.y, 36, 36); c.shadowBlur = 0; c.shadowOffsetY = 0; c.fillStyle = '#5a4a00'; c.font = '20px sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'center'; c.fillText('✎', o.x + 18, o.y + 19); c.textAlign = 'left'; }
@@ -1587,7 +1625,7 @@ function textBox(o) {
   setFont(mctx, o.size, o.f);
   const lines = o.text.split('\n');
   const w = Math.max(...lines.map(l => mctx.measureText(l).width));
-  return [o.x, o.y, o.x + w, o.y + lines.length * o.size * 1.25];
+  return [o.x, o.y, o.x + w, o.y + lines.length * o.size * (o.lh || 1.25)];
 }
 function ptsBox(list) {
   let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
@@ -1862,6 +1900,7 @@ function straighten() {
 }
 
 function moveObj(o, src, dx, dy) {
+  if (o.t === 'toc') { o.x = src.x + dx; o.y = src.y + dy; return; }
   if (o.t === 'pen') o.pts = src.pts.map(p => { const q = p.slice(); q[0] = r1(p[0] + dx); q[1] = r1(p[1] + dy); return q; });
   else if (o.t === 'conn') { /* sigue a sus figuras */ }
   else if (['text', 'img', 'note', 'link', 'node', 'table', 'chart', 'axes'].includes(o.t)) { o.x = src.x + dx; o.y = src.y + dy; if (o.bb && src.bb) o.bb = [src.bb[0] + dx, src.bb[1] + dy, src.bb[2] + dx, src.bb[3] + dy]; }
@@ -2980,6 +3019,7 @@ function openPageSet(mode) {
 }
 function scaleAll(o, f) {
   const m = v => r1(v * f);
+  if (o.t === 'toc') { o.x = m(o.x); o.y = m(o.y); o.w *= f; o.size = (o.size || 16) * f; return; }
   if (o.t === 'pen') o.pts = o.pts.map(q => { const n = q.slice(); n[0] = m(q[0]); n[1] = m(q[1]); return n; });
   else if (o.t === 'text') { o.x = m(o.x); o.y = m(o.y); o.size = Math.max(8, o.size * f); if (o.bb) o.bb = o.bb.map(v => v * f); if (o.ink) o.ink.forEach(s => scaleAll(s, f)); }
   else if (o.t === 'img') { o.x = m(o.x); o.y = m(o.y); o.w *= f; o.h *= f; }
@@ -3606,6 +3646,7 @@ function renderLibrary() {
   side.appendChild(sideItem('🗑 Papelera', v === 'trash', () => setView('trash'), lib.nbs.filter(n => n.trashed).length + lib.cursos.filter(c => c.trashed).length || null));
   side.appendChild(sideItem('☁ Google Drive', v === 'drive', () => setView('drive')));
   if (liveNbs().some(n => n.share)) side.appendChild(sideItem('🔗 Compartidos', v === 'shared', () => setView('shared'), liveNbs().filter(n => n.share).length));
+  side.appendChild(sideItem('🎩 Modelos formales', v === 'models', () => setView('models'), (lib.models || []).filter(m => !m.trashed).length || null));
   side.appendChild(sideItem('🎨 Apariencia', false, lookOpen));
   const main = $('lib-main'); main.innerHTML = '';
   const q = $('lib-search').value.trim().toLowerCase();
@@ -3624,6 +3665,7 @@ function renderLibrary() {
   if (v === 'shared') return renderShared(main);
   if (v === 'cuadros') return renderCuadros(main);
   if (v === 'cuadro') return renderCuadro(main);
+  if (v === 'models') return renderModels(main);
   if (v === 'tags') return renderTags(main);
   if (v === 'cards') return renderCards(main);
   if (v === 'biblio') return renderBiblio(main);
@@ -4181,6 +4223,7 @@ function mergeLib(local, remote) {
   out.cuadros = mergeArr(local.cuadros, remote.cuadros);
   out.cuNo = Object.assign({}, remote.cuNo || {}, local.cuNo || {});
   out.sources = mergeArr(local.sources, remote.sources);
+  out.models = mergeArr(local.models, remote.models);
   if ((remote.pinMod || 0) > (local.pinMod || 0)) { out.pinHash = remote.pinHash; out.pinMod = remote.pinMod; }
   ['progress', 'matrix'].forEach(k => { if (remote[k] && (!local[k] || (remote[k].mod || 0) > (local[k].mod || 0))) out[k] = remote[k]; });
   out.study = JSON.parse(JSON.stringify(local.study || {}));
@@ -4414,8 +4457,9 @@ async function savePen(i) {
 function markPens() { document.querySelectorAll('.pen-btn').forEach((b, i) => b.setAttribute('aria-pressed', String(penMatches(pens()[i])))); }
 
 /* ======================= NOVEDADES ======================= */
-const APP_VERSION = '2026-11-20p';
+const APP_VERSION = '2026-11-21a';
 const CHANGELOG = [
+  { v: '2026-11-21a', t: '21 de noviembre', items: ['🎩 Modelos formales: sube un Word o PDF de tu universidad o trabajo y toma de ahí el membrete, el pie de página, la letra, los tamaños, el interlineado, los colores, los márgenes y el tamaño de página.', '🛒 Eliges qué tomar con checks (o «Todo lo del documento») y queda guardado como modelo.', '📊 «Biblioteca → Modelos formales»: lista tipo Excel donde cambias el nombre y cualquier dato de cada modelo; el de ★ se usa por defecto.'] },
   { v: '2026-11-20p', t: '20 de noviembre · tarde (5)', items: ['✨ Resumir un documento (PDF, Word o PowerPoint) con tu estilo: ideas principales, estructura con enlaces, conceptos, datos, preguntas y tus notas. Se abre al lado del original y todo es editable.', 'La pizarra aprende de tus apuntes y de cómo corriges sus resúmenes («⋯ → Mi estilo de resumen»). Tú decides si te pregunta al subir un documento.', '🎩 Versión formal (alta dirección): copia con portada, resumen ejecutivo, índice, letra formal, colores sobrios y numeración.', 'Citas, índice, mapas y demás usan la letra de tus apuntes.', 'Ahora se guardan bien el índice, la hoja continua y las capas al cerrar el cuaderno.'] },
   { v: '2026-11-20o', t: '20 de noviembre · tarde (4)', items: ['📖 Citas APA 7: eliges un libro, artículo o documento (subido o escrito a mano) y ves 5 formas de citarlo. Puedes modificar la cita, guardar tu versión y reutilizarla, moverla, copiarla y pegarla.', '📑 Índice tipo documento que se actualiza solo, con puntos y número de página. Toca una línea para ir; manténla presionada para cambiar su texto o número.', '🧠 Mapa mental: ahora también «Lo más importante», armado por la pizarra a partir de títulos, definiciones y lo que más se repite.', '🔒 Seguridad como en un celular: el PIN siempre funciona; la huella o el rostro es opcional. Puedes cambiar el PIN y elegir si te lo pide cada vez.', '📁 Google Docs: antes de crear el documento te muestra un orden sugerido en Drive (ciclo → curso → apuntes) y del documento (índice, contenido y referencias).'] },
   { v: '2026-11-20n', t: '20 de noviembre · tarde (3)', items: ['Se quitó el modo examen, como pediste.'] },
@@ -6596,7 +6640,7 @@ async function glossScan(cid, onlyNbs) {
       (p.objs || []).filter(o => o.t === 'pen' && o.hl && o.pts && o.pts.length).forEach(h => {
         let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity; h.pts.forEach(q => { x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); });
         mine.filter(o => o.t === 'text').forEach(o => {
-          const lines = o.text.split('\n'), lh = o.size * 1.25;
+          const lines = o.text.split('\n'), lh = o.size * (o.lh || 1.25);
           lines.forEach((ln, li) => {
             const ly = o.y + li * lh; if (y1 < ly - 4 || y0 > ly + lh + 4) return;
             setFont(mctx, o.size, o.f); let x = o.x; const words = [];
@@ -6774,7 +6818,7 @@ if (_drawObjAt) {
     _drawObjAt(c, o, ...rest);
     if (o.t !== 'text' || !o.text || o.text.indexOf('@') < 0) return;
     try {
-      setFont(c, o.size, o.f); const lh = o.size * 1.25; c.save(); c.strokeStyle = '#0b6e75'; c.lineWidth = Math.max(1, o.size / 14);
+      setFont(c, o.size, o.f); const lh = o.size * (o.lh || 1.25); c.save(); c.strokeStyle = '#0b6e75'; c.lineWidth = Math.max(1, o.size / 14);
       o.text.split('\n').forEach((ln, i) => {
         AT_RE.lastIndex = 0; let m;
         while ((m = AT_RE.exec(ln))) { const x0 = o.x + c.measureText(ln.slice(0, m.index)).width, w = c.measureText(m[0]).width, y = o.y + i * lh + o.size * 1.08; c.beginPath(); c.moveTo(x0, y); c.lineTo(x0 + w, y); c.stroke(); }
@@ -7801,7 +7845,7 @@ async function changePin() {
 }
 function pinSync() { try { if (lib && lib.pinHash && lib.pinHash !== localStorage.getItem(PIN_CUSTOM)) { localStorage.setItem(PIN_CUSTOM, lib.pinHash); if (localStorage.getItem(PIN_KEY)) localStorage.setItem(PIN_KEY, lib.pinHash); } } catch (e) {} }
 const _renderLibraryP = renderLibrary;
-renderLibrary = function (...a) { pinSync(); return _renderLibraryP(...a); };
+renderLibrary = function (...a) { pinSync(); if (typeof modelsInit === 'function') modelsInit(); return _renderLibraryP(...a); };
 $('bio-btn').onclick = async () => { if (await bioLogin()) { try { localStorage.setItem(PIN_KEY, curPinHash()); sessionStorage.setItem('pizarra-bio-ok', '1'); } catch (e) {} location.reload(); } };
 window.addEventListener('pagehide', () => { if (prefs.askAlways) { try { localStorage.removeItem(PIN_KEY); } catch (e) {} } });
 setTimeout(() => { if (prefs.askAlways) { try { localStorage.removeItem(PIN_KEY); } catch (e) {} } }, 3000);
@@ -8171,6 +8215,340 @@ $('fm-go').onclick = async () => {
   toast(`Versión formal lista (${n} hojas): portada, resumen ejecutivo, índice y tus apuntes con formato de alta dirección. Tu cuaderno original no cambió.`, 8000);
 };
 $('formal-btn').onclick = formalOpen;
+
+/* ======================= MODELOS FORMALES: tomar el formato de un documento ======================= */
+/* letras de Office con su equivalente libre (mismas medidas) para que se vean igual en cualquier equipo */
+const FONT_EQ = { 'calibri': 'Carlito', 'calibri light': 'Carlito', 'arial': 'Arimo', 'helvetica': 'Arimo', 'arial narrow': 'Arimo', 'times new roman': 'Tinos', 'times': 'Tinos', 'cambria': 'Caladea', 'georgia': 'Gelasio', 'garamond': 'EB Garamond', 'book antiqua': 'Crimson Pro', 'palatino linotype': 'Crimson Pro', 'palatino': 'Crimson Pro', 'century gothic': 'Questrial', 'verdana': 'PT Sans', 'tahoma': 'PT Sans', 'trebuchet ms': 'Fira Sans', 'segoe ui': 'Open Sans', 'aptos': 'Inter', 'aptos display': 'Inter', 'bookman old style': 'Libre Baskerville', 'century schoolbook': 'Libre Baskerville', 'courier new': 'Cousine', 'franklin gothic book': 'Libre Franklin', 'gill sans mt': 'Lato' };
+const SERIFY = /times|cambria|georgia|garamond|antiqua|palatino|bookman|schoolbook|serif|baskerville|minion|roman/i;
+const loadedGF = new Set();
+function gfLoad(fam) { if (!fam || loadedGF.has(fam)) return; loadedGF.add(fam); const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fam).replace(/%20/g, '+')}:ital,wght@0,400;0,700;1,400&display=swap`; document.head.appendChild(l); }
+function modelFontKey(name, tag) {
+  if (!name) return null;
+  const clean = String(name).replace(/^[A-Z]{6}\+/, '').replace(/[-,](Bold|Italic|Regular|BoldItalic|Light|Semibold).*$/i, '').replace(/MT$|PS$/, '').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+  const eq = FONT_EQ[clean.toLowerCase()] || clean;
+  const key = 'm_' + normS(clean).replace(/[^a-z0-9]/g, '') + (tag || '');
+  if (!FONTS[key]) FONTS[key] = [`${clean}", "${eq}", "${SERIFY.test(clean) ? 'Tinos' : 'Arimo'}`, 0, `${clean} (del modelo)`];
+  gfLoad(eq); return key;
+}
+function modelsInit() { if (!lib) return; (lib.models || []).forEach(m => { if (m.font) { modelFontKey(m.font.body); modelFontKey(m.font.title); } }); }
+const MODEL_ITEMS = [
+  ['header', '🏷️', 'Membrete (encabezado)'], ['footer', '🔻', 'Pie de página'], ['font', '🔤', 'Tipo de letra'], ['sizes', '🔠', 'Tamaños de letra'],
+  ['spacing', '↕️', 'Interlineado y espacios'], ['colors', '🎨', 'Colores de títulos y texto'], ['margins', '📏', 'Márgenes'], ['page', '📄', 'Tamaño y orientación de página'], ['align', '📐', 'Alineación del texto']
+];
+const cm = pt => Math.round(pt / 28.3465 * 10) / 10;
+const twipCm = tw => Math.round(+tw / 567 * 10) / 10;
+function imgDataSmall(dataUrl, maxW) {
+  return new Promise(res => { const im = new Image(); im.onload = () => { const k = Math.min(1, (maxW || 700) / im.naturalWidth), c = document.createElement('canvas'); c.width = Math.max(1, Math.round(im.naturalWidth * k)); c.height = Math.max(1, Math.round(im.naturalHeight * k)); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res({ data: c.toDataURL('image/png'), w: c.width, h: c.height }); }; im.onerror = () => res(null); im.src = dataUrl; });
+}
+/* --- leer un Word (.docx) --- */
+async function modelFromDocx(file) {
+  await needLib('jszip'); const z = await JSZip.loadAsync(await file.arrayBuffer());
+  const P = new DOMParser(), W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const xml = async n => { const f = z.file(n); return f ? P.parseFromString(await f.async('string'), 'application/xml') : null; };
+  const g = (el, tag) => el ? [...el.getElementsByTagNameNS(W_NS, tag)] : [];
+  const att = (el, a) => el ? el.getAttributeNS(W_NS, a) || el.getAttribute('w:' + a) : null;
+  const doc2 = await xml('word/document.xml'), styles = await xml('word/styles.xml'), theme = await xml('word/theme/theme1.xml'), rels = await xml('word/_rels/document.xml.rels');
+  if (!doc2) throw new Error('No pude leer ese Word.');
+  const M = { items: {} };
+  const themeFont = k => { if (!theme) return null; const t = theme.getElementsByTagName(k === 'major' ? 'a:majorFont' : 'a:minorFont')[0]; const l = t && t.getElementsByTagName('a:latin')[0]; return l && l.getAttribute('typeface'); };
+  const fontOf = rf => { if (!rf) return null; const a = att(rf, 'ascii') || att(rf, 'hAnsi'); if (a) return a; const th = att(rf, 'asciiTheme') || att(rf, 'hAnsiTheme'); return th ? themeFont(/major/i.test(th) ? 'major' : 'minor') : null; };
+  /* página y márgenes */
+  const sp = g(doc2, 'sectPr').pop(), pgSz = g(sp, 'pgSz')[0], pgMar = g(sp, 'pgMar')[0];
+  if (pgSz) { const w = +att(pgSz, 'w'), h = +att(pgSz, 'h'); M.items.page = { on: true, size: Math.abs(w - 12240) < 200 ? 'Carta' : Math.abs(w - 11906) < 200 || Math.abs(h - 11906) < 200 ? 'A4' : `${twipCm(w)} × ${twipCm(h)} cm`, orient: w > h ? 'horizontal' : 'vertical', wpt: w / 20, hpt: h / 20 }; }
+  if (pgMar) M.items.margins = { on: true, top: twipCm(att(pgMar, 'top')), right: twipCm(att(pgMar, 'right')), bottom: twipCm(att(pgMar, 'bottom')), left: twipCm(att(pgMar, 'left')) };
+  /* letra, tamaños, interlineado y colores (estilos + lo que más se usa) */
+  const dd = styles && g(styles, 'docDefaults')[0], rd = dd && g(dd, 'rPr')[0];
+  let body = fontOf(rd && g(rd, 'rFonts')[0]) || themeFont('minor'), bsz = rd && g(rd, 'sz')[0] ? +att(g(rd, 'sz')[0], 'val') / 2 : 0;
+  let line = 0, after = 0, jc = null, title = null, tsz = 0, tcol = null, h2sz = 0, h2col = null;
+  const pd = dd && g(dd, 'pPr')[0], spc = pd && g(pd, 'spacing')[0]; if (spc) { if (att(spc, 'line') && (att(spc, 'lineRule') || 'auto') === 'auto') line = +att(spc, 'line') / 240; if (att(spc, 'after')) after = +att(spc, 'after') / 20; }
+  const st = id => styles && g(styles, 'style').find(s => att(s, 'styleId') === id);
+  const stInfo = s => { if (!s) return {}; const r = g(s, 'rPr')[0], p = g(s, 'pPr')[0], o = {}; if (r) { o.font = fontOf(g(r, 'rFonts')[0]); const z2 = g(r, 'sz')[0]; if (z2) o.sz = +att(z2, 'val') / 2; const c = g(r, 'color')[0]; if (c && att(c, 'val') && att(c, 'val') !== 'auto') o.col = '#' + att(c, 'val'); o.b = !!g(r, 'b')[0]; } if (p) { const s2 = g(p, 'spacing')[0]; if (s2 && att(s2, 'line')) o.line = +att(s2, 'line') / 240; if (s2 && att(s2, 'after')) o.after = +att(s2, 'after') / 20; const j = g(p, 'jc')[0]; if (j) o.jc = att(j, 'val'); } return o; };
+  const normal = stInfo(st('Normal')); body = normal.font || body; bsz = normal.sz || bsz || 11; line = normal.line || line || 1.08; after = normal.after != null ? normal.after : after; jc = normal.jc || jc;
+  const h1 = stInfo(st('Heading1') || st('Ttulo1') || st('Title') || st('Ttulo')), h2 = stInfo(st('Heading2') || st('Ttulo2'));
+  title = h1.font || themeFont('major') || body; tsz = h1.sz || 16; tcol = h1.col || null; h2sz = h2.sz || Math.round((tsz + bsz) / 2); h2col = h2.col || tcol;
+  /* lo que de verdad se usa en el cuerpo del documento */
+  const fc = {}, zc = {}, lc = {}, jcC = {}; let tFromRuns = null;
+  g(doc2, 'p').slice(0, 400).forEach(p => {
+    const ppr = g(p, 'pPr')[0], ps = ppr && g(ppr, 'pStyle')[0], sid = ps ? att(ps, 'val') : '', isH = /heading|t.tulo|title/i.test(sid);
+    const s2 = ppr && g(ppr, 'spacing')[0]; if (!isH && s2 && att(s2, 'line') && (att(s2, 'lineRule') || 'auto') === 'auto') lc[att(s2, 'line')] = (lc[att(s2, 'line')] || 0) + 1;
+    const j = ppr && g(ppr, 'jc')[0]; if (!isH && j) jcC[att(j, 'val')] = (jcC[att(j, 'val')] || 0) + 1;
+    g(p, 'r').forEach(r => { const t = g(r, 't').map(x => x.textContent).join(''); if (!t.trim()) return; const rp = g(r, 'rPr')[0]; const f = rp && fontOf(g(rp, 'rFonts')[0]); const z2 = rp && g(rp, 'sz')[0]; if (isH) { if (f && !tFromRuns) tFromRuns = f; return; } if (f) fc[f] = (fc[f] || 0) + t.length; if (z2) zc[att(z2, 'val')] = (zc[att(z2, 'val')] || 0) + t.length; });
+  });
+  const top = o => (Object.entries(o).sort((a, b) => b[1] - a[1])[0] || [])[0];
+  if (top(fc)) body = top(fc); if (top(zc)) bsz = +top(zc) / 2; if (top(lc)) line = +top(lc) / 240; if (top(jcC)) jc = top(jcC); if (tFromRuns) title = tFromRuns;
+  M.items.font = { on: true, body, title };
+  M.items.sizes = { on: true, body: bsz, title: tsz, h2: h2sz };
+  M.items.spacing = { on: true, line: Math.round(line * 100) / 100, after: Math.round(after) };
+  M.items.colors = { on: true, title: tcol || '#1f3864', h2: h2col || tcol || '#2f5597', body: '#1b2430' };
+  M.items.align = { on: true, val: jc === 'both' ? 'justificado' : jc === 'center' ? 'centrado' : jc === 'right' ? 'derecha' : 'izquierda' };
+  /* membrete y pie de página */
+  const relMap = {}; if (rels) [...rels.getElementsByTagName('Relationship')].forEach(r => { relMap[r.getAttribute('Id')] = r.getAttribute('Target'); });
+  const hf = async kind => {
+    const refs = g(sp, kind + 'Reference'); const ref = refs.find(r => att(r, 'type') === 'default') || refs.find(r => att(r, 'type') === 'first') || refs[0]; if (!ref) return null;
+    const target = relMap[ref.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id') || ref.getAttribute('r:id')]; if (!target) return null;
+    const path = 'word/' + target.replace(/^\//, ''), x = await xml(path); if (!x) return null;
+    const hr = await xml(path.replace(/([^/]+)$/, '_rels/$1.rels')), hrel = {}; if (hr) [...hr.getElementsByTagName('Relationship')].forEach(r => { hrel[r.getAttribute('Id')] = r.getAttribute('Target'); });
+    const out = { on: true, lines: [], imgs: [], page: false };
+    for (const p of g(x, 'p')) {
+      const ppr = g(p, 'pPr')[0], j = ppr && g(ppr, 'jc')[0], align = j ? att(j, 'val') : 'left';
+      const txt = g(p, 't').map(t => t.textContent).join('').trim();
+      const instr = g(p, 'instrText').map(t => t.textContent).join(' ') + ' ' + g(p, 'fldSimple').map(f => att(f, 'instr') || '').join(' ');
+      if (/\bPAGE\b/.test(instr)) out.page = /\bNUMPAGES\b/.test(instr) ? 'nm' : 'n';
+      const rp = g(p, 'rPr')[0], z2 = rp && g(rp, 'sz')[0], c = rp && g(rp, 'color')[0];
+      if (txt) out.lines.push({ t: txt, align: align === 'both' ? 'left' : align, size: z2 ? +att(z2, 'val') / 2 : Math.max(8, bsz - 2), col: c && att(c, 'val') && att(c, 'val') !== 'auto' ? '#' + att(c, 'val') : '#5a6676', b: !!(rp && g(rp, 'b')[0]) });
+      for (const bl of p.getElementsByTagName('a:blip')) {
+        const rid = bl.getAttribute('r:embed'), tgt = rid && hrel[rid]; if (!tgt) continue;
+        const ext = p.getElementsByTagName('wp:extent')[0], f = z.file('word/' + tgt.replace(/^\.\.\//, '').replace(/^\//, '')); if (!f) continue;
+        const b64 = await f.async('base64'), mime = /\.png$/i.test(tgt) ? 'image/png' : /\.gif$/i.test(tgt) ? 'image/gif' : 'image/jpeg';
+        if (/\.(emf|wmf)$/i.test(tgt)) continue;
+        const sm = await imgDataSmall(`data:${mime};base64,${b64}`, 700); if (!sm) continue;
+        const anchorH = p.getElementsByTagName('wp:positionH')[0], al = anchorH && anchorH.getElementsByTagName('wp:align')[0];
+        out.imgs.push({ data: sm.data, wcm: ext ? Math.round(+ext.getAttribute('cx') / 360000 * 10) / 10 : 3, hcm: ext ? Math.round(+ext.getAttribute('cy') / 360000 * 10) / 10 : 1.5, align: al ? al.textContent : align === 'both' ? 'left' : align });
+      }
+    }
+    return out.lines.length || out.imgs.length || out.page ? out : null;
+  };
+  M.items.header = await hf('header'); M.items.footer = await hf('footer');
+  if (!M.items.header) delete M.items.header; if (!M.items.footer) delete M.items.footer;
+  return M;
+}
+/* --- leer un PDF --- */
+async function modelFromPdf(file) {
+  const L2 = await loadPdfJs(), pdf = await L2.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise, page = await pdf.getPage(1);
+  const vp = page.getViewport({ scale: 1 }), Wpt = vp.width, Hpt = vp.height, sc = 2.2, v2 = page.getViewport({ scale: sc });
+  const cnv = document.createElement('canvas'); cnv.width = Math.round(v2.width); cnv.height = Math.round(v2.height); const cx = cnv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cnv.width, cnv.height);
+  await page.render({ canvasContext: cx, viewport: v2 }).promise;
+  const tc = await page.getTextContent(), items = tc.items.filter(i => i.str && i.str.trim()).map(i => ({ s: i.str, x: i.transform[4], y: Hpt - i.transform[5], h: Math.abs(i.transform[3]) || i.height, w: i.width, font: i.fontName }));
+  const names = {}; items.forEach(i => { let n = ''; try { const fo = page.commonObjs.get(i.font); n = (fo && (fo.name || fo.loadedName)) || ''; } catch (e) {} if (!n) n = (tc.styles[i.font] || {}).fontFamily || ''; i.fname = n; });
+  const M = { items: {} };
+  M.items.page = { on: true, size: Math.abs(Wpt - 612) < 6 || Math.abs(Hpt - 612) < 6 ? 'Carta' : Math.abs(Wpt - 595) < 6 || Math.abs(Hpt - 595) < 6 ? 'A4' : `${cm(Wpt)} × ${cm(Hpt)} cm`, orient: Wpt > Hpt ? 'horizontal' : 'vertical', wpt: Wpt, hpt: Hpt };
+  const hs = {}; items.forEach(i => { const k = Math.round(i.h * 2) / 2; hs[k] = (hs[k] || 0) + i.s.length; });
+  const bsz = +((Object.entries(hs).sort((a, b) => b[1] - a[1])[0] || [11])[0]);
+  const bodyI = items.filter(i => Math.abs(i.h - bsz) < .6 && i.y > Hpt * .12 && i.y < Hpt * .9), bigI = items.filter(i => i.h > bsz * 1.25 && i.y > Hpt * .1);
+  const fcount = {}; bodyI.forEach(i => { fcount[i.fname] = (fcount[i.fname] || 0) + i.s.length; });
+  const bodyF = (Object.entries(fcount).sort((a, b) => b[1] - a[1])[0] || [''])[0], titleI = bigI.sort((a, b) => b.h - a.h)[0];
+  const BACK = { carlito: 'Calibri', arimo: 'Arial', liberationsans: 'Arial', tinos: 'Times New Roman', liberationserif: 'Times New Roman', caladea: 'Cambria', gelasio: 'Georgia', cousine: 'Courier New', dejavusans: 'DejaVu Sans' };
+  const pretty = n => { if (/^(serif|sans-serif|monospace)$/.test(n) || !n) return n === 'serif' ? 'Times New Roman' : 'Arial'; let c2 = String(n).replace(/^[A-Z]{6}\+/, '').replace(/[-,](Bold|Italic|Regular|BoldItalic|Light|Semibold|Medium|Oblique).*$/i, '').replace(/(MT|PS|PSMT)$/, ''); const b2 = BACK[c2.toLowerCase().replace(/[^a-z]/g, '')]; if (b2) return b2; return c2.replace(/([a-z])([A-Z])/g, '$1 $2'); };
+  M.items.font = { on: true, body: pretty(bodyF), title: pretty(titleI ? titleI.fname : bodyF) };
+  M.items.sizes = { on: true, body: Math.round(bsz * 2) / 2, title: titleI ? Math.round(titleI.h) : Math.round(bsz * 1.5), h2: Math.round(bsz * 1.25) };
+  const ys = [...new Set(bodyI.map(i => Math.round(i.y)))].sort((a, b) => a - b), gaps = []; for (let k = 1; k < ys.length; k++) { const d = ys[k] - ys[k - 1]; if (d > bsz * .9 && d < bsz * 3) gaps.push(d); } gaps.sort((a, b) => a - b);
+  const gap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : bsz * 1.2;
+  M.items.spacing = { on: true, line: Math.round(gap / (bsz * 1.17) * 20) / 20, after: 0 };
+  /* color de títulos: muestreo del dibujo */
+  let tcol = '#1f3864'; if (titleI) { const px = cx.getImageData(Math.round((titleI.x + 1) * sc), Math.round((titleI.y - titleI.h * .45) * sc), Math.max(1, Math.round(Math.min(titleI.w, 120) * sc)), Math.max(1, Math.round(titleI.h * .5 * sc))).data; let best = [0, 0, 0], bl = 999; for (let k = 0; k < px.length; k += 4) { const l = px[k] + px[k + 1] + px[k + 2]; if (l < bl) { bl = l; best = [px[k], px[k + 1], px[k + 2]]; } } tcol = '#' + best.map(v => v.toString(16).padStart(2, '0')).join(''); }
+  M.items.colors = { on: true, title: tcol, h2: tcol, body: '#1b2430' };
+  /* membrete y pie: franjas de arriba y abajo */
+  const mainY = bodyI.map(i => i.y).sort((a, b) => a - b), y0 = mainY[0] || Hpt * .15, y1 = mainY[mainY.length - 1] || Hpt * .85;
+  const headItems = items.filter(i => i.y < Math.min(y0 - bsz * 1.5, Hpt * .16)), footItems = items.filter(i => i.y > Math.max(y1 + bsz * 1.5, Hpt * .86));
+  const band = async (a, b) => { const c2 = document.createElement('canvas'), h = Math.round((b - a) * sc); if (h < 8) return null; c2.width = cnv.width; c2.height = h; c2.getContext('2d').drawImage(cnv, 0, Math.round(a * sc), cnv.width, h, 0, 0, cnv.width, h); const d = c2.getContext('2d').getImageData(0, 0, c2.width, h).data; let ink = 0; for (let k = 0; k < d.length; k += 16) if (d[k] < 235 || d[k + 1] < 235 || d[k + 2] < 235) ink++; if (ink < 20) return null; return imgDataSmall(c2.toDataURL('image/png'), 1400); };
+  const hTop = Math.max(...headItems.map(i => i.y + 4), 0), hb = await band(0, Math.max(hTop + 6, Math.min(y0 - bsz, Hpt * .14)));
+  if (hb) M.items.header = { on: true, band: hb, lines: headItems.map(i => ({ t: i.s, align: 'left', size: Math.round(i.h), col: '#5a6676' })).slice(0, 6), imgs: [], page: false, hpt: Math.max(hTop + 6, Math.min(y0 - bsz, Hpt * .14)) };
+  const fTop = Math.min(...footItems.map(i => i.y - i.h - 4), Hpt), fb = await band(Math.min(fTop - 4, Math.max(y1 + bsz, Hpt * .88)), Hpt);
+  if (fb) M.items.footer = { on: true, band: fb, lines: footItems.map(i => ({ t: i.s, align: 'left', size: Math.round(i.h), col: '#5a6676' })).slice(0, 6), imgs: [], page: footItems.some(i => /\b\d+\b/.test(i.s) && i.s.length < 15) ? 'n' : false, hpt: Hpt - Math.min(fTop - 4, Math.max(y1 + bsz, Hpt * .88)) };
+  const xs = bodyI.map(i => i.x), xe = bodyI.map(i => i.x + i.w);
+  const hBot = M.items.header ? M.items.header.hpt : 0, fTopY = M.items.footer ? Hpt - M.items.footer.hpt : Hpt;
+  const content = items.filter(i => i.y - i.h > hBot + 2 && i.y < fTopY - 2), cTop = content.length ? Math.min(...content.map(i => i.y - i.h)) : y0 - bsz, cBot = content.length ? Math.max(...content.map(i => i.y)) : y1;
+  const topM = cm(cTop), botM = cBot < Hpt * .75 ? Math.max(cm(Hpt - fTopY) + .5, Math.min(topM, 3)) : cm(Hpt - cBot);
+  M.items.margins = { on: true, top: topM, right: cm(Wpt - Math.max(...xe, Wpt * .85)), bottom: Math.round(botM * 10) / 10, left: cm(Math.min(...xs, Wpt * .15)) };
+  const lines = {}; bodyI.forEach(i => { const k = Math.round(i.y); (lines[k] = lines[k] || []).push(i); });
+  const ends = Object.values(lines).map(l => Math.max(...l.map(i => i.x + i.w))), right = Math.max(...ends, 0), full = ends.filter(e => e > right - 4).length;
+  M.items.align = { on: true, val: ends.length > 4 && full / ends.length > .6 ? 'justificado' : 'izquierda' };
+  return M;
+}
+/* --- revisar qué tomar: lista con checks --- */
+function mdDesc(k, it) {
+  if (!it) return '<span class="muted">No se encontró en el documento</span>';
+  if (k === 'header' || k === 'footer') return `${it.band ? `<img src="${it.band.data}" class="md-band">` : ''}${(it.imgs || []).map(i => `<img src="${i.data}" class="md-logo">`).join('')}<span>${escH((it.lines || []).map(l => l.t).join(' · ').slice(0, 140)) || (it.band ? '' : 'Solo imagen')}${it.page ? ' · con número de página' : ''}</span>`;
+  if (k === 'font') return `Texto: <b style="font-family:${fontCss(modelFontKey(it.body))}">${escH(it.body)}</b> · Títulos: <b style="font-family:${fontCss(modelFontKey(it.title))}">${escH(it.title)}</b>`;
+  if (k === 'sizes') return `Texto ${it.body} pt · Títulos ${it.title} pt · Subtítulos ${it.h2} pt`;
+  if (k === 'spacing') return `Interlineado ${String(it.line).replace('.', ',')} líneas${it.after ? ` · ${it.after} pt después de cada párrafo` : ''}`;
+  if (k === 'colors') return `Títulos <span class="md-sw" style="background:${it.title}"></span> ${it.title} · Subtítulos <span class="md-sw" style="background:${it.h2}"></span>`;
+  if (k === 'margins') return `Arriba ${it.top} · Derecha ${it.right} · Abajo ${it.bottom} · Izquierda ${it.left} cm`;
+  if (k === 'page') return `${escH(it.size)} · ${it.orient}`;
+  if (k === 'align') return `Texto ${it.val}`;
+  return '';
+}
+let mdPending = null;
+function modelReview(M, fname, afterSave) {
+  mdPending = { M, afterSave }; $('md-name').value = M.name || fname.replace(/\.[a-z0-9]+$/i, '');
+  const box = $('md-items'); box.innerHTML = '';
+  MODEL_ITEMS.forEach(([k, ic, l]) => {
+    const it = M.items[k], r = document.createElement('label'); r.className = 'md-row' + (it ? '' : ' off');
+    r.innerHTML = `<input type="checkbox" data-k="${k}" ${it ? 'checked' : 'disabled'}><span class="md-ic">${ic}</span><span class="md-tx"><b>${l}</b><small>${mdDesc(k, it)}</small></span>`;
+    box.appendChild(r);
+  });
+  const all = $('md-all'); all.checked = true;
+  all.onchange = () => box.querySelectorAll('input:not([disabled])').forEach(i => { i.checked = all.checked; });
+  box.onchange = () => { const b = [...box.querySelectorAll('input:not([disabled])')]; all.checked = b.every(i => i.checked); all.indeterminate = !all.checked && b.some(i => i.checked); $('md-count').textContent = `${b.filter(i => i.checked).length} de ${b.length} elegidos`; };
+  box.onchange(); $('modelm').hidden = false;
+}
+function modelSave(use) {
+  const { M, afterSave } = mdPending; M.name = $('md-name').value.trim() || 'Mi modelo';
+  $('md-items').querySelectorAll('input[data-k]').forEach(i => { if (M.items[i.dataset.k]) M.items[i.dataset.k].on = i.checked; });
+  M.id = M.id || uid('m'); M.created = M.created || Date.now(); M.mod = Date.now();
+  lib.models = lib.models || []; const ex = lib.models.findIndex(x => x.id === M.id); if (ex >= 0) lib.models[ex] = M; else lib.models.push(M);
+  prefs.formalModel = M.id; savePrefs(); saveLibrary(); $('modelm').hidden = true; mdPending = null;
+  toast(`Modelo «${M.name}» guardado. Lo verás en la lista de modelos y al crear una versión formal.`, 6000);
+  if (afterSave) afterSave(M, use);
+}
+$('md-save').onclick = () => modelSave(false);
+$('md-use').onclick = () => modelSave(true);
+$('md-cancel').onclick = () => { $('modelm').hidden = true; mdPending = null; };
+let mdAfter = null;
+function modelUpload(after) { mdAfter = after || null; $('model-file').click(); }
+$('model-file').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  toast('Leyendo el formato del documento…', 20000);
+  try {
+    let M;
+    if (/\.docx$/i.test(f.name)) M = await modelFromDocx(f);
+    else if (/\.pdf$/i.test(f.name) || f.type === 'application/pdf') M = await modelFromPdf(f);
+    else { toast('Sube un Word (.docx) o un PDF para usarlo como modelo. Si es .doc antiguo, guárdalo como .docx.', 7000); return; }
+    M.src = f.name; toast('', 1); modelReview(M, f.name, mdAfter);
+  } catch (err) { toast('No pude leer el formato de ese documento: ' + (err.message || 'error'), 6000); }
+};
+/* --- lista de modelos tipo Excel --- */
+function renderModels(main) {
+  const list = (lib.models || []).filter(m => !m.trashed);
+  headEl(main, '🎩 Modelos formales', 'Cada fila es un modelo sacado de un documento tuyo. Cambia el nombre o cualquier dato escribiendo en la celda; marca o desmarca lo que quieras usar. El modelo con ★ es el que se usa por defecto.', [mkBtn('📄 Subir documento como modelo', () => modelUpload(() => renderLibrary()), 'primary')]);
+  if (!list.length) { const p = document.createElement('p'); p.className = 'sub'; p.textContent = 'Aún no tienes modelos. Sube un Word o PDF con el formato de tu universidad o trabajo (membrete, pie de página, letra…).'; main.appendChild(p); return; }
+  const wrap = document.createElement('div'); wrap.className = 'xl-wrap';
+  const cols = [['#', ''], ['★', ''], ['Nombre del modelo', 'name'], ['Documento', 'src'], ['Membrete', 'header'], ['Pie de página', 'footer'], ['Letra del texto', 'font.body'], ['Letra de títulos', 'font.title'], ['Tamaño texto (pt)', 'sizes.body'], ['Tamaño títulos (pt)', 'sizes.title'], ['Interlineado', 'spacing.line'], ['Color títulos', 'colors.title'], ['Márgenes (cm)', 'margins'], ['Página', 'page'], ['Alineación', 'align.val'], ['', '']];
+  const t = document.createElement('table'); t.className = 'xl';
+  t.innerHTML = `<thead><tr><th class="xl-c">${cols.map((c, i) => i ? `<th>${c[0]}</th>` : '').join('').replace(/^/, '')}</th></tr></thead>`.replace('<th class="xl-c"></th>', '<th class="xl-c"></th>');
+  t.querySelector('thead tr').innerHTML = `<th class="xl-n"></th>` + cols.slice(1).map(c => `<th>${c[0]}</th>`).join('');
+  const colL = document.createElement('tr'); colL.className = 'xl-letters'; colL.innerHTML = '<th class="xl-n"></th>' + cols.slice(1).map((_, i) => `<th>${String.fromCharCode(65 + i)}</th>`).join(''); t.tHead.prepend(colL);
+  const tb = document.createElement('tbody');
+  list.forEach((m, ri) => {
+    const I = m.items, tr = document.createElement('tr'), save = () => { m.mod = Date.now(); saveLibrary(); };
+    const td = h => { const c = document.createElement('td'); if (typeof h === 'string') c.innerHTML = h; else if (h) c.appendChild(h); tr.appendChild(c); return c; };
+    const n = document.createElement('th'); n.className = 'xl-n'; n.textContent = ri + 1; tr.appendChild(n);
+    const star = document.createElement('button'); star.className = 'xl-star' + (prefs.formalModel === m.id ? ' on' : ''); star.textContent = prefs.formalModel === m.id ? '★' : '☆'; star.title = 'Usar por defecto'; star.onclick = () => { prefs.formalModel = prefs.formalModel === m.id ? '' : m.id; savePrefs(); renderLibrary(); }; td(star);
+    const inp = (val, set, type) => { const i = document.createElement('input'); i.value = val == null ? '' : val; if (type) i.type = type; i.onchange = () => { set(i.value); save(); }; return i; };
+    td(inp(m.name, v => { m.name = v.trim() || m.name; }));
+    td(`<span class="xl-ro" title="${escH(m.src || '')}">${escH(m.src || '—')}</span>`);
+    const chk = (k, extra) => { const w = document.createElement('label'); w.className = 'xl-chk'; const it = I[k]; if (!it) { w.innerHTML = '<span class="muted">—</span>'; return w; } w.innerHTML = `<input type="checkbox" ${it.on ? 'checked' : ''}>${extra || ''}`; w.querySelector('input').onchange = e => { it.on = e.target.checked; save(); }; return w; };
+    const hfPrev = it => it ? `${it.band ? `<img src="${it.band.data}" class="xl-img">` : ''}${(it.imgs || []).slice(0, 2).map(i => `<img src="${i.data}" class="xl-img sm">`).join('')}` : '';
+    td(chk('header', hfPrev(I.header))); td(chk('footer', hfPrev(I.footer)));
+    const fontCell = k => { const c = document.createElement('div'); c.className = 'xl-pair'; if (!I.font) { c.innerHTML = '<span class="muted">—</span>'; return c; } const i = inp(I.font[k], v => { I.font[k] = v.trim(); modelFontKey(v.trim()); }); i.setAttribute('list', 'xl-fonts'); c.append(i); return c; };
+    td(fontCell('body')); td(fontCell('title'));
+    const num = (o, k, step) => { if (!o) return '<span class="muted">—</span>'; const i = inp(o[k], v => { o[k] = +String(v).replace(',', '.') || o[k]; }, 'number'); i.step = step || '0.5'; return i; };
+    td(num(I.sizes, 'body')); td(num(I.sizes, 'title')); td(num(I.spacing, 'line', '0.05'));
+    td(I.colors ? inp(I.colors.title, v => { I.colors.title = v; I.colors.h2 = v; }, 'color') : '<span class="muted">—</span>');
+    td(I.margins ? inp(`${I.margins.top} / ${I.margins.right} / ${I.margins.bottom} / ${I.margins.left}`, v => { const p = v.split(/[\/;]+/).map(x => +x.trim().replace(',', '.')); if (p.length === 4 && p.every(x => x >= 0)) [I.margins.top, I.margins.right, I.margins.bottom, I.margins.left] = p; else toast('Escribe 4 números: arriba / derecha / abajo / izquierda.'); }) : '<span class="muted">—</span>');
+    const selc = (o, k, opts) => { if (!o) return '<span class="muted">—</span>'; const s = document.createElement('select'); opts.forEach(v => { const op = document.createElement('option'); op.value = op.textContent = v; s.appendChild(op); }); if (!opts.includes(o[k])) { const op = document.createElement('option'); op.value = op.textContent = o[k]; s.prepend(op); } s.value = o[k]; s.onchange = () => { o[k] = s.value; save(); }; return s; };
+    const pc = document.createElement('div'); pc.className = 'xl-pair'; if (I.page) { pc.append(selc(I.page, 'size', ['A4', 'Carta', 'Oficio']), selc(I.page, 'orient', ['vertical', 'horizontal'])); } td(pc);
+    td(selc(I.align, 'val', ['izquierda', 'justificado', 'centrado', 'derecha']));
+    const acts = document.createElement('div'); acts.className = 'xl-acts';
+    acts.append(mkBtn('Duplicar', () => { const c2 = JSON.parse(JSON.stringify(m)); c2.id = uid('m'); c2.name = m.name + ' (copia)'; c2.mod = Date.now(); lib.models.push(c2); saveLibrary(); renderLibrary(); }), mkBtn('🗑', async () => { if (await confirmBox(`¿Eliminar el modelo «${m.name}»?`, 'Eliminar')) { m.trashed = Date.now(); m.mod = Date.now(); if (prefs.formalModel === m.id) { prefs.formalModel = ''; savePrefs(); } saveLibrary(); renderLibrary(); } }, 'danger'));
+    td(acts); tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t); main.appendChild(wrap);
+  if (!$('xl-fonts')) { const dl = document.createElement('datalist'); dl.id = 'xl-fonts'; Object.keys(FONT_EQ).forEach(k => { const o = document.createElement('option'); o.value = k.replace(/\b\w/g, c => c.toUpperCase()); dl.appendChild(o); }); document.body.appendChild(dl); }
+}
+/* --- versión formal con modelo --- */
+function fmModels() {
+  const s = $('fm-model'), list = (lib.models || []).filter(m => !m.trashed);
+  s.innerHTML = '<option value="">Estándar de la pizarra</option>' + list.map(m => `<option value="${m.id}">${escH(m.name)}</option>`).join('');
+  s.value = list.some(m => m.id === prefs.formalModel) ? prefs.formalModel : '';
+  fmModelInfo();
+}
+function fmModelInfo() {
+  const m = (lib.models || []).find(x => x.id === $('fm-model').value), box = $('fm-model-info');
+  if (!m) { box.innerHTML = ''; $('fm-font').disabled = false; return; }
+  const on = MODEL_ITEMS.filter(([k]) => m.items[k] && m.items[k].on).map(([, ic, l]) => `${ic} ${l}`);
+  box.innerHTML = `<b>Se tomará del modelo:</b> ${on.join(' · ') || 'nada (todo desmarcado)'}`;
+  $('fm-font').disabled = !!(m.items.font && m.items.font.on);
+}
+$('fm-model').onchange = () => { prefs.formalModel = $('fm-model').value; savePrefs(); fmModelInfo(); };
+$('fm-upload').onclick = () => { $('formalm').hidden = true; modelUpload((M, use) => { $('formalm').hidden = false; fmModels(); $('fm-model').value = M.id; fmModelInfo(); if (use) $('fm-go').click(); }); };
+$('fm-manage').onclick = () => { $('formalm').hidden = true; closeNotebook ? showLibrary().then(() => setView('models')) : setView('models'); };
+const _formalOpen = formalOpen;
+formalOpen = async function () { await _formalOpen(); fmModels(); };
+$('formal-btn').onclick = formalOpen;
+/* aplicar el modelo sobre las hojas ya transformadas */
+function applyModel(pages, M, src, opt) {
+  const I = M.items, on = k => I[k] && I[k].on;
+  const fb = on('font') ? modelFontKey(I.font.body) : null, ft = on('font') ? modelFontKey(I.font.title, 't') && modelFontKey(I.font.title) : null;
+  const images = {};
+  pages.forEach((p, pi) => {
+    if (on('page')) { const port = I.page.orient !== 'horizontal'; const ratio = I.page.size === 'Carta' ? 279.4 / 215.9 : I.page.size === 'Oficio' ? 330 / 216 : I.page.hpt && I.page.wpt ? Math.max(I.page.hpt, I.page.wpt) / Math.min(I.page.hpt, I.page.wpt) : 297 / 210; if ((p.H >= p.W) === port) { const Wn = port ? 840 : 1188, Hn = Math.round(port ? Wn * ratio : Wn / ratio); const f = Math.min(Wn / p.W, Hn / p.H); if (Math.abs(f - 1) > .01) p.objs.forEach(o => scaleAll(o, f)); p.W = Wn; p.H = Hn; p.pt = port ? [I.page.size === 'Carta' ? 612 : 595.28, (I.page.size === 'Carta' ? 612 : 595.28) * ratio] : [(I.page.size === 'Carta' ? 612 : 595.28) * ratio, I.page.size === 'Carta' ? 612 : 595.28]; p.fmt = port ? 'a4p' : 'a4l'; } }
+    const k = p.W / ((p.pt && p.pt[0]) || (p.W > p.H ? 841.89 : 595.28));
+    const texts = p.objs.filter(o => o.t === 'text' && !o.hf);
+    texts.forEach(o => {
+      const isT = o.c === NAVY || o.c === NAVY2;
+      if (fb) o.f = isT && ft ? ft : fb;
+      if (on('sizes')) o.size = Math.round((isT ? (o.c === NAVY ? I.sizes.title : I.sizes.h2) : I.sizes.body) * k * 10) / 10;
+      if (on('colors') && isT) o.c = o.c === NAVY ? I.colors.title : (I.colors.h2 || I.colors.title);
+    });
+    if (on('colors')) p.objs.forEach(o => { if (o.t === 'rect' && (o.c === NAVY || o.c === NAVY2)) o.c = o.c === NAVY ? I.colors.title : (I.colors.h2 || I.colors.title); });
+    texts.forEach(o => {
+      const isT = o.size > (on('sizes') ? I.sizes.body * k * 1.1 : 18);
+      if (on('spacing') && !isT) o.lh = clamp(1.17 * (I.spacing.line || 1.15), 1, 3);
+    });
+    p.objs.filter(o => o.t === 'note' || o.t === 'node').forEach(o => { if (fb) o.f = fb; });
+    /* re-acomodar hacia abajo si el nuevo interlineado o tamaño hace chocar los textos */
+    const order = p.objs.filter(o => !o.hf && o.t !== 'conn').map(o => ({ o, b: bbox(o) })).sort((a, b) => a.b[1] - b.b[1]);
+    let push = 0, lastBottom = -1e9;
+    order.forEach(({ o, b }) => { if (push) moveObj(o, JSON.parse(JSON.stringify(o)), 0, push); const nb2 = bbox(o); if (nb2[1] < lastBottom + 6 && o.t === 'text') { const d = lastBottom + 6 - nb2[1]; moveObj(o, JSON.parse(JSON.stringify(o)), 0, d); push += d; } lastBottom = Math.max(lastBottom, bbox(o)[3]); });
+    /* márgenes: el contenido entra en la caja del modelo */
+    if (on('margins') && !p.coverPage) {
+      const mg = I.margins, L = mg.left * 28.35 * k, R = mg.right * 28.35 * k, T = mg.top * 28.35 * k, B = mg.bottom * 28.35 * k;
+      const content = p.objs.filter(o => !o.hf && o.t !== 'conn'); if (content.length) {
+        const bx = content.map(o => bbox(o)).reduce((a, b) => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])]);
+        const aw = p.W - L - R, ah = p.H - T - B, f = Math.min(1, aw / Math.max(1, bx[2] - bx[0]), ah / Math.max(1, bx[3] - bx[1]));
+        if (f < .999) content.forEach(o => scaleAll(o, f));
+        const bx2 = content.map(o => bbox(o)).reduce((a, b) => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])]);
+        const dx = bx2[0] < L ? L - bx2[0] : bx2[2] > p.W - R ? (p.W - R) - bx2[2] : 0, dy = bx2[1] < T ? T - bx2[1] : bx2[3] > p.H - B ? Math.max(T - bx2[1], (p.H - B) - bx2[3]) : 0;
+        if (dx || dy) content.forEach(o => moveObj(o, JSON.parse(JSON.stringify(o)), dx, dy));
+      }
+    }
+    /* membrete y pie de página del modelo (reemplazan los de la pizarra) */
+    const putHF = (it, top) => {
+      p.objs = p.objs.filter(o => !(o.hf && o.hf === (top ? 'h' : 'f')));
+      const zoneH = (top ? (on('margins') ? I.margins.top : 2) : (on('margins') ? I.margins.bottom : 2)) * 28.35 * k;
+      if (it.band) {
+        const id = newImgId(); images[id] = it.band.data; const w = p.W, h = Math.min(zoneH * .95, it.band.h * (w / it.band.w));
+        const hh = it.band.h * (w / it.band.w), ww = hh > zoneH * .95 ? it.band.w * (zoneH * .95 / it.band.h) : w;
+        p.objs.unshift({ t: 'img', id, x: (p.W - ww) / 2, y: top ? 0 : p.H - Math.min(hh, zoneH * .95), w: ww, h: Math.min(hh, zoneH * .95), hf: top ? 'h' : 'f' });
+        void h;
+      } else {
+        let y = top ? Math.max(10, zoneH * .25) : p.H - zoneH * .75;
+        (it.imgs || []).forEach(im => { const id = newImgId(); images[id] = im.data; const h = Math.min(im.hcm * 28.35 * k, zoneH * .7), w = h * (im.wcm / Math.max(.1, im.hcm)), x = im.align === 'center' ? (p.W - w) / 2 : im.align === 'right' ? p.W - (on('margins') ? I.margins.right * 28.35 * k : 60) - w : (on('margins') ? I.margins.left * 28.35 * k : 60); p.objs.unshift({ t: 'img', id, x, y: top ? Math.max(6, (zoneH - h) / 2) : p.H - zoneH + (zoneH - h) / 2, w, h, hf: top ? 'h' : 'f' }); });
+        (it.lines || []).forEach(l => {
+          const f = fb || prefs.formalFont || 'lora', size = l.size * k * .95; setFont(mctx, size, f); const tw = mctx.measureText(l.t).width;
+          const lm = on('margins') ? I.margins.left * 28.35 * k : 60, rm = on('margins') ? I.margins.right * 28.35 * k : 60;
+          const x = l.align === 'center' ? (p.W - tw) / 2 : l.align === 'right' ? p.W - rm - tw : lm;
+          p.objs.push({ t: 'text', x, y, text: l.t, c: l.col || GRAY, size, f, hf: top ? 'h' : 'f' }); y += size * 1.3;
+        });
+      }
+      if (!top && it.page) { const f = fb || 'lora', s = 10 * k, txt = it.page === 'nm' ? `Página ${pi + 1} de ${pages.length}` : `${pi + 1}`; setFont(mctx, s, f); const tw = mctx.measureText(txt).width; p.objs.push({ t: 'text', x: p.W - (on('margins') ? I.margins.right * 28.35 * k : 60) - tw, y: p.H - zoneH * .45, text: txt, c: GRAY, size: s, f, hf: 'f' }); }
+    };
+    if (!(opt.cover && pi === 0)) { if (on('header')) putHF(I.header, true); if (on('footer')) putHF(I.footer, false); }
+  });
+  return images;
+}
+/* versión formal: misma lógica de antes + modelo elegido */
+const _fmGo = $('fm-go').onclick;
+$('fm-go').onclick = async () => {
+  const M = (lib.models || []).find(x => x.id === $('fm-model').value && !x.trashed);
+  if (!M) return _fmGo();
+  const ffModel = M.items.font && M.items.font.on ? modelFontKey(M.items.font.body) : null;
+  if (ffModel) $('fm-font').value = $('fm-font').value;
+  const keepHF = $('fm-hf').checked; if (M.items.header && M.items.header.on || M.items.footer && M.items.footer.on) $('fm-hf').checked = false;
+  const cover = $('fm-cover').checked;
+  await _fmGo();
+  $('fm-hf').checked = keepHF;
+  if (!curNb || !curNb.formalOf) return;
+  const imgs = applyModel(doc.pages, M, lib.nbs.find(n => n.id === curNb.formalOf), { cover });
+  Object.assign(doc.images, imgs);
+  if (keepHF && !(M.items.footer && M.items.footer.on && M.items.footer.page)) doc.pages.forEach((p, k) => { if (cover && k === 0) return; const f = ffModel || 'lora', pn = `Página ${k + 1} de ${doc.pages.length}`; setFont(mctx, 10 * p.W / 595.28, f); p.objs.push({ t: 'text', x: p.W - 40 - mctx.measureText(pn).width, y: p.H - 26, text: pn, c: GRAY, size: 10 * p.W / 595.28, f, hf: 'f' }); });
+  if (ffModel) doc.fontOverride = ffModel;
+  curNb.title = curNb.title.replace(/ · versión formal$/, ` · formato «${M.name}»`); curNb.model = M.id; curNb.mod = Date.now(); saveLibrary();
+  applyPage(pg()); invalidate(); await saveNow(); requestPaint();
+  toast(`Listo: versión formal con el formato de «${M.name}». Tu cuaderno original no cambió.`, 7000);
+};
+modelsInit();
 
 init();
 
